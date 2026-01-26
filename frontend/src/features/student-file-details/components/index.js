@@ -1,0 +1,10 @@
+export { default as StudentDetailHeader } from './StudentDetailHeader';
+export { default as PersonalInfoCard } from './PersonalInfoCard';
+export { default as ProgramsCard } from './ProgramsCard';
+export { default as StudentDetailLoading } from './StudentDetailLoading';
+export { default as StudentTabs } from './StudentTabs';
+export { default as EmptyState } from './EmptyState';
+export * from './paec-modals';
+export * from './salud-modals';
+export * from './convivencia-modals';
+export * from './paec-sections';

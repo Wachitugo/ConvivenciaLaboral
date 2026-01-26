@@ -1,0 +1,1 @@
+export { useSchoolDetailSection } from './useSchoolDetailSection';

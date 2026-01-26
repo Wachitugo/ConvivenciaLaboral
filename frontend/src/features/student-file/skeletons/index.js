@@ -1,0 +1,11 @@
+export { default as StudentCardSkeleton } from './StudentCardSkeleton';
+export { default as StudentCardsSkeleton } from './StudentCardsSkeleton';
+export { default as StudentHeaderSkeleton } from './StudentHeaderSkeleton';
+export { default as StudentToolbarSkeleton } from './StudentToolbarSkeleton';
+export { default as FichaAlumnosPageSkeleton } from './FichaAlumnosPageSkeleton';
+export { default as PaecTabSkeleton } from './PaecTabSkeleton';
+export { default as SaludFamiliaTabSkeleton } from './SaludFamiliaTabSkeleton';
+export { default as ConvivenciaTabSkeleton } from './ConvivenciaTabSkeleton';
+export { default as StudentDetailHeaderSkeleton } from './StudentDetailHeaderSkeleton';
+export { default as StudentTabsSkeleton } from './StudentTabsSkeleton';
+export { default as StudentDetailPageSkeleton } from './StudentDetailPageSkeleton';

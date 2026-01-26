@@ -1,0 +1,69 @@
+# .gitignore para proyecto FastAPI (Python)
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Variables de entorno
+.env
+.env.*          # .env.local, .env.test, etc.
+
+# Compiled Python files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribución / build
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Tests / caches / coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Mypy, ruff, pip cache
+.mypy_cache/
+.ruff_cache/
+.cache/
+*.pyc
+# SQLite / DB local files
+*.sqlite3
+*.db
+
+# Logs and temporary files
+*.log
+logs/*
+!logs/.gitkeep
+tmp/
+temp/
+
+# IDEs / editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+.env.docker
+
+# Node (si hay frontend en el repo)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Otros
+coverage/
+*.bak
+*.swp

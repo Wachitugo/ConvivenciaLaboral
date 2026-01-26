@@ -1,0 +1,13 @@
+// Exportar todos los componentes del chat general
+export { default as ChatContainer } from './ChatContainer';
+export { default as FileAttachment } from './FileAttachment';
+export { default as FilePreviewPanel } from './FilePreviewPanel';
+export { default as FileListPanel } from './FileListPanel';
+export { default as CaseListPanel } from './CaseListPanel';
+export { default as MessageBubble } from './MessageBubble';
+export { default as SuggestionCards } from './SuggestionCards';
+export { default as WelcomeMessage } from './WelcomeMessage';
+export { default as SuggestionCardsSkeleton } from './skeletons/SuggestionCardsSkeleton';
+export { default as ThinkingIndicator } from './ThinkingIndicator';
+export { default as ChatSkeleton } from './skeletons/ChatSkeleton';
+export { default as GeneratingCaseModal } from './GeneratingCaseModal';
