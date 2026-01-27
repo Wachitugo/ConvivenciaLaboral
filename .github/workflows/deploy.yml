@@ -4,12 +4,13 @@ on:
   push:
     branches:
       - main
+      - test
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: us-central1 # Update if your region is different
-  BACKEND_IMAGE: convivencia-backend
-  FRONTEND_IMAGE: convivencia-frontend
+  BACKEND_IMAGE: convivencia-laboral-backend
+  FRONTEND_IMAGE: convivencia-laboral-frontend
 
 jobs:
   build-and-push:
