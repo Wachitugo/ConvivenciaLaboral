@@ -373,16 +373,16 @@ INSTRUCCIONES IMPORTANTES:
                     recent_history += f"{role}: {msg.content}\n"
 
             prompt = """Analiza la conversación y determina si se han mencionado claramente los siguientes datos de los involucrados en el caso:
-            1. Nombres (al menos un nombre o iniciales claras)
-            2. Edades (o nivel de desarrollo implícito claro, como el curso)
-            3. Cursos o Grados escolares
+            1. Nombres completos o iniciales de los involucrados (Denunciante y Denunciado).
+            2. Cargos o áreas de trabajo (para determinar relación jerárquica).
+            3. Relación laboral (Jefe-Subordinado, Pares, etc).
 
-            NOTA: NO es necesario preguntar por diagnósticos TEA/NEE a menos que el caso específicamente lo requiera.
+            NOTA: NO es necesario preguntar por el contrato si no es relevante para el tipo de acoso.
 
             Responde SOLO con un JSON:
             {
                 "is_defined": boolean,
-                "missing_info": [lista de strings con lo que falta, ej: "nombres", "edades", "cursos"]
+                "missing_info": [lista de strings con lo que falta, ej: "nombres", "cargos", "relación"]
             }
             """
             
@@ -707,15 +707,17 @@ INSTRUCCIONES IMPORTANTES:
             
             # Use already-loaded context (no reload needed!)
             # Simple prompt to answer from context
-            system_prompt = f"""Eres CONI, asistente de convivencia escolar para {school_name}.
-Habla de forma cercana y natural, como un colega de confianza.
+            system_prompt = f"""Eres CONI, asistente de Prevención y Cumplimiento Normativo (Ley Karin) para {school_name}.
+Mantén un tono estrictamente profesional, objetivo y confidencial.
 
 CONTEXTO DEL CASO ACTIVO:
 {case_context['summary']}
 
-Responde usando la información del caso. Si algo no está disponible, dilo de forma simple.
-Evita lenguaje corporativo ("cabe destacar", "es importante mencionar", etc.)
-NO menciones IDs técnicos del sistema."""
+INSTRUCCIONES:
+1. Responde basándote exclusivamente en la información registrada en el caso.
+2. Si falta información relevante, indícalo con precisión utilizando términos técnicos adecuados.
+3. Evita especulaciones o juicios de valor.
+4. NO menciones IDs técnicos del sistema."""
 
             messages = [
                 SystemMessage(content=system_prompt),
@@ -1132,7 +1134,7 @@ NO menciones IDs técnicos del sistema."""
                 # FIX: Replaced obsolete self.chat() call with direct model streaming
                 
                 # Basic system prompt for general chat
-                system_prompt = f"Eres un asistente experto en Convivencia Escolar para el colegio {school_name}. Responde de manera profesional, empática y precisa."
+                system_prompt = f"Eres un asistente experto en Prevención y Ley Karin para la empresa {school_name}. Responde de manera profesional, empática y precisa."
                 
                 messages = [SystemMessage(content=system_prompt)]
                 
@@ -1216,15 +1218,15 @@ NO menciones IDs técnicos del sistema."""
                     role = "Usuario" if isinstance(msg, HumanMessage) else "Asistente"
                     recent_history += f"{role}: {msg.content}\n"
 
-            prompt = f"""Eres un asistente experto en Convivencia Escolar para el colegio {school_name}.
+            prompt = f"""Eres un asistente experto en Prevención y Ley Karin para la empresa {school_name}.
             Basado en la siguiente conversación y el ULTIMO mensaje del usuario, sugiere 3 preguntas cortas que el usuario podría hacerte a continuación.
 
             DIRECTRICES:
-            1. Las preguntas DEBEN estar relacionadas con: Protocolos (RICE, Aula Segura), Leyes (21.030, etc.), Gestión de Casos, Redacción de correos formales o Análisis de situaciones conflictivas/riesgo.
+            1. Las preguntas DEBEN estar relacionadas con: Ley Karin (21.643), Acoso Laboral, Sexual, Violencia, Procedimiento de Investigación o medidas de resguardo.
             2. EVITA preguntas genéricas de asistente personal como "¿Qué hora es?", "¿Cuál es mi horario?", "¿Tengo tareas?".
-            3. Si el usuario saluda, sugiere: "¿Cómo activo un protocolo?", "¿Qué dice el reglamento sobre bullying?", "¿Ayúdame a redactar un correo?".
-            4. **PRIORIDAD:** Si el usuario describe un conflicto entre estudiantes O un caso de desregulación y NO menciona si tienen diagnóstico, SUGIERE INMEDIATAMENTE: "¿El estudiante tiene diagnóstico TEA?".
-            5. Si hay un caso en curso, sugiere pasos lógicos siguientes del protocolo.
+            3. Si el usuario saluda, sugiere: "¿Cómo ingreso una denuncia?", "¿Qué es acoso laboral según la ley?", "¿Ayúdame a redactar una notificación?".
+            4. **PRIORIDAD:** Si el usuario describe un conflicto entre trabajadores, SUGIERE: "¿Deseas documentar esta denuncia?".
+            5. Si hay un caso en curso, sugiere pasos lógicos siguientes del protocolo de investigación.
 
             Historial reciente:
             {recent_history}
