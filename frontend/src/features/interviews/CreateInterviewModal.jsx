@@ -198,7 +198,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                         <div className="space-y-2">
                             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-2">
                                 <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center">1</span>
-                                Curso del Estudiante
+                                Área de trabajo del Estudiante
                             </label>
                             <select
                                 name="grade"
@@ -207,7 +207,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                                 autoFocus
                                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-300 focus:ring-0 outline-none bg-gray-50 text-sm font-medium text-gray-800 transition-all"
                             >
-                                <option value="">Seleccione un curso...</option>
+                                <option value="">Seleccione un área de trabajo...</option>
                                 <option value="1° Básico">1° Básico</option>
                                 <option value="2° Básico">2° Básico</option>
                                 <option value="3° Básico">3° Básico</option>
@@ -226,7 +226,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    {studentsInGrade.length} estudiantes en este curso
+                                    {studentsInGrade.length} estudiantes en esta área de trabajo
                                 </p>
                             )}
                         </div>
@@ -245,7 +245,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                                     value={formData.studentName}
                                     onChange={handleInputChange}
                                     onFocus={() => formData.grade && setShowSuggestions(true)}
-                                    placeholder={formData.grade ? "Click aquí o escribe para buscar..." : "Primero selecciona un curso"}
+                                    placeholder={formData.grade ? "Click aquí o escribe para buscar..." : "Primero selecciona un área de trabajo"}
                                     disabled={!formData.grade}
                                     autoComplete="off"
                                     className={`w-full px-4 py-3 rounded-xl border focus:ring-0 outline-none text-sm font-medium transition-all placeholder:text-gray-400 ${formData.grade
@@ -294,7 +294,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                             {/* Helper text */}
                             {formData.grade && (
                                 <p className="text-xs text-gray-400">
-                                    Escribe al menos 2 caracteres para buscar entre los {studentsInGrade.length} estudiantes del curso.
+                                    Escribe al menos 2 caracteres para buscar entre los {studentsInGrade.length} estudiantes del área de trabajo.
                                 </p>
                             )}
                         </div>

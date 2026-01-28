@@ -79,7 +79,7 @@ function PersonalInfoCard({ student, onUpdateStudent, canEdit = true, canEditPro
                         {/* Curso */}
                         <div className="bg-gray-100 p-2.5 sm:p-3 rounded-lg">
                             <p className="text-xs font-medium text-gray-500 uppercase mb-1 flex items-center gap-1">
-                                <GraduationCap size={10} className="text-blue-500" /> Curso
+                                <GraduationCap size={10} className="text-blue-500" /> Área de trabajo
                             </p>
                             {student.curso ? (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-700">

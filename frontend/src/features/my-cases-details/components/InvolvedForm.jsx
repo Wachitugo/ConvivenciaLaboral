@@ -143,7 +143,7 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
       <div className="space-y-1.5">
         <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-2">
           <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center">1</span>
-          Curso
+          Área de trabajo
         </label>
         <select
           name="grade"
@@ -152,7 +152,7 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
           autoFocus
           className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white"
         >
-          <option value="">Seleccione un curso...</option>
+          <option value="">Seleccione un área de trabajo...</option>
           {GRADE_OPTIONS.map((grade) => (
             <option key={grade} value={grade}>{grade}</option>
           ))}
@@ -162,7 +162,7 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
-            {studentsInGrade.length} estudiantes en este curso
+            {studentsInGrade.length} estudiantes en esta área de trabajo
           </p>
         )}
       </div>
@@ -181,12 +181,12 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
             value={formData.studentName}
             onChange={handleInputChange}
             onFocus={() => formData.grade && setShowSuggestions(true)}
-            placeholder={formData.grade ? "Click o escribe para buscar..." : "Primero selecciona un curso"}
+            placeholder={formData.grade ? "Click o escribe para buscar..." : "Primero selecciona un área de trabajo"}
             disabled={!formData.grade}
             autoComplete="off"
             className={`w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm transition-all ${formData.grade
-                ? 'border-gray-200 bg-white text-gray-800'
-                : 'border-gray-100 bg-gray-100 text-gray-400 cursor-not-allowed'
+              ? 'border-gray-200 bg-white text-gray-800'
+              : 'border-gray-100 bg-gray-100 text-gray-400 cursor-not-allowed'
               }`}
           />
           {selectedStudentId && (
@@ -246,8 +246,8 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
           onChange={handleInputChange}
           disabled={!selectedStudentId}
           className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${selectedStudentId
-              ? 'border-gray-200 bg-white text-gray-800'
-              : 'border-gray-100 bg-gray-100 text-gray-400 cursor-not-allowed'
+            ? 'border-gray-200 bg-white text-gray-800'
+            : 'border-gray-100 bg-gray-100 text-gray-400 cursor-not-allowed'
             }`}
         >
           <option value="">Seleccione un rol...</option>

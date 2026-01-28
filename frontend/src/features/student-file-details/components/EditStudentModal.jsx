@@ -130,7 +130,7 @@ function EditStudentModal({ isOpen, onClose, onSave, student, showApoderado = tr
                             {/* Curso */}
                             <div>
                                 <label className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase mb-1">
-                                    <GraduationCap size={12} /> Curso
+                                    <GraduationCap size={12} /> Área de trabajo
                                 </label>
                                 <select
                                     value={formData.curso}

@@ -114,9 +114,9 @@ export const exportInterviewToPDF = async (interviewData, schoolData = null) => 
             return lines.length * 4;
         };
 
-        // Row 1: Alumno y Curso
+        // Row 1: Alumno y Área de trabajo
         const height1 = addWrappedText('Alumno', interviewData.studentName || 'No especificado', col1X, yPosition);
-        const height2 = addWrappedText('Curso', interviewData.grade || interviewData.course || 'No especificado', col2X, yPosition);
+        const height2 = addWrappedText('Área de trabajo', interviewData.grade || interviewData.course || 'No especificado', col2X, yPosition);
         yPosition += Math.max(height1, height2) + 2;
 
         // Row 2: Entrevistador y Fecha

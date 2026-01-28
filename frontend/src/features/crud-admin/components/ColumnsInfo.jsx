@@ -33,7 +33,7 @@ export default function ColumnsInfo({ uploadType, onDownloadTemplate }) {
                         <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Opcionales</p>
                         <div className="flex flex-wrap gap-1.5">
                             <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium">Email</span>
-                            <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium">Curso</span>
+                            <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium">Área de trabajo</span>
                             <span className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-medium">TEA</span>
                             <span className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-medium">PIE</span>
                             <span className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-medium">PAEC</span>

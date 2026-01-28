@@ -303,7 +303,7 @@ export default function BulkUploadSection({ colegios, onRegistrarUsuario }) {
                                     <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Opcionales</p>
                                     <div className="flex flex-wrap gap-1.5">
                                         <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium border border-blue-200">Email</span>
-                                        <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium border border-blue-200">Curso</span>
+                                        <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium border border-blue-200">Área de trabajo</span>
                                         <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium border border-blue-200">Fecha Nacimiento</span>
                                         <span className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-md text-xs font-medium border border-purple-200">TEA</span>
                                         <span className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-md text-xs font-medium border border-purple-200">PIE</span>

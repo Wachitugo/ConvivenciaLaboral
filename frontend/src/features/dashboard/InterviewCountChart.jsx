@@ -76,7 +76,7 @@ export default function InterviewCountChart({ data }) {
                     </div>
                     <div>
                         <h4 className="text-base font-bold text-gray-800 leading-tight">
-                            Entrevistas por Curso
+                            Entrevistas por Área de trabajo
                         </h4>
                         <span className="text-xs text-gray-500 font-medium">
                             Análisis por nivel

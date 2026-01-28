@@ -68,7 +68,7 @@ export default function IndividualForm({ uploadType, form, isProcessing, onUpdat
                         </div>
                         <div>
                             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                                Curso
+                                Área de trabajo
                             </label>
                             <select
                                 value={form.curso}

@@ -73,12 +73,12 @@ const AgentChat = () => {
 
         const userMessage = inputMessage.trim();
         setInputMessage('');
-        
+
         // Agregar mensaje del usuario
         addMessage('user', userMessage);
-        
+
         setIsLoading(true);
-        
+
         try {
             const response = await agentService.sendMessage(userMessage);
             addMessage('agent', response.response);
@@ -100,7 +100,7 @@ const AgentChat = () => {
 
         try {
             const analysis = await agentService.analyzeCase(caseData);
-            
+
             // Formatear respuesta del análisis
             const analysisContent = `
 **Análisis de Caso - ID: ${analysis.case_id}**
@@ -128,7 +128,7 @@ ${analysis.resources_needed.map(resource => `• ${resource}`).join('\n')}
 
             addMessage('agent', analysisContent, analysis);
             setShowCaseAnalysis(false);
-            
+
         } catch (error) {
             addMessage('agent', `Error en el análisis: ${error.message}`);
         } finally {
@@ -142,7 +142,7 @@ ${analysis.resources_needed.map(resource => `• ${resource}`).join('\n')}
 
         try {
             const consultation = await agentService.quickConsultation(caseType, description);
-            
+
             const consultationContent = `
 **Consulta Rápida - ${caseType.toUpperCase()}**
 
@@ -177,7 +177,7 @@ ${consultation.suggestions.map((suggestion, index) => `${index + 1}. ${suggestio
     const updateStudent = (index, field, value) => {
         setCaseData(prev => ({
             ...prev,
-            students: prev.students.map((student, i) => 
+            students: prev.students.map((student, i) =>
                 i === index ? { ...student, [field]: value } : student
             )
         }));
@@ -201,9 +201,8 @@ ${consultation.suggestions.map((suggestion, index) => `${index + 1}. ${suggestio
                     </div>
                     <div className="flex items-center space-x-4">
                         <div className={`flex items-center space-x-2`}>
-                            <div className={`w-3 h-3 rounded-full ${
-                                agentStatus?.status === 'online' ? 'bg-green-500' : 'bg-red-500'
-                            }`}></div>
+                            <div className={`w-3 h-3 rounded-full ${agentStatus?.status === 'online' ? 'bg-green-500' : 'bg-red-500'
+                                }`}></div>
                             <span className="text-sm text-gray-600">
                                 {agentStatus?.status || 'Desconectado'}
                             </span>
@@ -222,7 +221,7 @@ ${consultation.suggestions.map((suggestion, index) => `${index + 1}. ${suggestio
             {showCaseAnalysis && (
                 <div className="bg-white rounded-lg shadow-md p-6 mb-4">
                     <h2 className="text-xl font-semibold mb-4">Análisis de Caso</h2>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -240,7 +239,7 @@ ${consultation.suggestions.map((suggestion, index) => `${index + 1}. ${suggestio
                                 ))}
                             </select>
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Gravedad
@@ -285,7 +284,7 @@ ${consultation.suggestions.map((suggestion, index) => `${index + 1}. ${suggestio
                                 Agregar Estudiante
                             </button>
                         </div>
-                        
+
                         {caseData.students.map((student, index) => (
                             <div key={index} className="flex space-x-2 mb-2">
                                 <input
@@ -297,7 +296,7 @@ ${consultation.suggestions.map((suggestion, index) => `${index + 1}. ${suggestio
                                 />
                                 <input
                                     type="text"
-                                    placeholder="Curso"
+                                    placeholder="Área de trabajo"
                                     value={student.grade}
                                     onChange={(e) => updateStudent(index, 'grade', e.target.value)}
                                     className="w-20 border border-gray-300 rounded px-2 py-1"
@@ -343,11 +342,10 @@ ${consultation.suggestions.map((suggestion, index) => `${index + 1}. ${suggestio
                             className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                         >
                             <div
-                                className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                                    message.type === 'user'
+                                className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${message.type === 'user'
                                         ? 'bg-blue-600 text-white'
                                         : 'bg-gray-200 text-gray-800'
-                                }`}
+                                    }`}
                             >
                                 <div className="whitespace-pre-wrap">{message.content}</div>
                                 <div className="text-xs opacity-75 mt-1">
@@ -361,8 +359,8 @@ ${consultation.suggestions.map((suggestion, index) => `${index + 1}. ${suggestio
                             <div className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg">
                                 <div className="flex space-x-1">
                                     <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"></div>
-                                    <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                                    <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                                    <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                    <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                                 </div>
                             </div>
                         </div>

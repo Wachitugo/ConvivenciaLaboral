@@ -67,7 +67,7 @@ const normalizeStudentData = (row, index) => {
   const apellidos = row['Apellidos'] || row['apellidos'] || row['Apellido'] || row['apellido'] || '';
   const rut = row['RUT'] || row['rut'] || row['Rut'] || '';
   const email = row['Email'] || row['email'] || row['Correo'] || row['correo'] || '';
-  const curso = row['Curso'] || row['curso'] || row['CURSO'] || '';
+  const curso = row['Área de trabajo'] || row['ÁREA DE TRABAJO'] || row['Area de trabajo'] || row['Curso'] || row['curso'] || row['CURSO'] || '';
   const fechaNacimiento = row['Fecha Nacimiento'] || row['Fecha_Nacimiento'] || row['fechaNacimiento'] || row['FechaNacimiento'] || row['Nacimiento'] || '';
   const tea = row['TEA'] || row['tea'] || '';
   const pie = row['PIE'] || row['pie'] || '';

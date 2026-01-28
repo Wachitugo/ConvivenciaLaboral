@@ -72,7 +72,7 @@ function InterviewToolbar({
                             value={filters.grade || 'all'}
                             onChange={onFilterChange}
                             options={[
-                                { value: 'all', label: 'Curso' },
+                                { value: 'all', label: 'Área de trabajo' },
                                 { value: '1° Básico', label: '1° Básico' },
                                 { value: '2° Básico', label: '2° Básico' },
                                 { value: '3° Básico', label: '3° Básico' },
