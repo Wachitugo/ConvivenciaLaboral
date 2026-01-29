@@ -27,7 +27,7 @@ function StudentHeader({ isSidebarOpen, toggleSidebar, textPrimary }) {
                     className={`hidden sm:block text-lg font-semibold ${textPrimary} truncate`}
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
-                    Ficha de Alumnos
+                    Ficha de Trabajadores
                 </h1>
 
                 {/* Spacer para centrar título en desktop */}

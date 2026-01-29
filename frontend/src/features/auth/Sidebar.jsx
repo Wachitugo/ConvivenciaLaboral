@@ -222,7 +222,7 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
           </>
         )}
 
-        {/* Ficha de Alumnos - Visible para todos los roles */}
+        {/* Ficha de Trabajadores - Visible para todos los roles */}
         <button
           onClick={() => {
             navigate(getPath('/ficha-alumnos'));
@@ -232,14 +232,14 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
             ? 'bg-blue-50 text-blue-700 shadow-sm'
             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
             }`}
-          title={!isOpen ? "Ficha de Alumnos" : ""}
+          title={!isOpen ? "Ficha de Trabajadores" : ""}
         >
           <span className={`${isActive('/ficha-alumnos') ? 'text-blue-600' : 'text-gray-500'}`}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 flex-shrink-0">
               <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
             </svg>
           </span>
-          {isOpen && <span className="whitespace-nowrap">Ficha de Alumnos</span>}
+          {isOpen && <span className="whitespace-nowrap">Ficha de Trabajadores</span>}
         </button>
 
         {/* Separador - solo si no es Docente */}

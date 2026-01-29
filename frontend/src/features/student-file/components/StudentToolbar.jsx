@@ -20,7 +20,7 @@ function StudentToolbar({ filters, onFilterChange, totalStudents, filteredCount 
                         </>
                     ) : (
                         <>
-                            <span className="font-semibold">{totalStudents}</span> alumno{totalStudents !== 1 ? 's' : ''}
+                            <span className="font-semibold">{totalStudents}</span> trabajador{totalStudents !== 1 ? 'es' : ''}
                         </>
                     )}
                 </div>

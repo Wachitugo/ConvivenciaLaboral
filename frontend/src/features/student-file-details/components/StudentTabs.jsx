@@ -4,10 +4,9 @@ import { FileText, Users, Heart, ClipboardList, FileWarning, BookOpen } from 'lu
 const StudentTabs = ({ activeTab, setActiveTab, canViewConvivencia = true }) => {
     const allTabs = [
         { id: 'salud', label: 'Salud', icon: Heart, requiresConvivencia: false },
-        { id: 'bitacora', label: 'Bitacora', icon: BookOpen, requiresConvivencia: false },
-        { id: 'convivencia', label: 'Convivencia', icon: Users, requiresConvivencia: true },
-        { id: 'compromisos', label: 'Compromisos', icon: FileWarning, requiresConvivencia: false },
-        { id: 'paec', label: 'Ficha PAEC', icon: ClipboardList, requiresConvivencia: false }
+        { id: 'bitacora', label: 'Bitácora', icon: BookOpen, requiresConvivencia: false },
+        { id: 'convivencia', label: 'Convivencia Laboral', icon: Users, requiresConvivencia: true },
+        { id: 'compromisos', label: 'Compromisos', icon: FileWarning, requiresConvivencia: false }
     ];
 
     // Filtrar tabs según permisos

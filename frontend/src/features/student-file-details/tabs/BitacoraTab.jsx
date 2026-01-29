@@ -245,7 +245,7 @@ function BitacoraTab({ student, canEdit = true }) {
                 <div>
                     <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
                         <BookOpen size={18} className="text-blue-600 flex-shrink-0 sm:w-5 sm:h-5" />
-                        Bitacora del Estudiante
+                        Bitácora del Trabajador
                     </h3>
                     <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
                         Registro cronologico de observaciones y eventos

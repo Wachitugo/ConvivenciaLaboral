@@ -76,25 +76,35 @@ export default function IndividualForm({ uploadType, form, isProcessing, onUpdat
                                 className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
                                 disabled={isProcessing}
                             >
-                                <option value="">Seleccionar curso</option>
-                                <optgroup label="Educación Básica">
-                                    <option value="1° Básico">1° Básico</option>
-                                    <option value="2° Básico">2° Básico</option>
-                                    <option value="3° Básico">3° Básico</option>
-                                    <option value="4° Básico">4° Básico</option>
-                                    <option value="5° Básico">5° Básico</option>
-                                    <option value="6° Básico">6° Básico</option>
-                                    <option value="7° Básico">7° Básico</option>
-                                    <option value="8° Básico">8° Básico</option>
-                                </optgroup>
-                                <optgroup label="Educación Media">
-                                    <option value="1° Medio">1° Medio</option>
-                                    <option value="2° Medio">2° Medio</option>
-                                    <option value="3° Medio">3° Medio</option>
-                                    <option value="4° Medio">4° Medio</option>
-                                </optgroup>
+                                <option value="">Seleccionar área</option>
+                                <option value="Administración">Administración</option>
+                                <option value="Operaciones">Operaciones</option>
+                                <option value="Recursos Humanos">Recursos Humanos</option>
+                                <option value="Finanzas">Finanzas</option>
+                                <option value="Tecnología">Tecnología</option>
+                                <option value="Ventas">Ventas</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Producción">Producción</option>
+                                <option value="Logística">Logística</option>
+                                <option value="Atención al Cliente">Atención al Cliente</option>
                             </select>
                         </div>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                            Género
+                        </label>
+                        <select
+                            value={form.genero || ''}
+                            onChange={(e) => onUpdateField('genero', e.target.value)}
+                            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+                            disabled={isProcessing}
+                        >
+                            <option value="">Seleccionar género</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Femenino">Femenino</option>
+                            <option value="Otro">Otro</option>
+                        </select>
                     </div>
                 </>
             ) : (
@@ -137,7 +147,7 @@ export default function IndividualForm({ uploadType, form, isProcessing, onUpdat
                 <User size={16} className="text-blue-600 flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-blue-800 leading-relaxed">
                     {uploadType === 'alumnos'
-                        ? 'El alumno será asociado automáticamente a este colegio.'
+                        ? 'El trabajador será asociado automáticamente a esta empresa.'
                         : 'El usuario tendrá contraseña temporal "temporal123". Debe cambiarla en el primer inicio de sesión.'}
                 </p>
             </div>

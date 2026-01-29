@@ -28,10 +28,8 @@ function StudentCards({ students }) {
 
   return (
     <div className="flex-1 overflow-auto custom-scrollbar bg-white rounded-lg">
-      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-2">
         {students.map((student) => {
-          const hasPrograms = student.es_pie || student.es_tea || student.es_paec;
-
           return (
             <div
               key={student.id}
@@ -58,15 +56,8 @@ function StudentCards({ students }) {
                 </div>
               </div>
 
-              {/* Indicadores y flecha */}
+              {/* Flecha */}
               <div className="flex items-center gap-1.5 flex-shrink-0">
-                {hasPrograms && (
-                  <div className="flex -space-x-1">
-                    {student.es_pie && <div className="w-2 h-2 rounded-full bg-blue-400 ring-1 ring-white" title="PIE"></div>}
-                    {student.es_tea && <div className="w-2 h-2 rounded-full bg-purple-400 ring-1 ring-white" title="TEA"></div>}
-                    {student.es_paec && <div className="w-2 h-2 rounded-full bg-amber-400 ring-1 ring-white" title="PAEC"></div>}
-                  </div>
-                )}
                 <svg className="w-4 h-4 text-gray-300 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>

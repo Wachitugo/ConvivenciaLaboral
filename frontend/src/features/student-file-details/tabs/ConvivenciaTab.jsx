@@ -57,10 +57,10 @@ function ConvivenciaTab({ student, canEdit = true }) {
                 <div>
                     <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
                         <Shield size={18} className="text-blue-600 flex-shrink-0 sm:w-5 sm:h-5" />
-                        Convivencia Escolar
+                        Convivencia Laboral
                     </h3>
                     <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-                        Casos y entrevistas asociados al estudiante
+                        Casos y entrevistas asociados al trabajador
                     </p>
                 </div>
             </div>

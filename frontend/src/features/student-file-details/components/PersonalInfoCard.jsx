@@ -3,27 +3,12 @@ import { User, Mail, CreditCard, GraduationCap, Edit, Camera, Cake, Phone } from
 import { calcularEdad, getInitials, parseLocalDate } from '../utils';
 import EditStudentModal from './EditStudentModal';
 
-function PersonalInfoCard({ student, onUpdateStudent, canEdit = true, canEditPrograms = true }) {
+function PersonalInfoCard({ student, onUpdateStudent, canEdit = true }) {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [programs, setPrograms] = useState({
-        tea: student.tea || false,
-        pie: student.pie || false,
-        paec: student.paec || false
-    });
 
-    // Handle both snake_case (API) and camelCase (legacy/frontend-only) keys
     const fechaNacimiento = student.fecha_nacimiento || student.fechaNacimiento;
     const edad = calcularEdad(fechaNacimiento);
     const initials = getInitials(student.nombres, student.apellidos);
-    const apoderadoNombre = student.apoderado_nombre || student.nombreApoderado;
-    const apoderadoTelefono = student.apoderado_telefono || student.telefonoApoderado;
-
-    const handleToggleProgram = (program) => {
-        if (!canEditPrograms) return;
-        const newPrograms = { ...programs, [program]: !programs[program] };
-        setPrograms(newPrograms);
-        if (onUpdateStudent) onUpdateStudent({ ...student, ...newPrograms });
-    };
 
     const handleSaveStudent = (updatedStudent) => {
         if (onUpdateStudent) {
@@ -41,8 +26,8 @@ function PersonalInfoCard({ student, onUpdateStudent, canEdit = true, canEditPro
                         <span className="truncate">Información Personal</span>
                     </h3>
                     <p className="text-xs sm:text-sm text-gray-500 mt-0.5 truncate">
-                        <span className="hidden sm:inline">Datos del estudiante y contacto de apoderado</span>
-                        <span className="sm:hidden">Datos y contacto</span>
+                        <span className="hidden sm:inline">Datos del trabajador</span>
+                        <span className="sm:hidden">Datos personales</span>
                     </p>
                 </div>
                 {canEdit && (
@@ -140,46 +125,6 @@ function PersonalInfoCard({ student, onUpdateStudent, canEdit = true, canEditPro
                             )}
                         </div>
 
-                        {/* Apoderado */}
-                        <div className="bg-gray-100 p-2.5 sm:p-3 rounded-lg">
-                            <p className="text-xs font-medium text-gray-500 uppercase mb-1 flex items-center gap-1">
-                                <User size={10} className="text-blue-500" /> Apoderado
-                            </p>
-                            <p className="font-medium text-gray-900 text-sm truncate">{apoderadoNombre || 'No registrado'}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <hr className="border-gray-200 my-3 sm:my-4 -mx-3 sm:-mx-4" />
-
-
-                {/* Programas */}
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                    <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                        <p className="text-xs font-medium text-gray-500 uppercase">Programas:</p>
-
-                        {[
-                            { key: 'tea', label: 'TEA', active: programs.tea },
-                            { key: 'pie', label: 'PIE', active: programs.pie },
-                            { key: 'paec', label: 'PAEC', active: programs.paec }
-                        ].map(({ key, label, active }) => (
-                            <label key={key} className={`flex items-center gap-2 ${canEditPrograms ? 'cursor-pointer' : 'cursor-default'}`}>
-                                <div
-                                    onClick={() => canEditPrograms && handleToggleProgram(key)}
-                                    className={`w-8 h-4 rounded-full transition-colors flex items-center ${canEditPrograms ? 'cursor-pointer' : 'cursor-default opacity-60'} ${active ? 'bg-blue-500 justify-end' : 'bg-gray-300 justify-start'}`}
-                                >
-                                    <div className="w-3 h-3 bg-white rounded-full shadow-sm mx-0.5"></div>
-                                </div>
-                                <span className={`text-xs font-medium ${active ? 'text-blue-600' : 'text-gray-500'}`}>{label}</span>
-                            </label>
-                        ))}
-                    </div>
-
-                    <div className="sm:ml-auto flex items-center gap-1.5">
-                        <Phone size={12} className="text-blue-500" />
-                        <a href={`tel:${apoderadoTelefono}`} className="text-sm font-medium text-blue-600 hover:underline">
-                            {apoderadoTelefono || 'No registrado'}
-                        </a>
                     </div>
                 </div>
             </div>

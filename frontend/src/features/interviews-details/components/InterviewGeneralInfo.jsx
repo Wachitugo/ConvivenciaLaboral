@@ -80,8 +80,8 @@ function InterviewGeneralInfo({ interview, onUpdate }) {
                         <span className="truncate">Información General</span>
                     </h3>
                     <p className="text-xs sm:text-sm text-gray-500 mt-0.5 truncate">
-                        <span className="hidden sm:inline">Datos del estudiante y detalles de la entrevista</span>
-                        <span className="sm:hidden">Datos del estudiante</span>
+                        <span className="hidden sm:inline">Datos del trabajador y detalles de la entrevista</span>
+                        <span className="sm:hidden">Datos del trabajador</span>
                     </p>
                 </div>
                 {!isEditing ? (
@@ -120,7 +120,7 @@ function InterviewGeneralInfo({ interview, onUpdate }) {
                     // Modo edición
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <div className="bg-gray-50 p-3 rounded-lg">
-                            <label className="text-xs font-medium text-gray-500 uppercase mb-2 block">Nombre del Estudiante</label>
+                            <label className="text-xs font-medium text-gray-500 uppercase mb-2 block">Nombre del Trabajador</label>
                             <input
                                 type="text"
                                 name="studentName"
@@ -139,35 +139,29 @@ function InterviewGeneralInfo({ interview, onUpdate }) {
                                 className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
                                 disabled={isSaving}
                             >
-                                <option value="">Seleccione un curso...</option>
-                                <option value="1° Básico">1° Básico</option>
-                                <option value="2° Básico">2° Básico</option>
-                                <option value="3° Básico">3° Básico</option>
-                                <option value="4° Básico">4° Básico</option>
-                                <option value="5° Básico">5° Básico</option>
-                                <option value="6° Básico">6° Básico</option>
-                                <option value="7° Básico">7° Básico</option>
-                                <option value="8° Básico">8° Básico</option>
-                                <option value="1° Medio">1° Medio</option>
-                                <option value="2° Medio">2° Medio</option>
-                                <option value="3° Medio">3° Medio</option>
-                                <option value="4° Medio">4° Medio</option>
+                                <option value="">Seleccione un área...</option>
+                                <option value="Administración">Administración</option>
+                                <option value="Operaciones">Operaciones</option>
+                                <option value="Recursos Humanos">Recursos Humanos</option>
+                                <option value="Finanzas">Finanzas</option>
+                                <option value="Tecnología">Tecnología</option>
+                                <option value="Ventas">Ventas</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Producción">Producción</option>
+                                <option value="Logística">Logística</option>
+                                <option value="Atención al Cliente">Atención al Cliente</option>
                             </select>
                         </div>
                         <div className="bg-gray-50 p-3 rounded-lg">
-                            <label className="text-xs font-medium text-gray-500 uppercase mb-2 block">Género</label>
-                            <select
-                                name="gender"
-                                value={editedData.gender}
-                                onChange={handleInputChange}
-                                className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
-                                disabled={isSaving}
-                            >
-                                <option value="">Seleccione género...</option>
-                                <option value="Masculino">Masculino</option>
-                                <option value="Femenino">Femenino</option>
-                                <option value="Otro">Otro</option>
-                            </select>
+                            <label className="text-xs font-medium text-gray-500 uppercase mb-2 block">
+                                Género <span className="text-[10px] font-normal text-gray-400 normal-case ml-1">(No modificable)</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={editedData.gender || 'No registrado'}
+                                disabled
+                                className="w-full px-3 py-1.5 border border-gray-200 rounded-lg bg-gray-100 text-gray-500 text-sm cursor-not-allowed focus:outline-none"
+                            />
                         </div>
                         <div className="bg-gray-50 p-3 rounded-lg">
                             <span className="text-xs font-medium text-gray-500 uppercase mb-2 block">Fecha de Entrevista</span>
@@ -177,7 +171,7 @@ function InterviewGeneralInfo({ interview, onUpdate }) {
                 ) : (
                     // Modo visualización
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3">
-                        {/* Nombre del Estudiante */}
+                        {/* Nombre del Trabajador */}
                         <div className="bg-gray-50 p-2.5 sm:p-3 rounded-lg">
                             <p className="text-xs font-medium text-gray-500 uppercase mb-1 flex items-center gap-1">
                                 <svg className="w-3 h-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, Save, User, CreditCard, GraduationCap, Mail, Cake, Phone } from 'lucide-react';
 import BirthDatePicker from '../../../components/BirthDatePicker';
 
-function EditStudentModal({ isOpen, onClose, onSave, student, showApoderado = true }) {
+function EditStudentModal({ isOpen, onClose, onSave, student }) {
     const [formData, setFormData] = useState({
         nombres: '',
         apellidos: '',
@@ -11,9 +11,7 @@ function EditStudentModal({ isOpen, onClose, onSave, student, showApoderado = tr
         curso: '',
         genero: '',
         email: '',
-        fecha_nacimiento: '', // Changed to snake_case to match backend if possible, or keep consistent logic
-        apoderado_nombre: '',
-        apoderado_telefono: ''
+        fecha_nacimiento: ''
     });
 
     useEffect(() => {
@@ -37,10 +35,7 @@ function EditStudentModal({ isOpen, onClose, onSave, student, showApoderado = tr
                 // Safer to check both.
 
                 fecha_nacimiento: student.fechaNacimiento || student.fecha_nacimiento ?
-                    new Date(student.fechaNacimiento || student.fecha_nacimiento).toISOString().split('T')[0] : '',
-
-                apoderado_nombre: student.apoderado_nombre || student.nombreApoderado || '',
-                apoderado_telefono: student.apoderado_telefono || student.telefonoApoderado || ''
+                    new Date(student.fechaNacimiento || student.fecha_nacimiento).toISOString().split('T')[0] : ''
             });
         }
     }, [student, isOpen]);
@@ -58,9 +53,7 @@ function EditStudentModal({ isOpen, onClose, onSave, student, showApoderado = tr
             curso: formData.curso || null,
             genero: formData.genero || null,
             email: formData.email || null,
-            fecha_nacimiento: formData.fecha_nacimiento || null, // Ensure this matches backend expectation
-            apoderado_nombre: formData.apoderado_nombre || null,
-            apoderado_telefono: formData.apoderado_telefono || null
+            fecha_nacimiento: formData.fecha_nacimiento || null
         });
         onClose();
     };
@@ -77,7 +70,7 @@ function EditStudentModal({ isOpen, onClose, onSave, student, showApoderado = tr
                     <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                         <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
                             <User size={20} className="text-blue-600" />
-                            Editar Información Personal
+                            Editar Información del Trabajador
                         </h2>
                         <button
                             onClick={onClose}
@@ -137,23 +130,17 @@ function EditStudentModal({ isOpen, onClose, onSave, student, showApoderado = tr
                                     onChange={(e) => setFormData({ ...formData, curso: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
                                 >
-                                    <option value="">Seleccionar curso</option>
-                                    <optgroup label="Educación Básica">
-                                        <option value="1° Básico">1° Básico</option>
-                                        <option value="2° Básico">2° Básico</option>
-                                        <option value="3° Básico">3° Básico</option>
-                                        <option value="4° Básico">4° Básico</option>
-                                        <option value="5° Básico">5° Básico</option>
-                                        <option value="6° Básico">6° Básico</option>
-                                        <option value="7° Básico">7° Básico</option>
-                                        <option value="8° Básico">8° Básico</option>
-                                    </optgroup>
-                                    <optgroup label="Educación Media">
-                                        <option value="1° Medio">1° Medio</option>
-                                        <option value="2° Medio">2° Medio</option>
-                                        <option value="3° Medio">3° Medio</option>
-                                        <option value="4° Medio">4° Medio</option>
-                                    </optgroup>
+                                    <option value="">Seleccionar área</option>
+                                    <option value="Administración">Administración</option>
+                                    <option value="Operaciones">Operaciones</option>
+                                    <option value="Recursos Humanos">Recursos Humanos</option>
+                                    <option value="Finanzas">Finanzas</option>
+                                    <option value="Tecnología">Tecnología</option>
+                                    <option value="Ventas">Ventas</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="Producción">Producción</option>
+                                    <option value="Logística">Logística</option>
+                                    <option value="Atención al Cliente">Atención al Cliente</option>
                                 </select>
                             </div>
 
@@ -198,44 +185,6 @@ function EditStudentModal({ isOpen, onClose, onSave, student, showApoderado = tr
                                 />
                             </div>
                         </div>
-
-                        {showApoderado && (
-                            <>
-                                <hr className="my-6 border-gray-100" />
-
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div className="col-span-2">
-                                        <h3 className="text-sm font-semibold text-gray-800 mb-3">Información del Apoderado</h3>
-                                    </div>
-
-                                    {/* Nombre Apoderado */}
-                                    <div>
-                                        <label className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase mb-1">
-                                            <User size={12} /> Nombre Apoderado
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.apoderado_nombre}
-                                            onChange={(e) => setFormData({ ...formData, apoderado_nombre: e.target.value })}
-                                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                        />
-                                    </div>
-
-                                    {/* Teléfono Apoderado */}
-                                    <div>
-                                        <label className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase mb-1">
-                                            <Phone size={12} /> Teléfono
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.apoderado_telefono}
-                                            onChange={(e) => setFormData({ ...formData, apoderado_telefono: e.target.value })}
-                                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                        />
-                                    </div>
-                                </div>
-                            </>
-                        )}
 
                         <div className="mt-8 flex justify-end gap-3">
                             <button

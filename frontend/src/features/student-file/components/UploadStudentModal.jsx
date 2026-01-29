@@ -107,7 +107,7 @@ function UploadStudentModal({ isOpen, onClose }) {
                     {/* Header */}
                     <div className="px-6 py-5 border-b border-gray-100 bg-white flex justify-between items-center">
                         <div>
-                            <h2 className="text-lg font-semibold text-gray-800">Cargar Alumnos</h2>
+                            <h2 className="text-lg font-semibold text-gray-800">Cargar Trabajadores</h2>
                             <p className="text-xs text-gray-500 mt-0.5">Sube un archivo para actualizar la base de datos</p>
                         </div>
                         <button
@@ -226,20 +226,11 @@ function UploadStudentModal({ isOpen, onClose }) {
                                         <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium border border-blue-200">
                                             Fecha Nacimiento
                                         </span>
-                                        <span className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-md text-xs font-medium border border-purple-200">
-                                            TEA
-                                        </span>
-                                        <span className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-md text-xs font-medium border border-purple-200">
-                                            PIE
-                                        </span>
-                                        <span className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-md text-xs font-medium border border-purple-200">
-                                            PAEC
-                                        </span>
                                     </div>
 
                                     {/* Nota de formato */}
                                     <p className="text-[10px] text-gray-400 mt-3 leading-relaxed">
-                                        TEA, PIE, PAEC aceptan: <span className="font-medium">Sí / No</span> • Fecha: <span className="font-medium">DD/MM/AAAA</span>
+                                        Fecha: <span className="font-medium">DD/MM/AAAA</span>
                                     </p>
                                 </div>
                             </div>

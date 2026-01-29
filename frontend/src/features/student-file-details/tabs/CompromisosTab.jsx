@@ -46,7 +46,7 @@ function CompromisosTab({ student, canEdit = true }) {
                         Compromisos
                     </h3>
                     <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-                        Seguimiento de compromisos del estudiante
+                        Seguimiento de compromisos del trabajador
                     </p>
                 </div>
                 {canEdit && (

@@ -27,7 +27,7 @@ export function useStudentFilters(students) {
     }
 
     if (filters.characteristic !== 'all') {
-      result = result.filter(student => student[filters.characteristic] === true);
+      result = result.filter(student => student.genero === filters.characteristic);
     }
 
     if (filters.curso !== 'all') {

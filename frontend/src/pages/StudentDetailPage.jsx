@@ -10,7 +10,6 @@ import {
   StudentTabs,
   ConvivenciaTab,
   CompromisosTab,
-  PaecTab,
   SaludFamiliaTab,
   BitacoraTab,
   StudentDetailPageSkeleton
@@ -104,15 +103,13 @@ function StudentDetailPage() {
         return <ConvivenciaTab student={student} canEdit={canEdit} />;
       case 'compromisos':
         return <CompromisosTab student={student} canEdit={canEdit} />;
-      case 'paec':
-        return <PaecTab student={student} onUpdateStudent={canEdit ? handleUpdateStudent : undefined} canEdit={canEdit} />;
       case 'salud':
       default:
         return <SaludFamiliaTab student={student} onUpdateStudent={canEdit ? handleUpdateStudent : undefined} canEdit={canEdit} />;
     }
   };
 
-  // Nombre completo del estudiante para el breadcrumb
+  // Nombre completo del trabajador para el breadcrumb
   const studentName = student ? `${student.nombres} ${student.apellidos}` : '';
 
   return (
@@ -132,8 +129,8 @@ function StudentDetailPage() {
               {/* Breadcrumb */}
               <Breadcrumb caseName={studentName} />
 
-              {/* Información Personal - Todos pueden editar, pero solo no-docentes pueden editar programas */}
-              <PersonalInfoCard student={student} onUpdateStudent={handleUpdateStudent} canEdit={true} canEditPrograms={canEdit} />
+              {/* Información Personal */}
+              <PersonalInfoCard student={student} onUpdateStudent={handleUpdateStudent} canEdit={true} />
 
               {/* Tabs Container */}
               <div className="bg-white rounded-xl border-2 border-gray-300 shadow-md overflow-hidden">

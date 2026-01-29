@@ -20,10 +20,9 @@ export default function StudentsTable({ students, onUpdateStudent, onDeleteStude
             <table className="w-full min-w-[600px]">
                 <thead>
                     <tr className="border-b border-gray-100">
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50/50">Alumno</th>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50/50">Trabajador</th>
                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50/50">RUT</th>
                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50/50">Área de trabajo</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50/50">Programas</th>
                         <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50/50">Acciones</th>
                     </tr>
                 </thead>
@@ -51,31 +50,23 @@ export default function StudentsTable({ students, onUpdateStudent, onDeleteStude
                                     <span className="text-gray-400 text-sm">-</span>
                                 )}
                             </td>
-                            <td className="px-6 py-4">
-                                <div className="flex gap-1.5">
-                                    {student.tea && <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs font-medium">TEA</span>}
-                                    {student.pie && <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium">PIE</span>}
-                                    {student.paec && <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded text-xs font-medium">PAEC</span>}
-                                    {!student.tea && !student.pie && !student.paec && <span className="text-gray-400 text-sm">-</span>}
-                                </div>
-                            </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div className="flex items-center justify-end gap-2 transition-opacity duration-200">
                                     <button
                                         onClick={() => setEditingStudent(student)}
                                         className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors tooltip"
-                                        title="Editar alumno"
+                                        title="Editar trabajador"
                                     >
                                         <Edit className="w-5 h-5" strokeWidth={1.5} />
                                     </button>
                                     <button
                                         onClick={() => {
-                                            if (window.confirm('¿Estás seguro que deseas eliminar este estudiante? Esta acción no se puede deshacer.')) {
+                                            if (window.confirm('¿Estás seguro que deseas eliminar este trabajador? Esta acción no se puede deshacer.')) {
                                                 onDeleteStudent(student.id);
                                             }
                                         }}
                                         className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                        title="Eliminar alumno"
+                                        title="Eliminar trabajador"
                                     >
                                         <Trash2 className="w-5 h-5" strokeWidth={1.5} />
                                     </button>
@@ -87,7 +78,7 @@ export default function StudentsTable({ students, onUpdateStudent, onDeleteStude
             </table>
             <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/30">
                 <p className="text-xs text-gray-500">
-                    Mostrando <span className="font-medium text-gray-900">{students.length}</span> alumnos
+                    Mostrando <span className="font-medium text-gray-900">{students.length}</span> trabajadores
                 </p>
             </div>
 

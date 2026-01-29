@@ -180,7 +180,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                     <div className="px-6 py-5 border-b border-gray-100 bg-white flex justify-between items-center">
                         <div>
                             <h2 className="text-lg font-semibold text-gray-800">Nueva Entrevista</h2>
-                            <p className="text-xs text-gray-500 mt-0.5">Complete la información del estudiante para registrar la entrevista</p>
+                            <p className="text-xs text-gray-500 mt-0.5">Complete la información del trabajador para registrar la entrevista</p>
                         </div>
                         <button
                             onClick={onClose}
@@ -198,7 +198,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                         <div className="space-y-2">
                             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-2">
                                 <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center">1</span>
-                                Área de trabajo del Estudiante
+                                Área de trabajo
                             </label>
                             <select
                                 name="grade"
@@ -208,25 +208,23 @@ function CreateInterviewModal({ isOpen, onClose }) {
                                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-300 focus:ring-0 outline-none bg-gray-50 text-sm font-medium text-gray-800 transition-all"
                             >
                                 <option value="">Seleccione un área de trabajo...</option>
-                                <option value="1° Básico">1° Básico</option>
-                                <option value="2° Básico">2° Básico</option>
-                                <option value="3° Básico">3° Básico</option>
-                                <option value="4° Básico">4° Básico</option>
-                                <option value="5° Básico">5° Básico</option>
-                                <option value="6° Básico">6° Básico</option>
-                                <option value="7° Básico">7° Básico</option>
-                                <option value="8° Básico">8° Básico</option>
-                                <option value="1° Medio">1° Medio</option>
-                                <option value="2° Medio">2° Medio</option>
-                                <option value="3° Medio">3° Medio</option>
-                                <option value="4° Medio">4° Medio</option>
+                                <option value="Administración">Administración</option>
+                                <option value="Operaciones">Operaciones</option>
+                                <option value="Recursos Humanos">Recursos Humanos</option>
+                                <option value="Finanzas">Finanzas</option>
+                                <option value="Tecnología">Tecnología</option>
+                                <option value="Ventas">Ventas</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Producción">Producción</option>
+                                <option value="Logística">Logística</option>
+                                <option value="Atención al Cliente">Atención al Cliente</option>
                             </select>
                             {formData.grade && (
                                 <p className="text-xs text-green-600 flex items-center gap-1">
                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    {studentsInGrade.length} estudiantes en esta área de trabajo
+                                    {studentsInGrade.length} trabajadores en esta área
                                 </p>
                             )}
                         </div>
@@ -235,7 +233,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                         <div className="space-y-2 relative">
                             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-2">
                                 <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${formData.grade ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-500'}`}>2</span>
-                                Nombre del Estudiante
+                                Nombre del Trabajador
                             </label>
                             <div className="relative">
                                 <input
@@ -245,7 +243,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                                     value={formData.studentName}
                                     onChange={handleInputChange}
                                     onFocus={() => formData.grade && setShowSuggestions(true)}
-                                    placeholder={formData.grade ? "Click aquí o escribe para buscar..." : "Primero selecciona un área de trabajo"}
+                                    placeholder={formData.grade ? "Click aquí o escribe para buscar..." : "Primero selecciona un área"}
                                     disabled={!formData.grade}
                                     autoComplete="off"
                                     className={`w-full px-4 py-3 rounded-xl border focus:ring-0 outline-none text-sm font-medium transition-all placeholder:text-gray-400 ${formData.grade
@@ -294,7 +292,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                             {/* Helper text */}
                             {formData.grade && (
                                 <p className="text-xs text-gray-400">
-                                    Escribe al menos 2 caracteres para buscar entre los {studentsInGrade.length} estudiantes del área de trabajo.
+                                    Escribe al menos 2 caracteres para buscar entre los {studentsInGrade.length} trabajadores del área.
                                 </p>
                             )}
                         </div>
@@ -302,7 +300,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                         <div className="space-y-2">
                             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-2">
                                 <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${selectedStudentId && formData.gender ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-500'}`}>3</span>
-                                Género del Estudiante
+                                Género del Trabajador
                                 <span className="text-xs font-normal text-gray-400 normal-case">(automático)</span>
                             </label>
                             <div className="relative">
@@ -310,7 +308,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                                     type="text"
                                     value={formData.gender || ''}
                                     disabled
-                                    placeholder={selectedStudentId ? 'No registrado' : 'Se completará al seleccionar estudiante'}
+                                    placeholder={selectedStudentId ? 'No registrado' : 'Se completará al seleccionar trabajador'}
                                     className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 text-sm font-medium text-gray-600 cursor-not-allowed"
                                 />
                                 {selectedStudentId && formData.gender && (
@@ -322,7 +320,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                                 )}
                             </div>
                             <p className="text-xs text-gray-400">
-                                Este dato se obtiene automáticamente del registro del estudiante.
+                                Este dato se obtiene automáticamente del registro del trabajador.
                             </p>
                         </div>
 
