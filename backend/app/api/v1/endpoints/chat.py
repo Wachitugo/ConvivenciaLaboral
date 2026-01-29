@@ -200,7 +200,7 @@ async def send_email_endpoint(request: SendEmailRequest):
             from app.services.school_service import school_service
             school = school_service.get_colegio_by_id(user.colegios[0])
             if school and school.nombre:
-                sender_name = f"{school.nombre} - Convivencia Escolar"
+                sender_name = f"{school.nombre} - Prevención (Ley Karin)"
                 logger.info(f"📧 Using sender name: {sender_name}")
             
         logger.info(f"Sending email as {user.correo} (Delegated)")
@@ -582,17 +582,17 @@ CONTEXTO DEL CASO A PROCESAR
         # Prompt específico con contexto del caso
         prompt = f"""{case_context}
 
-INSTRUCCIÓN: Basándote en el CONTEXTO DEL CASO arriba y los documentos disponibles, DETERMINA y GENERA el protocolo oficial de convivencia escolar que debe aplicarse.
+INSTRUCCIÓN: Basándote en el CONTEXTO DEL CASO arriba y los documentos disponibles, DETERMINA y GENERA el protocolo de investigación según Ley Karin (21.643) que debe aplicarse.
 
 PASOS A SEGUIR:
 1. Usa 'list_protocol_documents' para ver qué documentos hay disponibles
-2. Identifica el documento más relevante (RICE, protocolo específico, etc.)
+2. Identifica el documento más relevante (Reglamento Interno, protocolo específico, etc.)
 3. Usa 'read_protocol_document' para leer el contenido relevante
 4. Usa la herramienta 'render_protocol' para generar la estructura del protocolo
 
 REGLAS CRÍTICAS:
 - SIEMPRE debes usar 'render_protocol' al final para generar los pasos
-- Si no encuentras un protocolo específico, genera un "Protocolo General de Convivencia Escolar"
+- Si no encuentras un protocolo específico, genera un "Protocolo de Investigación Ley Karin" con los pasos obligatorios de la ley
 - NO pidas más información. Tu tarea es generar el protocolo AHORA con lo disponible.
 - Basa tus pasos en el tipo de caso y la descripción proporcionada.
 """

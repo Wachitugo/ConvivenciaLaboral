@@ -51,163 +51,112 @@ class IntentRouter:
         user_id: Optional[str] = None
     ) -> Dict[str, any]:
         """
-        Classifies user intent to route to optimal execution path.
+        Classifies user intent using FAST-PATHS for obvious cases and LLM for ambiguous ones.
+        
+        Architecture:
+        1. Fast-path heuristics (~20 lines) for 100% obvious cases
+        2. LLM classification for everything else (robust, handles edge cases)
+        
+        Args:
+            message: User message
+            has_files: Whether files are attached
+            case_id: Active case ID if applicable
+            history: Conversation history
+            user_id: User ID for token tracking
+            
+        Returns:
+            {
+                "intent": str,  # Intent type
+                "confidence": float,  # 0.0 to 1.0
+                "reasoning": str  # Why this intent was chosen
+            }
         """
         try:
-            # Fast-path heuristics (no LLM call needed)
-            
-            # DOCUMENT_ANALYSIS:
-            analysis_verbs = ["analiz", "revis", "examin", "verific", "lee", "estudia", "resum", "contiene", "dice", "trata", "hay", "buscar", "busca"]
-            # Keywords that imply a document search in the bucket (Contexto Laboral)
-            doc_keywords = ["reglamento", "riohs", "contrato", "anexo", "carta", "amonestación", "despido", "finiquito", "ley", "código", "manual", "protocolo", "política", "denuncia"]
-            
+            import re
             message_lower = message.lower()
             
             # ════════════════════════════════════════════════════════════════════
-            # ABSOLUTE PRIORITY #0: Tool requests (email/calendar)
-            # ═══════════════════════════════════════════════════════════════════
-            import re
+            # FAST-PATH #1: Email address detected → TOOL_REQUIRED
+            # ════════════════════════════════════════════════════════════════════
+            email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+            if re.search(email_pattern, message):
+                logger.info(f"🎯 [INTENT] Fast-path: TOOL_REQUIRED (email address detected)")
+                return {
+                    "intent": self.TOOL_REQUIRED,
+                    "confidence": 0.98,
+                    "reasoning": "Email address detected in message"
+                }
             
-            # Verbos fuertes que indican herramienta (email/calendar)
-            strong_tool_verbs = [
-                # Calendario (Laboral)
-                "agendar reunión", "agendar citación", "citar a declarar", "citar al denunciado",
-                "citar al denunciante", "programar entrevista", "agendar entrevista",
-                # Email (Laboral)
-                "redactar correo", "enviar notificación", "notificar al denunciado",
-                "correo a la inspección", "email al gerente", "notificar recepción"
+            # ════════════════════════════════════════════════════════════════════
+            # FAST-PATH #2: Explicit tool requests (email/calendar phrases)
+            # ════════════════════════════════════════════════════════════════════
+            tool_phrases = [
+                "enviar correo", "redactar correo", "enviar email", "redactar email",
+                "enviar mail", "agendar reunión", "agendar reunion", "agenda cita",
+                "programar cita", "preparar correo", "notificar por correo",
+                "agendar citación", "citar a declarar", "enviar notificación"
             ]
             
-            # New structure for email-related keywords
-            EMAIL_PATTERNS = {
-                "keyword_phrases": [
-                    "enviar correo", "mandar correo", "redactar mail", "enviar un correo",
-                    "envía un correo", "escribe un mail", "redactar un email",
-                    "escribir correo", "enviar email", "preparar correo", "elaborar correo",
-                    "componer correo", "mandar email", "redactar mensaje", "elaborar email",
-                    "preparar email", "notificar por correo", "notificar a", 
-                    "enviar notificación", "escribe una notificación"
-                ],
-                "keywords": [
-                    r"\bemail\b", r"\bcorreo\b", r"\bmail\b",
-                    r"\benviar\b", r"\bredact", r"\bescrib", r"\bnotific"
-                ]
-            }
-            
-            # Add email keyword phrases to strong_tool_verbs
-            strong_tool_verbs.extend(EMAIL_PATTERNS["keyword_phrases"])
-            
-            # Check for strong phrases first
-            has_strong_tool = any(phrase in message_lower for phrase in strong_tool_verbs)
-            
-            if has_strong_tool:
-                logger.info(f"🎯 [INTENT] ✅ TOOL REQUEST - routing to TOOL_REQUIRED (PRIORITY #0)")
+            if any(phrase in message_lower for phrase in tool_phrases):
+                logger.info(f"🎯 [INTENT] Fast-path: TOOL_REQUIRED (explicit tool phrase)")
                 return {
                     "intent": self.TOOL_REQUIRED,
                     "confidence": 0.95,
-                    "reasoning": "Email/calendar request detected"
+                    "reasoning": "Explicit tool request phrase detected"
                 }
             
             # ════════════════════════════════════════════════════════════════════
-            # PRIORITY #1: Active conversation continuation (Laboral Context)
+            # FAST-PATH #3: Active case conversation continuation
             # ════════════════════════════════════════════════════════════════════
             if history and len(history) >= 2 and not case_id:
-                # Look at last 6 messages
                 recent = history[-6:] if len(history) > 6 else history
-                recent_text = " ".join([m.content.lower() for m in recent if hasattr(m, 'content') and isinstance(m.content, str)])
+                recent_text = " ".join([
+                    m.content.lower() for m in recent 
+                    if hasattr(m, 'content') and isinstance(m.content, str)
+                ])
                 
-                # Active case indicators (Laboral)
+                # Indicadores de caso activo (Laboral)
                 case_indicators = [
-                    "tengo una denuncia", "acoso laboral", "acoso sexual", "violencia",
-                    "trabajador", "jefe", "gerente", "supervisor", "colaborador",
-                    "testigos", "pruebas", "evidencias", "relato",
-                    "¿cuándo ocurrió", "cargo del denunciado", "área de trabajo",
-                    "relación jerárquica", "contrato", "plazos"
+                    "tengo una denuncia", "trabajador", "denunciado", "denunciante",
+                    "testigos", "fecha del incidente", "acoso laboral", "acoso sexual",
+                    "violencia", "hostigamiento", "jefe", "supervisor"
                 ]
                 
                 if any(indicator in recent_text for indicator in case_indicators):
-                    logger.info("🎯 [INTENT] ✅ ACTIVE CASE CONVERSATION - continuing CASE_CREATION (PRIORITY #1)")
+                    logger.info("🎯 [INTENT] Fast-path: CASE_CREATION (active conversation)")
                     return {
                         "intent": self.CASE_CREATION,
                         "confidence": 0.90,
-                        "reasoning": "Active case documentation conversation detected"
+                        "reasoning": "Active case documentation conversation in history"
                     }
             
             # ════════════════════════════════════════════════════════════════════
-            # PRIORITY #2: NEW case description (Laboral)
+            # FAST-PATH #4: Files attached + analysis verbs → DOCUMENT_ANALYSIS
             # ════════════════════════════════════════════════════════════════════
-            new_case_phrases = [
-                "tengo una denuncia", "recibí una denuncia", "se presentó una denuncia",
-                "tengo un caso", "ocurrió un incidente", "problema con un trabajador",
-                "conflicto laboral", "situación de acoso", "denuncia por ley karin",
-                "maltrato laboral", "violencia en el trabajo"
-            ]
-            
-            # Incident keywords (Laboral)
-            incident_keywords = [
-                # Ley Karin
-                "acoso laboral", "acoso sexual", "violencia", "maltrato",
-                "mobbing", "hostigamiento", "menoscabo", "humillación",
-                "gritos", "insultos", "agresión", "discriminación",
-                "jefe", "supervisor", "gerente", "compañero", "subordinado"
-            ]
-            
-            if not case_id:
-                # Verificar si hay descripción de caso
-                has_case_phrase = any(phrase in message_lower for phrase in new_case_phrases)
-                has_incident = any(keyword in message_lower for keyword in incident_keywords)
-                
-                if has_case_phrase or (has_incident and len(message_lower.split()) > 6):
-                    logger.info("🎯 [INTENT] ✅ NEW CASE DESCRIPTION - routing to CASE_CREATION (PRIORITY #2)")
-                    return {
-                        "intent": self.CASE_CREATION,
-                        "confidence": 0.85,
-                        "reasoning": "User describing new labor case/incident"
-                    }
-            
-            # PRIORITY 2: Check for case queries
-            if case_id and self._is_case_query(message):
-                logger.info("🎯 [INTENT] Fast-path: CASE_QUERY")
-                return {
-                    "intent": self.CASE_QUERY,
-                    "confidence": 0.85,
-                    "reasoning": "Query about active case data"
-                }
-            
-            # PRIORITY 3: Check for document analysis
             if has_files:
-                file_refs = ["archivo", "documento", "adjunto", "esto", "pdf", "imagen", "foto", "carta", "contrato"]
-                has_analysis_verb = any(verb in message_lower for verb in analysis_verbs)
-                has_file_ref = any(ref in message_lower for ref in file_refs)
-                is_question = "?" in message
+                analysis_verbs = ["analiz", "revis", "examin", "lee", "resum", "que dice", "que contiene"]
+                file_refs = ["archivo", "documento", "adjunto", "pdf", "contrato", "carta"]
                 
-                if has_analysis_verb or has_file_ref or (is_question and len(message.split()) < 10):
-                    logger.info("🎯 [INTENT] Fast-path: DOCUMENT_ANALYSIS (files attached)")
+                has_analysis = any(verb in message_lower for verb in analysis_verbs)
+                has_file_ref = any(ref in message_lower for ref in file_refs)
+                is_short_question = "?" in message and len(message.split()) < 10
+                
+                if has_analysis or has_file_ref or is_short_question:
+                    logger.info("🎯 [INTENT] Fast-path: DOCUMENT_ANALYSIS (files + query)")
                     return {
                         "intent": self.DOCUMENT_ANALYSIS,
                         "confidence": 0.95,
-                        "reasoning": "Files attached and user requested analysis"
-                    }
-            else:
-                # No files attached - check if user is asking for specific document type
-                has_doc_keyword = any(k in message_lower for k in doc_keywords)
-                has_analysis_request = any(verb in message_lower for verb in analysis_verbs) or "que dice" in message_lower
-                
-                if has_doc_keyword and has_analysis_request:
-                    logger.info("🎯 [INTENT] Fast-path: DOCUMENT_ANALYSIS (Remote Document Search)")
-                    return {
-                        "intent": self.DOCUMENT_ANALYSIS,
-                        "confidence": 0.9,
-                        "reasoning": "User requested analysis of specific document type"
+                        "reasoning": "Files attached with analysis request"
                     }
             
-            # LLM classification for ambiguous cases
-            logger.info("🧠 [INTENT] Using LLM for intent classification")
-            classification = await self._llm_classify(message, has_files, case_id, user_id)
-            return classification
+            # ════════════════════════════════════════════════════════════════════
+            # LLM CLASSIFICATION: For all ambiguous cases
+            # ════════════════════════════════════════════════════════════════════
+            logger.info("🧠 [INTENT] Using LLM for classification (no fast-path matched)")
+            return await self._llm_classify(message, has_files, case_id, user_id)
             
         except Exception as e:
-            logger.warning(f"⚠️ [INTENT] Classification error, defaulting to TOOL_REQUIRED: {e}")
+            logger.warning(f"⚠️ [INTENT] Classification error: {e}")
             return {
                 "intent": self.TOOL_REQUIRED,
                 "confidence": 0.5,
@@ -215,11 +164,10 @@ class IntentRouter:
             }
     
     def _is_case_query(self, message: str) -> bool:
-        """Fast keyword detection for case queries"""
+        """Fast keyword detection for case queries (deprecated - now using LLM)"""
         query_keywords = [
             "de que trata", "que caso", "cual es el caso", "resumen del caso",
-            "quien esta involucrado", "archivos del caso", "detalles del caso",
-            "datos del caso", "información del caso"
+            "quien esta involucrado", "archivos del caso", "detalles del caso"
         ]
         message_lower = message.lower()
         return any(k in message_lower for k in query_keywords)
@@ -231,7 +179,7 @@ class IntentRouter:
         from app.services.users.user_service import user_service
         
         class IntentClassification(BaseModel):
-            intent: str = Field(description="DOCUMENT_ANALYSIS, SIMPLE_QA, TOOL_REQUIRED, or CASE_QUERY")
+            intent: str = Field(description="DOCUMENT_ANALYSIS, SIMPLE_QA, TOOL_REQUIRED, CASE_CREATION, or CASE_QUERY")
             confidence: float = Field(description="0.0 to 1.0")
             reasoning: str = Field(description="Brief explanation")
         
@@ -245,45 +193,107 @@ class IntentRouter:
             context_parts.append("Hay un caso activo en contexto")
         context_str = " | ".join(context_parts) if context_parts else "Sin contexto especial"
         
-        prompt = f"""Clasifica la intención del mensaje del usuario (CONTEXTO: Prevención de Riesgos y Ley Karin) en UNA categoría:
+        prompt = f"""Clasifica la intención del siguiente mensaje en UNA de estas categorías:
 
 FECHA ACTUAL: {current_date_str}
+CONTEXTO: {context_str}
 
-CATEGORÍAS:
+═══════════════════════════════════════════════════════════════
+CATEGORÍAS (ordenadas por prioridad)
+═══════════════════════════════════════════════════════════════
 
-1. **CASE_CREATION**: Usuario describe una situación de ACOSO, VIOLENCIA o CONFLICTO LABORAL para documentar.
-   Ejemplos:
-   - "Tengo una denuncia por acoso sexual"
-   - "Un trabajador agredió a su jefe"
-   - "Conflicto entre pares en el área de bodega"
-   - "Necesito registrar un caso de maltrato"
+1. **CASE_CREATION**: Usuario describe un incidente/denuncia laboral para documentar
+   Señales:
+   - Describe una situación que ocurrió con trabajadores específicos
+   - Menciona conductas problemáticas reales (acoso, violencia, conflicto, etc.)
+   - Da detalles sobre involucrados, fechas, lugares
+   
+   ✅ Ejemplos SÍ CASE_CREATION:
+   - "Tengo una denuncia por acoso laboral del jefe de bodega"
+   - "Un trabajador agredió verbalmente a su supervisor"
+   - "Necesito registrar un caso de hostigamiento"
+   
+   ❌ NO es CASE_CREATION:
+   - "¿Qué es acoso laboral?" (pregunta genérica → SIMPLE_QA)
+   - "¿Qué hacer si hay violencia?" (pregunta hipotética → SIMPLE_QA)
 
-2. **SIMPLE_QA**: Preguntas TEÓRICAS o GENERALES sobre Ley Karin o normativa.
-   Ejemplos:
+2. **DOCUMENT_ANALYSIS**: Usuario quiere buscar/analizar documentos ESPECÍFICOS
+   Señales:
+   - Menciona un documento por nombre/número ("Ley Karin", "Reglamento Interno", "contrato")
+   - Pide buscar en archivos almacenados
+   - Hace referencia a archivos adjuntos actualmente
+   - Pregunta sobre contenido de documentos concretos
+   
+   ✅ Ejemplos SÍ DOCUMENT_ANALYSIS:
+   - "¿Qué dice el Reglamento Interno sobre sanciones?"
+   - "Busca el protocolo de investigación"
+   - "¿Qué contiene la ley 21.643?"
+   
+   ❌ NO es DOCUMENT_ANALYSIS:
+   - "¿Qué es un protocolo de acoso?" (pregunta genérica → SIMPLE_QA)
+   - "¿Cómo funciona la investigación?" (conocimiento general → SIMPLE_QA)
+
+3. **SIMPLE_QA**: Preguntas GENERALES sobre prevención y Ley Karin
+   Señales:
+   - Pregunta conceptual o de conocimiento general
+   - NO menciona documentos específicos ni casos concretos
+   - Busca entender procesos, definiciones, mejores prácticas
+   
+   ✅ Ejemplos SÍ SIMPLE_QA:
    - "¿Qué es acoso laboral?"
    - "¿Cuáles son los plazos de investigación?"
-   - "¿Qué dice la ley 21.643?"
    - "Diferencia entre conflicto y acoso"
+   - "¿Qué tipos de denuncias existen?"
+   - "¿Cómo se documenta un caso?" (pregunta de proceso)
    
-   Características: NO pide buscar en documentos específicos ni adjunta archivos.
+   ❌ NO es SIMPLE_QA:
+   - "¿Qué dice MI reglamento sobre sanciones?" (pide documento específico → DOCUMENT_ANALYSIS)
 
-3. **DOCUMENT_ANALYSIS**: Usuario quiere buscar/analizar documentos ESPECÍFICOS.
-   - Adjuntó archivos.
-   - O pide buscar: "Revisa el Reglamento Interno", "Busca el contrato de Juan", "Qué dice la carta de amonestación".
+4. **TOOL_REQUIRED**: Petición de herramientas externas (calendario/email)
+   Señales:
+   - Quiere EJECUTAR una acción (enviar, agendar, programar)
+   - Menciona correo, email, reunión, cita, citación
+   
+   ✅ Ejemplos SÍ TOOL_REQUIRED:
+   - "Envía una notificación al denunciado"
+   - "Agenda una citación para declarar"
+   
+   ❌ NO es TOOL_REQUIRED:
+   - "¿Cómo redacto una notificación?" (pide instrucciones → SIMPLE_QA)
+   - "¿Cuándo debo citar a declarar?" (pregunta → SIMPLE_QA)
 
-4. **TOOL_REQUIRED**: Petición EXPLÍCITA de herramientas.
-   - "Redacta un correo", "Agenda una citación", "Envía notificación".
+5. **CASE_QUERY**: Pregunta sobre un caso activo (SOLO si hay case_id activo)
+   - "¿De qué trata este caso?"
+   - "¿Quién está involucrado?"
 
-Contexto: {context_str}
-Mensaje: "{message}"
+═══════════════════════════════════════════════════════════════
+REGLAS DE DESAMBIGUACIÓN
+═══════════════════════════════════════════════════════════════
 
-Responde SOLO con un JSON válido: {{intent, confidence, reasoning}}"""
+🔑 CLAVE #1: Pregunta genérica vs documento específico
+- "¿Qué es acoso laboral?" → SIMPLE_QA (genérico)
+- "¿Qué dice MI REGLAMENTO sobre acoso?" → DOCUMENT_ANALYSIS (específico)
+
+🔑 CLAVE #2: Caso real vs pregunta hipotética
+- "El gerente de área hostigó a un trabajador ayer" → CASE_CREATION (real)
+- "¿Qué hago si hay hostigamiento?" → SIMPLE_QA (hipotético)
+
+🔑 CLAVE #3: Ejecutar acción vs pedir instrucciones
+- "Redacta una citación al denunciado" → TOOL_REQUIRED (ejecutar)
+- "¿Cómo redacto una citación formal?" → SIMPLE_QA (instrucciones)
+
+═══════════════════════════════════════════════════════════════
+MENSAJE A CLASIFICAR
+═══════════════════════════════════════════════════════════════
+
+"{message}"
+
+Responde con JSON válido: {{"intent": "CATEGORIA", "confidence": 0.0-1.0, "reasoning": "explicación breve"}}"""
 
         try:
-            # Standard invoke to parse JSON manually
-            parser_prompt = prompt + "\n\nResponde con un JSON válido."
-            messages_json = [HumanMessage(content=parser_prompt)]
-            raw_response = await self.llm.ainvoke(messages_json)
+            # Single LLM call with JSON response
+            messages = [HumanMessage(content=prompt)]
+            raw_response = await self.llm.ainvoke(messages)
             
             # Track usage
             if user_id and hasattr(raw_response, 'usage_metadata'):
@@ -295,11 +305,13 @@ Responde SOLO con un JSON válido: {{intent, confidence, reasoning}}"""
                         output_tokens=usage.get('output_tokens', 0),
                         model_name=self.llm.model_name
                     )
-
-            # Parse JSON
+            
+            # Parse JSON response
             import json
             import re
             content = raw_response.content
+            
+            # Extract JSON from markdown if present
             if "```json" in content:
                 content = re.search(r'```json\s*([\s\S]*?)\s*```', content).group(1)
             elif "```" in content:
@@ -308,7 +320,7 @@ Responde SOLO con un JSON válido: {{intent, confidence, reasoning}}"""
             data = json.loads(content)
             result = IntentClassification(**data)
             
-            logger.info(f"🎯 [INTENT] {result.intent} (conf: {result.confidence})")
+            logger.info(f"🎯 [INTENT] {result.intent} (conf: {result.confidence:.2f})")
             
             return {
                 "intent": result.intent,
@@ -317,8 +329,12 @@ Responde SOLO con un JSON válido: {{intent, confidence, reasoning}}"""
             }
             
         except Exception as e:
-            logger.warning(f"⚠️ [INTENT] Error in LLM classification: {e}, using SIMPLE_QA fallback")
-            return {"intent": self.SIMPLE_QA, "confidence": 0.5, "reasoning": "Fallback on error"}
+            logger.warning(f"⚠️ [INTENT] Classification error: {e}")
+            return {
+                "intent": self.SIMPLE_QA,
+                "confidence": 0.5,
+                "reasoning": f"Error: {str(e)[:30]}"
+            }
 
 
 # Singleton instance

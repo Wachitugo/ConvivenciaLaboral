@@ -929,12 +929,13 @@ INSTRUCCIONES:
             yield json.dumps({"type": "thinking", "content": "Pensando..."}, ensure_ascii=False) + "\n"
             await asyncio.sleep(0.1)
             
-            # Get answer from Simple QA Service
+            # Get answer from Simple QA Service (with RAG lite if search_app_id available)
             ai_response = await simple_qa_service.answer_question(
                 message=message,
                 school_name=school_name,
                 history=history,
-                user_context=user_context
+                user_context=user_context,
+                search_app_id=search_app_id  # Enable RAG lite search
             )
             
             # Stream the response content

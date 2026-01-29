@@ -56,16 +56,44 @@ class SimpleQAService:
         message: str,
         school_name: str, # Mantenemos nombre variable por compatibilidad (es Company Name)
         history: List,
-        user_context: Optional[dict] = None
+        user_context: Optional[dict] = None,
+        search_app_id: Optional[str] = None  # ← NUEVO: ID de app de búsqueda para RAG lite
     ) -> str:
         """
         Responde una pregunta simple de forma rápida.
+        
+        NUEVO: Si se proporciona search_app_id, busca contexto relevante antes de responder (RAG Lite).
         """
         logger.info(f"❓ [SIMPLE_QA] Processing question: {message[:50]}...")
         
         try:
-            # 1. Construir prompt del sistema
-            system_prompt = self._build_system_prompt(school_name, user_context)
+            # === RAG LITE: Búsqueda de contexto si hay search_app_id ===
+            rag_context = ""
+            if search_app_id:
+                try:
+                    from app.services.chat.reglamento_search_service import reglamento_search_service
+                    
+                    search_results = await reglamento_search_service.search_general_info(
+                        query=message,
+                        company_search_app_id=search_app_id
+                    )
+                    
+                    # Formatear resultados para el prompt
+                    if search_results.get("reglamento_results") or search_results.get("ley_karin_results"):
+                        rag_context = reglamento_search_service.format_results_for_prompt(
+                            reglamento_results=search_results.get("reglamento_results", []),
+                            ley_karin_results=search_results.get("ley_karin_results", []),
+                            max_tokens=1500  # Límite más bajo para SIMPLE_QA (respuestas rápidas)
+                        )
+                        logger.info(f"📚 [SIMPLE_QA] RAG context loaded: {len(rag_context)} chars")
+                    else:
+                        logger.info(f"📚 [SIMPLE_QA] No RAG results found for query")
+                except Exception as rag_error:
+                    logger.warning(f"⚠️ [SIMPLE_QA] RAG search failed: {rag_error}")
+                    # Continuar sin contexto RAG
+            
+            # 1. Construir prompt del sistema (con contexto RAG si existe)
+            system_prompt = self._build_system_prompt(school_name, user_context, rag_context)
             
             # 2. Preparar mensajes (historial reciente + pregunta actual)
             messages = [SystemMessage(content=system_prompt)]
@@ -91,9 +119,14 @@ class SimpleQAService:
             return ("Lo siento, tuve un problema al procesar tu pregunta. "
                    "¿Podrías reformularla o ser más específico?")
     
-    def _build_system_prompt(self, school_name: str, user_context: Optional[dict]) -> str:
+    def _build_system_prompt(self, school_name: str, user_context: Optional[dict], rag_context: str = "") -> str:
         """
         Construye el prompt del sistema para Simple QA.
+        
+        Args:
+            school_name: Nombre de la empresa (variable mantiene nombre por compatibilidad)
+            user_context: Diccionario con información del usuario
+            rag_context: Contexto RAG formateado (opcional)
         """
         base_prompt = f"""Eres CONI, tu asistente de prevención y convivencia laboral para {school_name}.
 Estás aquí para responder preguntas y ayudar de forma práctica y cercana.
@@ -141,6 +174,19 @@ INFORMACIÓN DEL USUARIO:
 
 Puedes personalizar tu respuesta según el rol del usuario."""
             base_prompt += user_info
+        
+        # NUEVO: Agregar contexto RAG si existe
+        if rag_context:
+            rag_section = f"""
+
+═════════════════════════════════════════════════════════════════
+📚 CONTEXTO RELEVANTE DEL REGLAMENTO INTERNO Y LEY KARIN
+═════════════════════════════════════════════════════════════════
+
+{rag_context}
+
+IMPORTANTE: Usa este contexto para responder con información precisa y citando las fuentes cuando corresponda."""
+            base_prompt += rag_section
         
         return base_prompt
 

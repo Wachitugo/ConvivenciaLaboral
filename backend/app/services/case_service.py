@@ -135,18 +135,18 @@ class CaseService:
 
         # 2. Extraer información con LLM
         prompt = ChatPromptTemplate.from_template("""
-        Actúa como un experto en Convivencia Escolar. Tu tarea es analizar la siguiente conversación y estructurar un Caso de Convivencia Escolar formal.
+        Actúa como un experto en Prevención y Ley Karin (21.643). Tu tarea es analizar la siguiente conversación y estructurar un Caso de Denuncia Laboral formal.
 
         Conversación:
         {conversation}
 
         Instrucciones:
-        1.  **Título**: Crea un título profesional y descriptivo (ej: "Agresión física entre estudiantes de 8vo básico").
+        1.  **Título**: Crea un título profesional y descriptivo (ej: "Denuncia por acoso laboral - Área Bodega").
         2.  **Descripción**: Redacta un resumen cronológico y objetivo de los hechos mencionados. Incluye qué pasó, dónde, cuándo y quiénes participaron.
-        3.  **Tipo de Caso**: Clasifícalo en una de estas categorías: "Conflicto entre estudiantes", "Maltrato escolar", "Disrupción en el aula", "Faltas de asistencia", "Problemas con apoderados", "Vulneración de derechos". Si no estás seguro, usa "Otro".
-        4.  **Involucrados**: Identifica a TODAS las personas mencionadas (estudiantes, docentes, apoderados).
-            -   Para cada persona, intenta inferir su Rol (Estudiante, Docente, Apoderado, Víctima, Agresor, Testigo).
-            -   Si no se menciona el nombre, usa una descripción (ej: "Estudiante de 8vo B").
+        3.  **Tipo de Caso**: Clasifícalo en una de estas categorías: "Acoso laboral", "Acoso sexual", "Violencia en el trabajo", "Discriminación", "Maltrato laboral", "Conflicto entre trabajadores". Si no estás seguro, usa "Otro".
+        4.  **Involucrados**: Identifica a TODAS las personas mencionadas (trabajadores, jefaturas, testigos).
+            -   Para cada persona, intenta inferir su Rol (Denunciante, Denunciado, Testigo, Supervisor, Gerente).
+            -   Si no se menciona el nombre, usa una descripción (ej: "Supervisor de Bodega").
         5.  **Protocolo**: Si en la conversación se mencionó o sugirió un protocolo específico (ej: "Protocolo de Maltrato", "Protocolo de Retención"), indícalo. Si no, pon "Por definir".
 
         IMPORTANTE: No inventes información. Si algo no se menciona, usa "No especificado" o déjalo vacío.
@@ -243,7 +243,7 @@ class CaseService:
             current_involved = [{"nombre": p.name, "rol": p.role or "Sin rol"} for p in case.involved] if case.involved else []
 
             # 4. Preparar prompt con la información actual del caso
-            prompt_text = f"""Eres un experto en Convivencia Escolar. Analiza el archivo adjunto y extrae información para actualizar este caso.
+            prompt_text = f"""Eres un experto en Prevención y Ley Karin (21.643). Analiza el archivo adjunto y extrae información para actualizar este caso laboral.
 
 CASO ACTUAL:
 - Título: {case.title}
@@ -371,13 +371,13 @@ IMPORTANTE: Responde SOLO con el JSON, sin texto adicional antes o después."""
                 case_type: str = Field(description="Tipo: Maltrato, Bullying, Conflicto, Violencia, u Otro")
             
             # Prompt conciso - no necesitamos instrucciones de JSON
-            prompt_text = """Analiza el/los documento(s) adjunto(s) sobre este caso de convivencia escolar.
+            prompt_text = """Analiza el/los documento(s) adjunto(s) sobre este caso laboral (Ley Karin).
 
 Extrae:
 - Título profesional que describa el caso
 - Descripción cronológica de los hechos
-- Todas las personas mencionadas con sus roles
-- Tipo de caso según el contenido"""
+- Todas las personas mencionadas con sus roles (Denunciante, Denunciado, Testigo, etc.)
+- Tipo de caso según el contenido (acoso laboral, acoso sexual, violencia, etc.)"""
 
             # Preparar contenido con archivos
             content = [{"type": "text", "text": prompt_text}]
@@ -436,20 +436,20 @@ Extrae:
             logger.debug(f"MIME type detected: {mime_type}")
 
             # 2. Preparar prompt para extraer información de caso nuevo
-            prompt_text = """Eres un experto en Convivencia Escolar. Analiza el archivo adjunto y extrae información para crear un nuevo caso de convivencia.
+            prompt_text = """Eres un experto en Prevención y Ley Karin (21.643). Analiza el archivo adjunto y extrae información para crear un nuevo caso laboral.
 
 TAREAS:
 1. Lee cuidadosamente TODO el contenido del archivo adjunto
 2. Genera una descripción detallada del caso que:
    - Sea cronológica, objetiva y completa
    - Incluya todos los detalles relevantes del incidente
-   - Use un lenguaje profesional apropiado para un caso escolar
+   - Use un lenguaje profesional apropiado para un caso laboral
 3. Identifica TODAS las personas mencionadas:
    - Incluye su nombre completo si está disponible
-   - Asigna un rol apropiado (Estudiante, Apoderado, Docente, Inspector, Otro)
+   - Asigna un rol apropiado (Denunciante, Denunciado, Testigo, Supervisor, Gerente, Otro)
 4. Determina el tipo de caso basándote en el contenido:
-   - Opciones: "Bullying", "Violencia física", "Violencia verbal", "Ciberbullying",
-     "Discriminación", "Conflicto entre pares", "Falta disciplinaria", "Otro"
+   - Opciones: "Acoso laboral", "Acoso sexual", "Violencia en el trabajo",
+     "Discriminación", "Maltrato laboral", "Conflicto entre trabajadores", "Otro"
 
 RESPONDE EN FORMATO JSON VÁLIDO:
 {
@@ -553,7 +553,7 @@ IMPORTANTE: Responde SOLO con el JSON, sin texto adicional antes o después."""
             import mimetypes
             
             # Prompt base
-            prompt_text = f"""Eres un experto en Convivencia Escolar. 
+            prompt_text = f"""Eres un experto en Prevención y Ley Karin (21.643). 
 Analiza este caso y sus documentos adjuntos para generar un RESUMEN EJECUTIVO TÉCNICO.
 
 INFORMACIÓN DEL CASO:

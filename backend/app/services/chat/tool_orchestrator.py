@@ -574,11 +574,11 @@ Responde SOLO con: email, calendar, o unknown"""
         
         prompt = f"""Extrae los parámetros para redactar un correo electrónico FORMAL INSTITUCIONAL.
 
-COLEGIO: {school_name}
+EMPRESA: {school_name}
 
 ⚠️ RESTRICCIONES DE PRIVACIDAD (CRÍTICO):
 1. NUNCA incluyas el título del caso en el asunto ni en el cuerpo del correo
-2. NUNCA menciones nombres de estudiantes involucrados en el asunto del correo
+2. NUNCA menciones nombres de trabajadores involucrados en el asunto del correo
 3. En el cuerpo, usa referencias genéricas como "el caso en seguimiento" o "la situación que nos convoca"
 4. Los nombres de involucrados SOLO pueden mencionarse si el usuario los incluye explícitamente en su mensaje
 5. Si necesitas referirte al caso, usa "el caso que estamos tratando" o "la situación informada"
@@ -586,9 +586,18 @@ COLEGIO: {school_name}
 INSTRUCCIONES DE REDACCIÓN:
 1. El correo debe ser FORMAL en todos sus aspectos (Saludo, Cuerpo, Despedida).
 2. El tono debe ser institucional y serio, no coloquial.
-3. NO uses saludos como "Estimado [Nombre]" si no tienes el nombre exacto. Usa "Estimado/a Apoderado/a" o similar.
+3. NO uses saludos como "Estimado [Nombre]" si no tienes el nombre exacto. Usa "Estimado/a" o similar.
 4. La estructura debe ser clara y profesional.
 5. PROTOCOLO: Si hay un 'PROTOCOLO SUGERIDO', puedes mencionar genéricamente que se está siguiendo un protocolo.
+
+⚠️ FORMATO DE LISTAS (CRÍTICO):
+- USA VIÑETAS (•, -, *) para cualquier lista o enumeración en el cuerpo del correo
+- **NUNCA uses números (1., 2., 3.)** - causan problemas de renderizado
+- Para sub-items, usa viñetas con 3 espacios de indentación: "   •"
+- Ejemplo correcto:
+  • Punto principal
+     • Sub-punto con indentación
+  • Siguiente punto
 
 CONTEXTO (SOLO REFERENCIA INTERNA - NO INCLUIR LITERALMENTE EN EL CORREO):
 {context_str}

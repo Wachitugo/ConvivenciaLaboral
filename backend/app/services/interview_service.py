@@ -384,7 +384,7 @@ class InterviewService:
         has_attachments = bool(interview.attachments and len(interview.attachments) > 0)
         
         if not has_transcription and not has_attachments:
-            no_info_msg = "No se dispone de la información requerida para generar el resumen del caso de convivencia escolar. La transcripción de la entrevista se encuentra vacía y no se han adjuntado documentos adicionales (imágenes, PDFs, textos) para su análisis."
+            no_info_msg = "No se dispone de la información requerida para generar el resumen del caso laboral. La transcripción de la entrevista se encuentra vacía y no se han adjuntado documentos adicionales (imágenes, PDFs, textos) para su análisis."
             
             # Save standard message
             self.update_interview(interview_id, InterviewUpdate(summary=no_info_msg))
@@ -392,7 +392,7 @@ class InterviewService:
         
         # Construir el mensaje multimodal
         # Parte 1: Instrucciones y Transcripción
-        instructions = """Eres un experto en Convivencia Escolar.
+        instructions = """Eres un experto en Prevención y Ley Karin (21.643).
 Tu tarea es generar un RESUMEN del caso basado en la información provista.
 NO ACTÚES como una persona conversando. NO digas "He recibido..." o "Soy un agente".
 Genera DIRECTAMENTE el contenido del resumen en formato Markdown.
@@ -538,12 +538,12 @@ The JSON structure must be exactly as follows:
             compiled_text += f"{interview.transcription}\n\n"
 
         # Prompt para Gemini
-        prompt = f"""Eres un Agente experto en Convivencia Escolar.
-Analiza las siguientes transcripciones de entrevistas realizadas a estudiantes.
+        prompt = f"""Eres un Agente experto en Prevención y Ley Karin (21.643).
+Analiza las siguientes transcripciones de entrevistas realizadas a trabajadores.
 Genera un Resumen Ejecutivo que identifique:
 1. Patrones comunes o problemas recurrentes.
 2. Casos críticos que requieren atención inmediata.
-3. Clima general del curso/colegio basado en estos relatos.
+3. Clima general del área/empresa basado en estos relatos.
 4. Sugerencias de intervención.
 
 TRANSCRIPCIONES:
@@ -1065,7 +1065,7 @@ RESUMEN:"""
         story = []
         
         # === HEADER ===
-        story.append(Paragraph("Resumen de Entrevista de Convivencia Escolar", title_style))
+        story.append(Paragraph("Resumen de Entrevista de Investigación Laboral", title_style))
         story.append(Paragraph(
             f"Generado el {interview.created_at.strftime('%d de %B de %Y')} - Sistema de Convivencia Inteligente",
             subtitle_style
