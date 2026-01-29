@@ -84,7 +84,7 @@ function CaseInvolved({ caseData, onUpdateCase, isLoading = false }) {
               )}
             </h3>
             <p className="text-xs sm:text-sm text-gray-500 mt-0.5 truncate">
-              <span className="hidden sm:inline">Estudiantes y personas relacionadas al caso</span>
+              <span className="hidden sm:inline">Trabajadores y personas relacionadas al caso</span>
               <span className="sm:hidden">Relacionados al caso</span>
             </p>
           </div>

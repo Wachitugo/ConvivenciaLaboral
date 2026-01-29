@@ -6,7 +6,6 @@ const ROLE_OPTIONS = [
   { value: 'afectado', label: 'Afectado/Víctima' },
   { value: 'agresor', label: 'Agresor' },
   { value: 'testigo', label: 'Testigo' },
-  { value: 'apoderado', label: 'Apoderado' },
   { value: 'otro', label: 'Otro' }
 ];
 
@@ -162,7 +161,7 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
-            {studentsInGrade.length} estudiantes en esta área de trabajo
+            {studentsInGrade.length} trabajadores en esta área
           </p>
         )}
       </div>
@@ -171,7 +170,7 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
       <div className="space-y-1.5 relative">
         <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-2">
           <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${formData.grade ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-500'}`}>2</span>
-          Estudiante
+          Trabajador
         </label>
         <div className="relative">
           <input
@@ -181,7 +180,7 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
             value={formData.studentName}
             onChange={handleInputChange}
             onFocus={() => formData.grade && setShowSuggestions(true)}
-            placeholder={formData.grade ? "Click o escribe para buscar..." : "Primero selecciona un área de trabajo"}
+            placeholder={formData.grade ? "Click o escribe para buscar..." : "Primero selecciona un área"}
             disabled={!formData.grade}
             autoComplete="off"
             className={`w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm transition-all ${formData.grade

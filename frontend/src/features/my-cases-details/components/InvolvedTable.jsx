@@ -4,7 +4,6 @@ const ROLE_OPTIONS = [
   { value: 'afectado', label: 'Afectado/Víctima', color: 'red' },
   { value: 'agresor', label: 'Agresor', color: 'orange' },
   { value: 'testigo', label: 'Testigo', color: 'blue' },
-  { value: 'apoderado', label: 'Apoderado', color: 'purple' },
   { value: 'otro', label: 'Otro', color: 'gray' }
 ];
 
