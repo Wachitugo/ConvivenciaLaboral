@@ -22,7 +22,7 @@ const processInterviewStats = (interviews) => {
     monthlyCount[months[mIndex]] = 0;
   }
 
-  // Contadores para género y curso
+  // Contadores para género y área de trabajo
   const genderCount = {};
   const gradeCount = {};
   let assigned = 0;
@@ -49,8 +49,7 @@ const processInterviewStats = (interviews) => {
     const gender = interview.gender || 'No especificado';
     genderCount[gender] = (genderCount[gender] || 0) + 1;
 
-    // Contar por curso/grado
-    // Contar por curso/grado
+    // Contar por área de trabajo
     const grade = interview.grade || interview.course || 'No especificado';
     gradeCount[grade] = (gradeCount[grade] || 0) + 1;
   });

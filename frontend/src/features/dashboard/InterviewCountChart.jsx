@@ -2,34 +2,32 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { GraduationCap, TrendingUp } from 'lucide-react';
 import EmptyChartState from './EmptyChartState';
 
-// Orden de cursos según sistema educativo chileno
-const GRADE_ORDER = [
-    '1° Básico', '1ro Básico', '1ero Básico', 'Primero Básico',
-    '2° Básico', '2do Básico', 'Segundo Básico',
-    '3° Básico', '3ro Básico', '3ero Básico', 'Tercero Básico',
-    '4° Básico', '4to Básico', 'Cuarto Básico',
-    '5° Básico', '5to Básico', 'Quinto Básico',
-    '6° Básico', '6to Básico', 'Sexto Básico',
-    '7° Básico', '7mo Básico', 'Séptimo Básico',
-    '8° Básico', '8vo Básico', 'Octavo Básico',
-    '1° Medio', '1ro Medio', '1ero Medio', 'Primero Medio',
-    '2° Medio', '2do Medio', 'Segundo Medio',
-    '3° Medio', '3ro Medio', '3ero Medio', 'Tercero Medio',
-    '4° Medio', '4to Medio', 'Cuarto Medio'
+// Orden de áreas de trabajo
+const AREA_ORDER = [
+    'Administración',
+    'Operaciones',
+    'Recursos Humanos',
+    'Finanzas',
+    'Tecnología',
+    'Ventas',
+    'Marketing',
+    'Producción',
+    'Logística',
+    'Atención al Cliente'
 ];
 
-// Función para obtener el índice de orden de un curso
-const getGradeIndex = (gradeName) => {
+// Función para obtener el índice de orden de un área
+const getAreaIndex = (areaName) => {
     // Buscar coincidencia exacta primero
-    const exactIndex = GRADE_ORDER.findIndex(g =>
-        g.toLowerCase() === gradeName.toLowerCase()
+    const exactIndex = AREA_ORDER.findIndex(a =>
+        a.toLowerCase() === areaName.toLowerCase()
     );
     if (exactIndex !== -1) return exactIndex;
 
     // Buscar coincidencia parcial
-    const partialIndex = GRADE_ORDER.findIndex(g =>
-        gradeName.toLowerCase().includes(g.toLowerCase()) ||
-        g.toLowerCase().includes(gradeName.toLowerCase())
+    const partialIndex = AREA_ORDER.findIndex(a =>
+        areaName.toLowerCase().includes(a.toLowerCase()) ||
+        a.toLowerCase().includes(areaName.toLowerCase())
     );
     if (partialIndex !== -1) return partialIndex;
 
@@ -59,9 +57,9 @@ export default function InterviewCountChart({ data }) {
     const total = data ? data.reduce((sum, item) => sum + item.count, 0) : 0;
     const hasData = data && data.length > 0 && data.some(d => d.count > 0);
 
-    // Filtrar solo cursos con entrevistas y ordenar según el sistema chileno
+    // Filtrar solo áreas con entrevistas y ordenar
     const filteredData = hasData
-        ? data.filter(d => d.count > 0).sort((a, b) => getGradeIndex(a.name) - getGradeIndex(b.name))
+        ? data.filter(d => d.count > 0).sort((a, b) => getAreaIndex(a.name) - getAreaIndex(b.name))
         : [];
 
     // Colors for bars - gradient from indigo to purple
@@ -79,7 +77,7 @@ export default function InterviewCountChart({ data }) {
                             Entrevistas por Área de trabajo
                         </h4>
                         <span className="text-xs text-gray-500 font-medium">
-                            Análisis por nivel
+                            Análisis por área
                         </span>
                     </div>
                 </div>

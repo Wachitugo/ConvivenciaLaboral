@@ -39,7 +39,7 @@ function StudentDetailHeader({ isSidebarOpen, toggleSidebar, textPrimary }) {
 
                 {/* Título - solo visible en desktop */}
                 <h1 className={`hidden sm:block text-lg font-semibold ${textPrimary} truncate`} style={{ fontFamily: "'Poppins', sans-serif" }}>
-                    Ficha del Alumno
+                    Ficha del Trabajador
                 </h1>
 
                 {/* Spacer para mantener el título centrado en desktop */}
