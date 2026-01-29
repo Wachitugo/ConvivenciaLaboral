@@ -24,13 +24,13 @@ function LoginContainer({ onClose }) {
             <img src={icon3} alt="Convivencia Inteligente" className="h-12 w-12 object-contain" />
             <div className="flex flex-col items-start">
               <h2 className="text-base font-bold text-white text-left whitespace-nowrap">Convivencia Inteligente</h2>
-              <h2 className="text-[10px] font-bold text-gray-100 text-left whitespace-nowrap">Armonizando la convivencia escolar</h2>
+              <h2 className="text-[10px] font-bold text-gray-100 text-left whitespace-nowrap">Armonizando la convivencia laboral</h2>
             </div>
           </div>
         </div>
 
-        <div className="w-full lg:w-1/3 flex flex-col items-center justify-center bg-white relative p-4">
-          <div className="max-w-lg w-full shadow-2xl rounded-2xl border border-gray-100 bg-white p-10">
+        <div className="w-full lg:w-1/3 flex flex-col items-center justify-center bg-white relative h-full">
+          <div className="max-w-lg w-full bg-white p-10">
             <div className="mb-10 text-center">
               <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Bienvenido</h1>
               <p className="text-gray-500 text-sm mt-5">Ingresa con tus credenciales para acceder al sistema de gestión.</p>

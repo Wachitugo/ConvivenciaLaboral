@@ -1,9 +1,9 @@
 function SuggestionCards({ onSuggestionClick }) {
   const suggestions = [
-    'Reglamentos y normativas',
-    'Análisis de casos y situaciones de convivencia escolar',
+    'Reglamentos y normativas laborales',
+    'Análisis de casos y situaciones de convivencia laboral',
     'Análisis de documentos',
-    'Aplicación de protocolos de convivencia escolar'
+    'Aplicación de protocolos de convivencia laboral'
   ];
 
   return (
