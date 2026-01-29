@@ -27,7 +27,7 @@ class ProtocolExtractor:
                 logger.warning(f" JSON extraído no tiene la estructura requerida (protocol_name, steps)")
                 return None
                 
-            protocol_name = json_data.get("protocol_name", "Protocolo de Convivencia Escolar")
+            protocol_name = json_data.get("protocol_name", "Protocolo de Investigación Ley Karin")
             steps_data = json_data.get("steps", [])
             
             if not steps_data:

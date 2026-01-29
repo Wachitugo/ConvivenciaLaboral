@@ -5,10 +5,10 @@ Servicio especializado en responder preguntas simples e informativas de forma r�
 Usa el modelo Flash (más rápido y económico) para respuestas directas.
 
 Casos de uso:
-- "¿Qué es el protocolo RICE?"
-- "¿Cuál es el horario de atención?"
-- "¿Cómo funciona el sistema de convivencia?"
-- Preguntas generales sin necesidad de herramientas o análisis profundo
+- "¿Qué es la Ley Karin?"
+- "¿Cuál es el plazo para investigar una denuncia?"
+- "¿Qué se entiende por acoso laboral?"
+- Preguntas generales sobre normativa laboral y prevención
 """
 
 import logging
@@ -29,7 +29,7 @@ class SimpleQAService:
     - Usa modelo Flash (rápido, económico)
     - Sin herramientas (pure LLM)
     - Respuestas directas y concisas
-    - Ideal para preguntas informativas
+    - Ideal para preguntas informativas sobre Ley Karin y prevención
     """
     
     def __init__(self):
@@ -54,27 +54,46 @@ class SimpleQAService:
     async def answer_question(
         self,
         message: str,
-        school_name: str,
+        school_name: str, # Mantenemos nombre variable por compatibilidad (es Company Name)
         history: List,
-        user_context: Optional[dict] = None
+        user_context: Optional[dict] = None,
+        search_app_id: Optional[str] = None  # ← NUEVO: ID de app de búsqueda para RAG lite
     ) -> str:
         """
         Responde una pregunta simple de forma rápida.
         
-        Args:
-            message: Pregunta del usuario
-            school_name: Nombre del colegio
-            history: Historial de conversación (últimos mensajes para contexto)
-            user_context: Información adicional del usuario (nombre, rol, etc.)
-            
-        Returns:
-            Respuesta directa y concisa
+        NUEVO: Si se proporciona search_app_id, busca contexto relevante antes de responder (RAG Lite).
         """
         logger.info(f"❓ [SIMPLE_QA] Processing question: {message[:50]}...")
         
         try:
-            # 1. Construir prompt del sistema
-            system_prompt = self._build_system_prompt(school_name, user_context)
+            # === RAG LITE: Búsqueda de contexto si hay search_app_id ===
+            rag_context = ""
+            if search_app_id:
+                try:
+                    from app.services.chat.reglamento_search_service import reglamento_search_service
+                    
+                    search_results = await reglamento_search_service.search_general_info(
+                        query=message,
+                        company_search_app_id=search_app_id
+                    )
+                    
+                    # Formatear resultados para el prompt
+                    if search_results.get("reglamento_results") or search_results.get("ley_karin_results"):
+                        rag_context = reglamento_search_service.format_results_for_prompt(
+                            reglamento_results=search_results.get("reglamento_results", []),
+                            ley_karin_results=search_results.get("ley_karin_results", []),
+                            max_tokens=1500  # Límite más bajo para SIMPLE_QA (respuestas rápidas)
+                        )
+                        logger.info(f"📚 [SIMPLE_QA] RAG context loaded: {len(rag_context)} chars")
+                    else:
+                        logger.info(f"📚 [SIMPLE_QA] No RAG results found for query")
+                except Exception as rag_error:
+                    logger.warning(f"⚠️ [SIMPLE_QA] RAG search failed: {rag_error}")
+                    # Continuar sin contexto RAG
+            
+            # 1. Construir prompt del sistema (con contexto RAG si existe)
+            system_prompt = self._build_system_prompt(school_name, user_context, rag_context)
             
             # 2. Preparar mensajes (historial reciente + pregunta actual)
             messages = [SystemMessage(content=system_prompt)]
@@ -100,31 +119,29 @@ class SimpleQAService:
             return ("Lo siento, tuve un problema al procesar tu pregunta. "
                    "¿Podrías reformularla o ser más específico?")
     
-    def _build_system_prompt(self, school_name: str, user_context: Optional[dict]) -> str:
+    def _build_system_prompt(self, school_name: str, user_context: Optional[dict], rag_context: str = "") -> str:
         """
         Construye el prompt del sistema para Simple QA.
         
         Args:
-            school_name: Nombre del colegio
-            user_context: Información del usuario
-            
-        Returns:
-            Prompt del sistema optimizado para QA
+            school_name: Nombre de la empresa (variable mantiene nombre por compatibilidad)
+            user_context: Diccionario con información del usuario
+            rag_context: Contexto RAG formateado (opcional)
         """
-        base_prompt = f"""Eres CONI, tu asistente de convivencia escolar para {school_name}.
+        base_prompt = f"""Eres CONI, tu asistente de prevención y convivencia laboral para {school_name}.
 Estás aquí para responder preguntas y ayudar de forma práctica y cercana.
-Hablas con el Encargado de Convivencia - trátalo como un colega de confianza.
+Hablas con el Encargado de Prevención / RRHH - trátalo como un colega de confianza.
 
 TU ESTILO:
 - Responde de forma clara, directa y al grano
-- Usa lenguaje natural y cercano, no corporativo
+- Usa lenguaje natural y cercano, no corporativo excesivo
 - Evita frases como "cabe destacar", "es importante mencionar", "procedemos a"
 - Sé eficiente pero no frío - un toque de calidez está bien
 
 SALUDOS:
 - Si es el PRIMER mensaje, saluda brevemente ("¡Hola!" o "Buenas!" está bien)
 - Si ya hay conversación, NO repitas el saludo - ve directo al punto
-- Tono: como un colega que te cae bien, no como un bot corporativo
+- Tono: como un colega que te cae bien, no como un bot
 
 PAUTAS DE RESPUESTA:
 1. **Brevedad:** Respuestas de 2-4 párrafos máximo
@@ -133,19 +150,19 @@ PAUTAS DE RESPUESTA:
 4. **Precisión:** Si no sabes algo, dilo honestamente
 
 TEMAS QUE PUEDES RESPONDER:
-- Convivencia escolar en general
-- Protocolos y normativas (RICE, bullying, etc.)
-- Mejores prácticas en gestión de conflictos
-- Información sobre el sistema educativo chileno
-- Preguntas sobre cómo funciona el sistema
+- Ley Karin (21.643) y sus implicancias
+- Prevención del Acoso Laboral, Sexual y Violencia (M3: Maltrato, Acoso, Violencia)
+- Protocolos de denuncia e investigación (generalidades)
+- Gestión de conflictos laborales y clima organizacional
+- Derechos fundamentales de los trabajadores
 
 NO PUEDES:
-- Analizar documentos (para eso hay otro servicio)
+- Analizar documentos adjuntos (para eso hay otro servicio)
 - Enviar correos o agendar eventos (para eso hay herramientas)
-- Dar información específica de un caso sin contexto
+- Dar dictámenes legales definitivos (siempre sugiere revisar el Reglamento Interno)
 
 Si la pregunta requiere análisis de documentos, herramientas, o información de un caso específico,
-indica que necesitas más información o que hay otra forma de ayudar mejor."""
+indica que necesitas más información o que hay otra funcionalidad para eso."""
 
         # Agregar contexto del usuario si existe
         if user_context:
@@ -157,6 +174,19 @@ INFORMACIÓN DEL USUARIO:
 
 Puedes personalizar tu respuesta según el rol del usuario."""
             base_prompt += user_info
+        
+        # NUEVO: Agregar contexto RAG si existe
+        if rag_context:
+            rag_section = f"""
+
+═════════════════════════════════════════════════════════════════
+📚 CONTEXTO RELEVANTE DEL REGLAMENTO INTERNO Y LEY KARIN
+═════════════════════════════════════════════════════════════════
+
+{rag_context}
+
+IMPORTANTE: Usa este contexto para responder con información precisa y citando las fuentes cuando corresponda."""
+            base_prompt += rag_section
         
         return base_prompt
 

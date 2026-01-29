@@ -86,7 +86,7 @@ class DocumentAnalyzer:
             from datetime import datetime
             current_date_str = datetime.now().strftime("%A %d de %B de %Y")
             
-            system_prompt = f"""Eres CONI, asistente de IA especializado en convivencia escolar para {school_name}.
+            system_prompt = f"""Eres CONI, asistente de prevención y convivencia laboral para {school_name}.
 
 FECHA ACTUAL DEL SISTEMA: {current_date_str}
 (Usa esta fecha como referencia. Si un documento menciona fechas futuras respecto a hoy, es probable que sea un error tipográfico o el documento es antiguo)
@@ -95,17 +95,17 @@ Tu tarea es analizar los documentos adjuntos que el usuario te ha compartido.
 
 INSTRUCCIONES:
 1. Lee cuidadosamente cada documento adjunto
-2. Identifica información clave relevante para convivencia escolar
+2. Identifica información clave relevante para convivencia laboral (Ley Karin)
 3. Si el usuario pregunta algo específico, enfócate en eso
 4. Proporciona un análisis claro y estructurado
-5. Si detectas posibles protocolos aplicables, menciónallos
+5. Si detectas posibles protocolos laborales aplicables, menciónallos
 6. NO menciones IDs técnicos del sistema
 
 FORMATO DE RESPUESTA:
 - Sé conciso pero completo
 - Usa bullet points para mayor claridad
 - Menciona el nombre de los documentos cuando sea relevante
-- Si encuentras información sobre estudiantes involucrados, edades, cursos, etc., resúmela"""
+- Si encuentras información sobre trabajadores involucrados, cargos, etc., resúmela"""
 
             if case_context:
                 system_prompt += f"\n\nCONTEXTO DEL CASO ACTIVO:\n{case_context.get('summary', '')}"
@@ -227,7 +227,7 @@ FORMATO DE RESPUESTA:
             from datetime import datetime
             current_date_str = datetime.now().strftime("%A %d de %B de %Y")
             
-            system_prompt = f"""Eres CONI, asistente de IA especializado en convivencia escolar para {school_name}.
+            system_prompt = f"""Eres CONI, asistente de prevención y convivencia laboral para {school_name}.
 
 FECHA ACTUAL DEL SISTEMA: {current_date_str}
 (Usa esta fecha como referencia. Si un documento menciona fechas futuras respecto a hoy, es probable que sea un error tipográfico o el documento es antiguo)
@@ -236,17 +236,17 @@ Tu tarea es analizar los documentos adjuntos que el usuario te ha compartido.
 
 INSTRUCCIONES:
 1. Lee cuidadosamente cada documento adjunto
-2. Identifica información clave relevante para convivencia escolar
+2. Identifica información clave relevante para convivencia laboral (Ley Karin)
 3. Si el usuario pregunta algo específico, enfócate en eso
 4. Proporciona un análisis claro y estructurado
-5. Si detectas posibles protocolos aplicables, menciónallos
+5. Si detectas posibles protocolos laborales aplicables, menciónallos
 6. NO menciones IDs técnicos del sistema
 
 FORMATO DE RESPUESTA:
 - Sé conciso pero completo
 - Usa bullet points para mayor claridad
 - Menciona el nombre de los documentos cuando sea relevante
-- Si encuentras información sobre estudiantes involucrados, edades, cursos, etc., resúmela"""
+- Si encuentras información sobre trabajadores involucrados, cargos, etc., resúmela"""
 
             if case_context:
                 system_prompt += f"\n\nCONTEXTO DEL CASO ACTIVO:\n{case_context.get('summary', '')}"
@@ -381,9 +381,8 @@ FORMATO DE RESPUESTA:
             query_info = await self._classify_query(message)
             logger.info(f"📊 [DOC_ANALYZER_RAG_STREAM] Query classified: {query_info}")
             
-            # ... (Search logic remains same)
             # 2. Búsqueda RAG con 2 pasos
-            from app.services.chat.rice_search_service import rice_search_service
+            from app.services.chat.reglamento_search_service import reglamento_search_service
             
             # Fallback: usar app demo si no se provee ID
             if not search_app_id:
@@ -405,46 +404,44 @@ FORMATO DE RESPUESTA:
             
             if is_listing_query:
                 logger.info(f"📋 [DOC_ANALYZER_RAG_STREAM] Listing query detected, performing broad search")
-                rice_results = await rice_search_service._search_in_app(
+                reglamento_results = await reglamento_search_service._search_in_app(
                     app_id=search_app_id,
                     query="protocolo reglamento documento manual",
                     max_results=15
                 )
                 rag_results = {
-                    "rice_results": rice_results,
-                    "legal_results": [],
+                    "reglamento_results": reglamento_results,
+                    "ley_karin_results": [],
                     "total_tokens": 0,
                     "source": "listing"
                 }
             elif has_legal_keyword:
-                # Consulta sobre documentos legales → usar search_rice_for_case
-                logger.info(f"⚖️ [DOC_ANALYZER_RAG_STREAM] Legal keywords detected, searching with severity=grave for legal results")
-                rag_results = await rice_search_service.search_rice_for_case(
+                # Consulta sobre documentos legales
+                logger.info(f"⚖️ [DOC_ANALYZER_RAG_STREAM] Legal keywords detected")
+                rag_results = await reglamento_search_service.search_reglamento_for_case(
                     query=message,
-                    school_search_app_id=search_app_id,
-                    case_type=query_info.get('type'),
-                    severity='grave'  # Force legal results
+                    company_search_app_id=search_app_id,
+                    case_type=query_info.get('type')
                 )
             else:
                 # Búsqueda normal específica
-                rag_results = await rice_search_service.search_rice_for_case(
+                rag_results = await reglamento_search_service.search_reglamento_for_case(
                     query=message,
-                    school_search_app_id=search_app_id,
-                    case_type=query_info.get('type'),
-                    severity=query_info.get('severity')
+                    company_search_app_id=search_app_id,
+                    case_type=query_info.get('type')
                 )
-            
-            logger.info(f"✅ [DOC_ANALYZER_RAG_STREAM] Found {len(rag_results.get('rice_results', []))} results")
+
+            logger.info(f"✅ [DOC_ANALYZER_RAG_STREAM] Found {len(rag_results.get('reglamento_results', [])) + len(rag_results.get('ley_karin_results', []))} total results")
             
             # 3. Construir prompt
             from datetime import datetime
             current_date_str = datetime.now().strftime("%A %d de %B de %Y")
             
-            system_prompt = f"""Eres CONI, asistente de IA especializado en convivencia escolar para {school_name}.
+            system_prompt = f"""Eres CONI, asistente de prevención y convivencia laboral para {school_name}.
 
 FECHA ACTUAL DEL SISTEMA: {current_date_str}
 
-SITUACIÓN: El usuario te está consultando sobre protocolos, documentación o casos escolares.
+SITUACIÓN: El usuario te está consultando sobre protocolos, documentación o casos laborales.
 
 INSTRUCCIONES:
 1. Analiza los fragmentos de documentos proporcionados
@@ -461,15 +458,15 @@ FORMATO:
                 system_prompt += f"\n\nCONTEXTO DEL CASO:\n{case_context.get('summary', '')}"
             
             # Agregar contexto RAG
-            if rag_results.get('rice_results'):
+            if rag_results.get('reglamento_results') or rag_results.get('ley_karin_results'):
                 # Extraer nombres únicos
                 document_names = list(set([
-                    result['title'] for result in rag_results.get('rice_results', [])
+                    result['title'] for result in rag_results.get('reglamento_results', []) + rag_results.get('ley_karin_results', [])
                 ]))
                 
-                rag_context = rice_search_service.format_results_for_prompt(
-                    rice_results=rag_results.get('rice_results', []),
-                    legal_results=rag_results.get('legal_results', [])
+                rag_context = reglamento_search_service.format_results_for_prompt(
+                    reglamento_results=rag_results.get('reglamento_results', []),
+                    ley_karin_results=rag_results.get('ley_karin_results', [])
                 )
                 
                 if is_listing_query:
@@ -521,12 +518,12 @@ FORMATO:
                 )
             
             # Agregar referencias automáticamente al final del stream
-            if rag_results.get('rice_results') or rag_results.get('legal_results'):
+            if rag_results.get('reglamento_results') or rag_results.get('ley_karin_results'):
                 from app.services.chat.reference_builder import build_references_section
                 
                 references_section = build_references_section(
-                    rice_results=rag_results.get('rice_results', []),
-                    legal_results=rag_results.get('legal_results', []),
+                    rice_results=rag_results.get('reglamento_results', []),
+                    legal_results=rag_results.get('ley_karin_results', []),
                     target_document=rag_results.get('target_document')
                 )
                 
@@ -547,8 +544,7 @@ FORMATO:
         
         Returns:
             {
-                "type": "protocolo" | "caso" | "documento" | "consulta_general",
-                "severity": "leve" | "grave" | "gravísimo" | None
+                "type": "protocolo" | "caso" | "documento" | "consulta_general"
             }
         """
         try:
@@ -559,29 +555,19 @@ FORMATO:
             query_type = "consulta_general"
             if "protocolo" in message_lower:
                 query_type = "protocolo"
-            elif any(word in message_lower for word in ["caso", "incidente", "situación"]):
+            elif any(word in message_lower for word in ["caso", "incidente", "situación", "acoso", "denuncia"]):
                 query_type = "caso"
-            elif any(word in message_lower for word in ["documento", "rice", "reglamento"]):
+            elif any(word in message_lower for word in ["documento", "reglamento", "ley", "normativa"]):
                 query_type = "documento"
             
-            # Detectar gravedad (solo para casos)
-            severity = None
-            if query_type == "caso":
-                if any(word in message_lower for word in ["grave", "agresión", "violencia", "bullying"]):
-                    severity = "grave"
-                elif any(word in message_lower for word in ["conflicto", "desacuerdo", "discusión"]):
-                    severity = "leve"
-            
             return {
-                "type": query_type,
-                "severity": severity
+                "type": query_type
             }
             
         except Exception as e:
             logger.warning(f"⚠️ [DOC_ANALYZER] Error classifying query: {e}")
             return {
-                "type": "consulta_general",
-                "severity": None
+                "type": "consulta_general"
             }
     
     async def extract_context_summary(self, analysis_text: str, user_message: str = "", user_id: str = None) -> dict:
@@ -601,8 +587,8 @@ FORMATO:
             # Define schema for structured output
             class ContextSummary(BaseModel):
                 summary: str = Field(description="Resumen conciso del contenido analizado (máximo 200 palabras)")
-                key_concepts: List[str] = Field(description="3-5 conceptos clave (ej: maltrato, bullying, proceso sancionatorio)")
-                has_potential_case: bool = Field(description="True si parece ser un caso de convivencia escolar")
+                key_concepts: List[str] = Field(description="3-5 conceptos clave (ej: acoso laboral, menoscabo, Ley Karin)")
+                has_potential_case: bool = Field(description="True si parece ser un caso de convivencia laboral")
             
             # Use Flash for fast extraction
             flash_llm = ChatVertexAI(
@@ -623,7 +609,7 @@ MENSAJE ORIGINAL DEL USUARIO:
 TAREA:
 1. Crea un resumen conciso (máximo 200 palabras) del contenido
 2. Identifica 3-5 conceptos clave (tipo de conflicto, partes involucradas, etc.)
-3. Determina si esto parece ser un caso de convivencia escolar (maltrato, bullying, conflicto, etc.)
+3. Determina si esto parece ser un caso de convivencia laboral (acoso, violencia, conflicto, etc.)
 
 IMPORTANTE:
 - NO uses nombres propios de personas en el resumen

@@ -26,6 +26,7 @@ class GoogleTools:
     def _text_to_html(self, text: str) -> str:
         """
         Convierte texto plano a HTML para mejor formato en correos.
+        Detecta y formatea listas (*, -, •, números) como HTML.
         Elimina word-wrapping artificial del LLM y mantiene solo párrafos reales.
         Preserva el formato de la firma (nombre, cargo, institución).
         """
@@ -34,6 +35,10 @@ class GoogleTools:
         
         # Escapar caracteres HTML especiales
         text = html.escape(text)
+        
+        
+        # Eliminar negritas markdown (**) antes de procesar
+        text = text.replace('**', '')
         
         # Normalizar saltos de línea
         text = text.replace('\r\n', '\n')
@@ -55,20 +60,119 @@ class GoogleTools:
                     signature_block = text[end_of_marker_line + 1:]
                 break
         
+        def process_paragraph(p: str) -> str:
+            """Procesa un párrafo, detectando si contiene una lista."""
+            p = p.strip()
+            if not p:
+                return ''
+            
+            lines = p.split('\n')
+            
+            
+            # Detectar si este párrafo contiene una lista
+            list_pattern = re.compile(r'^[\s]*(?:[-*•]|\d+\.)\s+')
+            list_items = []
+            non_list_content = []
+            current_list_type = None  # 'ul' para viñetas, 'ol' para números
+            
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                
+                
+                # Detectar tipo de lista
+                if re.match(r'^[-*•]\s+', line):
+                    # Lista con viñetas
+                    if current_list_type == 'ol' and list_items:
+                        # Cambio de tipo, cerrar lista anterior
+                        non_list_content.append(self._build_list_html('ol', list_items))
+                        list_items = []
+                    current_list_type = 'ul'
+                    # Extraer contenido sin el marcador
+                    content = re.sub(r'^[-*•]\s+', '', line)
+                    list_items.append(content)
+                elif re.match(r'^\d+\.\s+', line):
+                    # Lista numerada
+                    if current_list_type == 'ul' and list_items:
+                        # Cambio de tipo, cerrar lista anterior
+                        non_list_content.append(self._build_list_html('ul', list_items))
+                        list_items = []
+                    current_list_type = 'ol'
+                    # Extraer contenido sin el número
+                    content = re.sub(r'^\d+\.\s+', '', line)
+                    list_items.append(content)
+                else:
+                    # No es ítem de lista
+                    if list_items:
+                        # Cerrar lista pendiente
+                        non_list_content.append(self._build_list_html(current_list_type, list_items))
+                        list_items = []
+                        current_list_type = None
+                    non_list_content.append(line)
+            
+            # Cerrar lista pendiente al final
+            if list_items:
+                non_list_content.append(self._build_list_html(current_list_type, list_items))
+            
+            # Si todo el párrafo era una lista, devolver solo la lista
+            if len(non_list_content) == 1 and non_list_content[0].startswith('<'):
+                return non_list_content[0]
+            
+            # Combinar contenido no-lista en párrafo
+            text_content = ' '.join([c for c in non_list_content if not c.startswith('<')])
+            list_content = ''.join([c for c in non_list_content if c.startswith('<')])
+            
+            result = ''
+            if text_content:
+                result += f'<p style="margin: 0 0 16px 0; line-height: 1.6;">{text_content}</p>'
+            if list_content:
+                result += list_content
+            
+            return result
+        
         # Detectar párrafos reales (separados por línea en blanco)
         paragraphs = re.split(r'\n\s*\n', main_text)
+        
+        
+        # CRITICAL FIX: Fusionar párrafos numerados consecutivos en un solo bloque
+        # Problema: LLM genera "1. Item\n\n2. Item\n\n3. Item" → 3 listas separadas
+        # Solución: Fusionar en "1. Item\n2. Item\n3. Item" → 1 lista única
+        merged_paragraphs = []
+        i = 0
+        while i < len(paragraphs):
+            current = paragraphs[i].strip()
+            
+            # Si este párrafo empieza con número (lista numerada)
+            if re.match(r'^\d+\.\s+', current):
+                # Iniciar acumulación de items consecutivos
+                numbered_items = [current]
+                i += 1
+                
+                # Mirar párrafos siguientes para ver si también son items numerados
+                while i < len(paragraphs):
+                    next_p = paragraphs[i].strip()
+                    if re.match(r'^\d+\.\s+', next_p):
+                        numbered_items.append(next_p)
+                        i += 1
+                    else:
+                        break
+                
+                # Fusionar todos los items numerados en un solo párrafo
+                merged_paragraph = '\n'.join(numbered_items)
+                merged_paragraphs.append(merged_paragraph)
+            else:
+                merged_paragraphs.append(current)
+                i += 1
+        
+        paragraphs = merged_paragraphs
         
         # Procesar cada párrafo del cuerpo principal
         html_paragraphs = []
         for p in paragraphs:
-            p = p.strip()
-            if p:
-                # Eliminar saltos de línea internos (word-wrap del LLM)
-                # pero mantener los que son seguidos de guión o número (listas)
-                p = re.sub(r'\n(?![-•*\d])', ' ', p)
-                # Limpiar espacios múltiples
-                p = re.sub(r'  +', ' ', p)
-                html_paragraphs.append(f'<p style="margin: 0 0 16px 0; line-height: 1.6;">{p}</p>')
+            processed = process_paragraph(p)
+            if processed:
+                html_paragraphs.append(processed)
         
         # Procesar la firma si existe (mantener saltos de línea como <br>)
         if signature_block:
@@ -88,6 +192,51 @@ class GoogleTools:
 </body>
 </html>"""
         return html_body
+    
+    def _build_list_html(self, list_type: str, items: list) -> str:
+        """Construye HTML para una lista (ul u ol), procesando sub-viñetas dentro de items."""
+        import re
+        tag = list_type or 'ul'
+        style = 'margin: 8px 0 16px 0; padding-left: 24px; line-height: 1.6;'
+        
+        items_html_parts = []
+        for item in items:
+            # Procesar el item para detectar sub-viñetas (• o -)
+            item_html = item
+            
+            # Si el item contiene viñetas, convertirlas a sub-lista
+            if '•' in item or '\n-' in item or '\n*' in item:
+                # Dividir por saltos de línea para detectar sub-items
+                lines = item.split('\n')
+                main_text_parts = []
+                subitems = []
+                
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    # Detectar si es una sub-viñeta
+                    if re.match(r'^[•\-\*]\s+', line):
+                        # Remover el marcador de viñeta
+                        subitem_text = re.sub(r'^[•\-\*]\s+', '', line)
+                        subitems.append(subitem_text)
+                    else:
+                        # Es parte del texto principal
+                        main_text_parts.append(line)
+                
+                # Construir el HTML del item con su sub-lista
+                main_text = ' '.join(main_text_parts)
+                item_html = main_text
+                
+                if subitems:
+                    # Agregar sub-lista <ul>
+                    subitems_html = ''.join([f'<li style="margin-bottom: 2px; font-size: 0.95em;">{sub}</li>' for sub in subitems])
+                    item_html += f'<ul style="margin: 4px 0 0 0; padding-left: 32px; line-height: 1.5;">{subitems_html}</ul>'
+            
+            items_html_parts.append(f'<li style="margin-bottom: 8px;">{item_html}</li>')
+        
+        items_html = ''.join(items_html_parts)
+        return f'<{tag} style="{style}">{items_html}</{tag}>'
 
     def list_events(self, day: str = None):
         """Lista los eventos del calendario para un día específico (YYYY-MM-DD) o los próximos 10 eventos."""

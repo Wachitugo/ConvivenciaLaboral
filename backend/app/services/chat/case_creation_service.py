@@ -1,13 +1,8 @@
 """
 Case Creation Service
 
-Servicio especializado en ayudar al usuario a documentar nuevos casos escolares.
+Servicio especializado en ayudar al usuario a documentar nuevos casos laborales (Ley Karin).
 Usa conversación guiada para recopilar información necesaria.
-
-Casos de uso:
-- "Tengo un caso de pelea entre 2 alumnos"
-- "Se reportó un incidente de bullying"
-- "Un estudiante agredió a otro"
 """
 
 import logging
@@ -23,7 +18,7 @@ settings = get_settings()
 
 class CaseCreationService:
     """
-    Servicio para ayudar a documentar casos escolares mediante conversación guiada.
+    Servicio para ayudar a documentar casos laborales (Ley Karin) mediante conversación guiada.
     
     Características:
     - Prompt enfocado (solo documentación de casos)
@@ -68,16 +63,16 @@ class CaseCreationService:
         logger.info(f"📋 [CASE_CREATION] Processing case description: {message[:50]}...")
         
         try:
-            # 1. Clasificar caso rápidamente (tipo y gravedad)
+            # 1. Clasificar caso rápidamente (tipo para enriquecer búsqueda)
             case_info = await self._classify_case_quick(message, history)
             logger.info(f"📊 [CASE_CREATION] Case classified: {case_info}")
             
-            # 2. Búsqueda RAG en RICE + marco legal (según gravedad)
-            rag_context = await self._search_rice_rag(
+            # 2. Búsqueda RAG en Reglamento Interno + Ley Karin
+            # Usamos search_app_id como el ID de la búsqueda de la empresa
+            rag_context = await self._search_reglamento_rag(
                 message=message,
-                search_app_id=search_app_id,
-                case_type=case_info.get('type'),
-                severity=case_info.get('severity')
+                company_search_app_id=search_app_id,
+                case_type=case_info.get('type')
             )
             
             # 2.5 Extraer datos ya conocidos del historial
@@ -136,9 +131,9 @@ class CaseCreationService:
             should_include_references = False
             
             protocol_keywords = [
-                "protocolo de", "protocolo para", "protocolo tea", "protocolo nee",
+                "protocolo", "procedimiento", "investigación", "denuncia",
                 "artículo", "articulo", "inciso", "letra",
-                "ley", "decreto", "circular", "rex"
+                "ley", "código del trabajo", "reglamento interno", "dictamen"
             ]
             answer_lower = answer.lower()
             if any(k in answer_lower for k in protocol_keywords):
@@ -165,8 +160,8 @@ class CaseCreationService:
                     legal_docs = rag_context.get("legal_results", [])
                     
                     # Buscar REX 782 específicamente si es común
-                    if "REX" in answer_upper and "782" in answer_upper:
-                         current_target = "REX 782"
+                    if "LEY" in answer_upper and "21.643" in answer_upper:
+                         current_target = "LEY 21.643 (LEY KARIN)"
                          logger.info(f"🎯 [CASE_CREATION] Detected mention of {current_target} in answer, setting as target")
                     else:
                         # Buscar otros documentos del contexto
@@ -186,8 +181,8 @@ class CaseCreationService:
                             if current_target: break
 
                 references_section = build_references_section(
-                    rice_results=rag_context.get("rice_results", []),
-                    legal_results=rag_context.get("legal_results", []),
+                    rice_results=rag_context.get("reglamento_results", []),
+                    legal_results=rag_context.get("ley_karin_results", []),
                     target_document=current_target
                 )
                 
@@ -206,102 +201,69 @@ class CaseCreationService:
     
     def _build_enhanced_prompt(
         self,
-        school_name: str,
+        school_name: str, # Mantenemos nombre variable por compatibilidad, pero es Company Name
         user_context: dict = None,
         rag_context: dict = None,
         case_info: dict = None,
-        known_data: dict = None  # NUEVO: datos ya proporcionados por el usuario
+        known_data: dict = None
     ) -> str:
         """
-        Construye prompt enfocado para documentación de casos.
-        
-        Args:
-            school_name: Nombre del colegio
-            user_context: Información del usuario (opcional)
-            
-        Returns:
-            Prompt del sistema optimizado para case creation
+        Construye prompt enfocado para documentación de casos laborales (Ley Karin).
         """
         from datetime import datetime
         current_date = datetime.now().strftime("%A %d de %B de %Y")
         
-        base_prompt = f"""Eres CONI, tu asistente de convivencia escolar para {school_name}.
-Estás aquí para ayudar con la gestión de casos y situaciones escolares de forma práctica y cercana.
-Hablas con el Encargado de Convivencia Escolar - trátalo como un colega, no como un cliente.
+        base_prompt = f"""Eres CONI, tu asistente de prevención y convivencia laboral para {school_name}.
+Estás aquí para ayudar con la gestión de casos y situaciones laborales de forma práctica y cercana.
+Hablas con el Encargado de Prevención / RRHH - trátalo como un colega.
+
+TU ESTILO:
+- Profesional, objetivo y empático.
+- Basado estrictamente en la normativa laboral vigente (Ley Karin 21.643) y Reglamento Interno.
 
 FECHA ACTUAL: {current_date}
 
-SITUACIÓN: El usuario está describiendo un caso o incidente escolar que necesita ser documentado.
+SITUACIÓN: El usuario está describiendo un caso o incidente laboral.
 
 ═══════════════════════════════════════════════════════════════════
-CRÍTICO - ADHERENCIA AL RICE (REGLAMENTO INTERNO DE CONVIVENCIA ESCOLAR)
+CRÍTICO - ADHERENCIA AL REGLAMENTO INTERNO Y LEY KARIN
 ═══════════════════════════════════════════════════════════════════
 
 **REGLA FUNDAMENTAL:**
-- TODO caso debe gestionarse según el RICE del {school_name}
-- SIEMPRE menciona que las acciones deben seguir el protocolo RICE del colegio
-- NUNCA inventes o references documentos inexistentes
-- NO menciones casos de otros colegios (ej: "Liceo Chileno", "Reporte de Medidas")
-- Si no tienes el RICE disponible, indica que must follow colegio protocols
+- TODO caso debe analizarse según el Reglamento Interno de {school_name} y la Ley 21.643.
+- TU FUNCIÓN PRINCIPAL es determinar si los hechos descritos constituyen un caso según la normativa.
+- NUNCA inventes o references documentos inexistentes.
 
 ═══════════════════════════════════════════════════════════════════
 TU ESTRATEGIA - DOCUMENTACIÓN EFICIENTE E INTELIGENTE
 ═══════════════════════════════════════════════════════════════════
 
-🚨 REGLA #0 - RESPONDE PRIMERO A PREGUNTAS EXPLÍCITAS:
-Si el usuario hace una PREGUNTA DIRECTA (ej: "¿qué se debe hacer?", "¿cuál es el siguiente paso?", "¿qué protocolo aplica?"):
-→ RESPONDE ESA PREGUNTA PRIMERO con orientación práctica
-→ LUEGO puedes solicitar datos adicionales si faltan
-→ NUNCA ignores una pregunta para solo pedir datos
+🚨 PROTOCOLO DE ANÁLISIS:
+1. **Identificar Hechos:** ¿Qué pasó, quiénes, cuándo, dónde?
+2. **Contrastar con Normativa (RAG):** Revisa los fragmentos adjuntos abajo. ¿La conducta está tipificada?
+3. **Clasificar:** ¿Es Acoso Laboral? ¿Acoso Sexual? ¿Violencia en el trabajo? ¿Conflicto interpersonal?
 
-**PASO 1 - IDENTIFICACIÓN Y CONTEXTUALIZACIÓN:**
-Cuando el usuario describe un caso, TÚ DEBES:
-1. **EXTRAER y PRESERVAR toda información proporcionada** - nombres completos con apellidos, cursos, fechas, etc.
-2. **CONTAR correctamente los involucrados** - Si hay UN estudiante, habla en SINGULAR. Si hay varios, en PLURAL.
-3. **Inferir del contexto** lo máximo posible (ej: "1° Medio" → adolescente ~14-15 años)
-4. **Reconocer el nivel de gravedad** del incidente
+**PASO 1 - IDENTIFICACIÓN:**
+- Nombres completos de involucrados (agresor/víctima).
+- Cargos o roles (Jefe, subordinado, par, cliente externo).
+- Relación jerárquica (Crítico para acoso laboral).
 
 🛑 REGLA CRÍTICA - NO PREGUNTES POR DATOS YA PROPORCIONADOS:
-- Si el usuario menciona "Nombre Apellido" → USA el nombre completo (NO solo el nombre de pila)
-- Si el usuario dice "N° básico" o "N° medio" → YA TIENES el curso (NO preguntes de nuevo)
-- Si el usuario da nombres con apellidos → CONSERVA los apellidos completos en tu respuesta
-- ANTES de preguntar, verifica si el dato ya está en el mensaje del usuario
-
-📊 SINGULAR VS PLURAL - ADAPTA TU LENGUAJE:
-- Si falta información crítica (tipo, fecha, descripción completa), pídela amablemente pero con formalidad.
-
-SOBRE INFORMACIÓN SENSIBLE (TEA/NEE):
-- NO preguntes por diagnósticos TEA/NEE de forma rutinaria u obligatoria.
-- SOLAMENTE pregunta si:
-  a) Es estrictamente necesario para el contexto del incidente.
-  b) El usuario ha mencionado dificultades de aprendizaje o comportamiento.
-  c) La normativa o protocolo específico lo exige explícitamente para el tipo de caso.
+- Si el usuario menciona "Juan Pérez" → USA el nombre completo.
+- Con respecto a cargos, si mencionó "Jefe de Ventas", no preguntes de nuevo.
 
 **PASO 2 - RESPONDER + RECOPILAR:**
-Si el usuario preguntó algo específico:
-1. RESPONDE la pregunta con orientación clara y profesional.
-2. Luego, solicita los datos faltantes (si los hay).
-
-Si NO preguntó nada específico:
-1. Reconoce la situación con seriedad profesional.
-2. Agrupa los datos faltantes en UNA pregunta concisa.
-
-**PASO 3 - CONVERGENCIA:**
-- Una vez tengas la información suficiente, confirma los datos.
-- Ofrece proceder con la gestión del caso.
+Si faltan datos clave para determinar si aplica Ley Karin (ej: si hubo reiteración en acoso laboral, o si hay relación jerárquica), PREGUNTA específicamente por eso.
 
 TONO DE VOZ:
-- **Formal y Profesional (Español Neutro):** Mantén una distancia profesional pero colaborativa. Nada de modismos chilenos o coloquialismos.
-- **Directo pero cortés:** Evita saludos tipo carta ("Estimado usuario"), habla directamente como un asistente experto.
-- **NO uses:** "Estimado", "Cordialmente", ni despedidas de correo en el chat.
-- **Ejemplo correcto:** "Entiendo la situación. Para proceder adecuadamente con el registro, necesito que me indique el curso del estudiante involucrado."
-- **Ejemplo incorrecto:** "Hola compadre, cuéntame qué pasó." / "Estimado Director, le informo que..."
+- **Formal y Profesional (Español Neutro).**
+- Evita juicios de valor. Usa términos como "presunto", "reportado", "indica".
+- **Ejemplo:** "Para determinar si aplica el protocolo de Acoso Laboral, necesito saber si estas conductas han sido reiteradas en el tiempo."
 
 NO HAGAS:
-- Inventar documentos.
-- Activar protocolos automáticamente.
-- Dar consejos clínicos.
-- Redactar correos en el chat (usa la herramienta de redactar correo).
+- Dar consejos legales definitivos (eres un asistente).
+- Activar protocolos automáticamente sin confirmación.
+- Redactar correos en el chat (usa la herramienta).
 
 Si el usuario necesita enviar correos, indícale que puedes ayudarle a redactarlos usando la función del sistema."""
 
@@ -311,52 +273,52 @@ Si el usuario necesita enviar correos, indícale que puedes ayudarle a redactarl
 
 INFORMACIÓN DEL USUARIO:
 - Nombre: {user_context.get('nombre', 'No especificado')}
-- Rol: {user_context.get('rol', 'No especificado')}
-
-Puedes personalizar tu respuesta según su rol."""
+- Rol: {user_context.get('rol', 'No especificado')}"""
             base_prompt += user_info
         
         # Add RAG context section
-        if rag_context and rag_context.get("rice_formatted"):
-            rice_section = f"""
+        if rag_context and (rag_context.get("reglamento_results") or rag_context.get("ley_karin_results")):
+            
+            # Formatear usando el helper del servicio de búsqueda si ya viene formateado o hacerlo aquí
+            # En este caso asumimos que rag_context ya tiene las listas crudas y usamos el formateador
+            # O si el servicio anterior devolvió strings, usarlos. 
+            # Revisando el código anterior, _search_reglamento_rag devuelve dict con listas.
+            
+            # Necesitamos instanciar el servicio para formatear, o hacerlo manualmente aqui.
+            # Mejor usar el string ya formateado si lo devolvimos (revisar _search_reglamento_rag más abajo).
+            # Revisando _search_reglamento_rag implementación (que vamos a escribir):
+            # Devolveremos 'rag_formatted' para simplificar.
+            
+            rag_section = f"""
 
 ═══════════════════════════════════════════════════════════════════
-✅ CONTEXTO RAG - FRAGMENTOS RELEVANTES DEL RICE Y MARCO LEGAL
+✅ CONTEXTO NORMATIVO (RAG) - REGLAMENTO INTERNO Y LEY
 ═══════════════════════════════════════════════════════════════════
 
-{rag_context['rice_formatted']}
+{rag_context.get('rag_formatted', 'No se pudo formatear el contexto.')}
 
 INSTRUCCIONES CRÍTICAS:
-- BASA tu respuesta en los fragmentos específicos mostrados arriba
-- CITA artículos/secciones cuando los menciones
-- SIGUE los protocolos descritos en los fragmentos
-- NO inventes información que no esté en los fragmentos
-
-⚠️ IMPORTANTE - MANEJO DE INFORMACIÓN FALTANTE:
-- Si buscas un protocolo específico y NO aparece en los fragmentos anteriores, di:
-  "Este protocolo específico no está presente en los fragmentos del RICE consultados"
-- NUNCA digas "no tengo acceso" o "no tengo el contexto completo"
-- El documento RICE YA ESTÁ CARGADO - si algo no aparece, es porque no está en el documento
-- Si no encuentras un protocolo específico pero hay procedimientos generales aplicables, úsalos
+- BASA tu análisis EXCLUSIVAMENTE en los fragmentos anteriores.
+- Si el reglamento define "Acoso Laboral" de cierta forma, USA ESA DEFINICIÓN.
+- Si los hechos no calzan con la definición (ej: es un conflicto puntual y no reiterado), indícalo: "Según el Reglamento, esto podría tratarse de un conflicto interpersonal y no necesariamente acoso laboral, debido a..."
+- CITA los artículos o secciones cuando corresponda.
 
 Tokens usados: ~{rag_context.get('total_tokens', 0)} tokens
 """
         else:
-            rice_section = f"""
+            rag_section = f"""
 
-⚠️ RICE NO DISPONIBLE - MODO GENÉRICO
+⚠️ REGLAMENTO NO DISPONIBLE - MODO GENÉRICO
 ═══════════════════════════════════════════════════════════════════
 
-NO se encontraron fragmentos específicos del RICE.
+NO se encontraron fragmentos específicos.
 
 INSTRUCCIONES:
-- Proporciona orientación GENERAL según normativa chilena estándar
-- INDICA claramente que son recomendaciones generales
-- RECOMIENDA verificar con el RICE específico del {school_name}
+- Proporciona orientación GENERAL basada en la Ley Karin (Ley 21.643).
+- Define claramente los conceptos generales de Acoso Laboral, Sexual y Violencia.
+- RECOMIENDA verificar el Reglamento Interno físico de la empresa."""
 
-💡 Nota: El RICE debe estar indexado en Vertex AI Search para búsqueda RAG."""
-
-        base_prompt += rice_section
+        base_prompt += rag_section
         
         # NUEVO: Inyectar datos ya conocidos si existen
         if known_data:
@@ -371,7 +333,6 @@ INSTRUCCIONES:
 
 ⚠️ INSTRUCCIÓN CRÍTICA: Los datos anteriores YA fueron proporcionados.
 NO preguntes nuevamente por ellos. Solo pregunta por datos que FALTAN.
-USA los nombres y cursos EXACTOS proporcionados arriba.
 """
             base_prompt += known_section
         
@@ -379,44 +340,38 @@ USA los nombres y cursos EXACTOS proporcionados arriba.
     
     async def _classify_case_quick(self, message: str, history: List) -> dict:
         """
-        Clasifica rápidamente el tipo y gravedad del caso.
-        
-        Returns:
-            {
-                "type": "agresión_física" | "bullying" | "conflicto" | etc.,
-                "severity": "leve" | "grave" | "gravísimo"
-            }
+        Clasifica rápidamente el tipo de caso para enriquecer la búsqueda.
+        Ahora SIN SEVERIDAD.
         """
         try:
             from langchain_core.messages import HumanMessage, SystemMessage
             
-            # Prompt rápido para clasificación
-            classification_prompt = f"""Clasifica este caso escolar BREVEMENTE:
+            classification_prompt = f"""Analiza este caso laboral y extrae palabras clave para búsqueda.
 
 Caso: "{message}"
 
+Identifica el TIPO de situación (solo uno):
+- acoso_laboral (hostigamiento, menoscabo, reiterado)
+- acoso_sexual (naturaleza sexual, indebido)
+- violencia_trabajo (física, agresiones, externa)
+- discriminación (exclusión, trato desigual)
+- conflicto_interpersonal (problemas de clima, no necesariamente acoso)
+- otro
+
 Responde SOLO con JSON:
 {{
-  "type": "tipo_de_caso",
-  "severity": "leve" | "grave" | "gravísimo"
-}}
-
-Tipos válidos: agresión_física, bullying, acoso, conflicto, maltrato, discriminación, violencia_verbal, otro
-
-Criterios de gravedad:
-- leve: Conflictos menores, desacuerdos, falta de respeto ocasional
-- grave: Agresiones leves, bullying sostenido, discriminación
-- gravísimo: Agresiones físicas con lesiones, violencia sexual, amenazas graves"""
+  "type": "tipo_detectado"
+}}"""
             
             messages = [
-                SystemMessage(content="Eres un clasificador de casos escolares. Responde solo JSON."),
+                SystemMessage(content="Eres un clasificador técnico. Responde solo JSON."),
                 HumanMessage(content=classification_prompt)
             ]
             
             response = await self.llm.ainvoke(messages)
             content = response.content.strip()
             
-            # Limpiar markdown si existe
+            # Limpiar markdown
             if "```" in content:
                 import re
                 match = re.search(r'```(?:json)?\s*(\{[\s\S]*?\})\s*```', content, re.DOTALL)
@@ -426,71 +381,54 @@ Criterios de gravedad:
             import json
             classification = json.loads(content)
             
-            # Validar y normalizar
-            case_type = classification.get("type", "otro")
-            severity = classification.get("severity", "leve")
-            
             return {
-                "type": case_type,
-                "severity": severity
+                "type": classification.get("type", "otro")
             }
             
         except Exception as e:
             logger.warning(f"⚠️ [CASE_CREATION] Error classifying case: {e}")
-            # Fallback seguro
-            return {
-                "type": "otro",
-                "severity": "leve"
-            }
+            return {"type": "otro"}
     
-    async def _search_rice_rag(
+    async def _search_reglamento_rag(
         self,
         message: str,
-        search_app_id: str,
-        case_type: str = None,
-        severity: str = None
+        company_search_app_id: str,
+        case_type: str = None
     ) -> dict:
         """
-        Busca en RICE y marco legal usando RAG.
-        
-        Returns:
-            {
-                "rice_formatted": str,  # Fragmentos del RICE formateados
-                "legal_formatted": str, # Fragmentos del marco legal (si aplica)
-                "total_tokens": int
-            }
+        Busca en Reglamento Interno y Ley Karin (RAG unificado).
         """
         try:
-            from app.services.chat.rice_search_service import rice_search_service
+            from app.services.chat.reglamento_search_service import reglamento_search_service
             
-            # Fallback: usar app demo si no se provee ID
-            if not search_app_id:
-                search_app_id = "demostracion_1767713503741"
-                logger.warning(f"⚠️ [CASE_CREATION] No search_app_id provided, using default: {search_app_id}")
+            if not company_search_app_id:
+                company_search_app_id = "demostracion_1767713503741"
+                logger.warning(f"⚠️ [CASE_CREATION] No search_app_id provided, using default.")
             
-            # E jecutar búsqueda RAG
-            results = await rice_search_service.search_rice_for_case(
+            # Ejecutar búsqueda en ambos
+            results = await reglamento_search_service.search_reglamento_for_case(
                 query=message,
-                school_search_app_id=search_app_id,
-                case_type=case_type,
-                severity=severity
+                company_search_app_id=company_search_app_id,
+                case_type=case_type
             )
             
             # Formatear resultados
-            rice_formatted = rice_search_service.format_results_for_prompt(
-                rice_results=results.get("rice_results", []),
-                legal_results=results.get("legal_results", [])
+            rag_formatted = reglamento_search_service.format_results_for_prompt(
+                reglamento_results=results.get("reglamento_results", []),
+                ley_karin_results=results.get("ley_karin_results", [])
             )
             
             return {
-                "rice_formatted": rice_formatted,
+                "reglamento_results": results.get("reglamento_results", []),
+                "ley_karin_results": results.get("ley_karin_results", []),
+                "rag_formatted": rag_formatted,
                 "total_tokens": results.get("total_tokens", 0)
             }
             
         except Exception as e:
             logger.error(f"❌ [CASE_CREATION] Error in RAG search: {e}")
             return {
-                "rice_formatted": "",
+                "rag_formatted": "",
                 "total_tokens": 0
             }
     
@@ -502,13 +440,12 @@ Criterios de gravedad:
         
         Returns:
             {
-                "estudiantes": ["Nombre Apellido (N° básico/medio)"],
+                "trabajadores": ["Nombre Apellido (Cargo)"],
                 "fecha_incidente": "DD/MM/YYYY",
                 "lugar": "Lugar del incidente",
                 "tipo_caso": "Tipo de caso",
-                "involucrados": ["Relación con el estudiante"],
-                "descripcion_conducta": "Descripción breve",
-                "tiene_tea_nee": "Sí/No/No especificado"
+                "involucrados": ["Relación con el trabajador/jefatura"],
+                "descripcion_conducta": "Descripción breve"
             }
         """
         try:
@@ -536,13 +473,13 @@ MENSAJES:
 {all_user_input}
 
 Responde SOLO con JSON (sin markdown):
-{{"estudiantes": ["lista de estudiantes con nombre y curso si se mencionan"],
+Responde SOLO con JSON (sin markdown):
+{{"trabajadores": ["lista de involucrados con cargo"],
 "fecha_incidente": "fecha si se menciona",
 "lugar": "lugar si se menciona",
 "tipo_caso": "tipo de situación",
 "involucrados": ["otras personas mencionadas y su relación"],
-"descripcion_conducta": "breve descripción de lo ocurrido",
-"tiene_tea_nee": "Sí/No/No especificado"}}"""
+"descripcion_conducta": "breve descripción de lo ocurrido"}}"""
             
             messages = [
                 SystemMessage(content="Eres un extractor de datos. Responde solo JSON válido."),
@@ -594,13 +531,12 @@ Responde SOLO con JSON (sin markdown):
         lines = []
         
         field_labels = {
-            "estudiantes": "👤 Estudiante(s)",
+            "trabajadores": "👤 Involucrados (Víctima/Agresor)",
             "fecha_incidente": "📅 Fecha",
             "lugar": "📍 Lugar",
             "tipo_caso": "🏷️ Tipo de caso",
-            "involucrados": "👥 Otros involucrados",
-            "descripcion_conducta": "📝 Descripción",
-            "tiene_tea_nee": "🧠 TEA/NEE"
+            "involucrados": "👥 Testigos/Otros",
+            "descripcion_conducta": "📝 Descripción"
         }
         
         for key, label in field_labels.items():
