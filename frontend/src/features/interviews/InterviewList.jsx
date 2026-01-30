@@ -107,7 +107,7 @@ function InterviewList({ interviews, onOpenModal }) {
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-1">No hay entrevistas</h3>
                 <p className="text-gray-500 max-w-sm mx-auto mb-6">
-                    Comienza creando una nueva entrevista para registrar el seguimiento de los alumnos.
+                    Comienza creando una nueva entrevista para registrar el seguimiento de los trabajadores.
                 </p>
                 <button
                     onClick={onOpenModal}

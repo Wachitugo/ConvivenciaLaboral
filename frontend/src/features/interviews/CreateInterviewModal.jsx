@@ -335,7 +335,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                                 name="interviewer"
                                 value={formData.interviewer}
                                 onChange={handleInputChange}
-                                placeholder="Ej. Orientadora María"
+                                placeholder="Ej. Juan Pérez"
                                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-300 focus:ring-0 outline-none bg-gray-50 text-sm font-medium text-gray-800 transition-all placeholder:text-gray-400"
                             />
                         </div>

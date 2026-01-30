@@ -85,7 +85,7 @@ function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className={`w-full px-4 py-3.5 text-base border ${current.formBorder} rounded-xl ${current.inputBg} ${current.textSecondary} placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500`}
-            placeholder="correo@educacional.cl"
+            placeholder="correo@laboral.cl"
             required
           />
         </div>
