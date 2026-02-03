@@ -66,9 +66,10 @@ const normalizeStudentData = (row, index) => {
   const nombres = row['Nombres'] || row['nombres'] || row['Nombre'] || row['nombre'] || '';
   const apellidos = row['Apellidos'] || row['apellidos'] || row['Apellido'] || row['apellido'] || '';
   const rut = row['RUT'] || row['rut'] || row['Rut'] || '';
-  const email = row['Email'] || row['email'] || row['Correo'] || row['correo'] || '';
-  const curso = row['Área de trabajo'] || row['ÁREA DE TRABAJO'] || row['Area de trabajo'] || row['Curso'] || row['curso'] || row['CURSO'] || '';
-  const fechaNacimiento = row['Fecha Nacimiento'] || row['Fecha_Nacimiento'] || row['fechaNacimiento'] || row['FechaNacimiento'] || row['Nacimiento'] || '';
+  const email = row['Email'] || row['email'] || row['Correo'] || row['correo'] || row['Mail'] || row['mail'] || '';
+  const curso = row['Área de trabajo'] || row['ÁREA DE TRABAJO'] || row['Area de trabajo'] || row['AREA DE TRABAJO'] || row['Curso'] || row['curso'] || row['CURSO'] || '';
+  const fechaNacimiento = row['Fecha Nacimiento'] || row['Fecha_Nacimiento'] || row['fechaNacimiento'] || row['FechaNacimiento'] || row['Nacimiento'] || row['FECHA NACIMIENTO'] || '';
+  const genero = row['Género'] || row['Genero'] || row['género'] || row['genero'] || row['GÉNERO'] || row['GENERO'] || '';
   const tea = row['TEA'] || row['tea'] || '';
   const pie = row['PIE'] || row['pie'] || '';
   const paec = row['PAEC'] || row['paec'] || '';
@@ -120,6 +121,16 @@ const normalizeStudentData = (row, index) => {
     return null;
   };
 
+  // Normalizar género
+  const normalizeGenero = (value) => {
+    if (!value) return '';
+    const lower = value.toString().toLowerCase().trim();
+    if (lower === 'masculino' || lower === 'm' || lower === 'hombre') return 'Masculino';
+    if (lower === 'femenino' || lower === 'f' || lower === 'mujer') return 'Femenino';
+    if (lower === 'otro' || lower === 'otros' || lower === 'o') return 'Otro';
+    return value.toString().trim();
+  };
+
   return {
     id: Date.now() + index, // ID único temporal
     nombres: nombres.toString().trim(),
@@ -128,6 +139,7 @@ const normalizeStudentData = (row, index) => {
     email: email.toString().trim(),
     curso: curso.toString().trim(),
     fechaNacimiento: normalizeDate(fechaNacimiento),
+    genero: normalizeGenero(genero),
     tea: normalizeBool(tea),
     pie: normalizeBool(pie),
     paec: normalizeBool(paec),

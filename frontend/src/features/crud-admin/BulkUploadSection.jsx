@@ -305,10 +305,14 @@ export default function BulkUploadSection({ colegios, onRegistrarUsuario }) {
                                         <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium border border-blue-200">Email</span>
                                         <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium border border-blue-200">Área de trabajo</span>
                                         <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium border border-blue-200">Fecha Nacimiento</span>
-                                        <span className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-md text-xs font-medium border border-purple-200">TEA</span>
-                                        <span className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-md text-xs font-medium border border-purple-200">PIE</span>
-                                        <span className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-md text-xs font-medium border border-purple-200">PAEC</span>
+                                        <span className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-md text-xs font-medium border border-purple-200">Género</span>
                                     </div>
+                                    <p className="text-[10px] text-gray-400 mt-3">
+                                        Género acepta: <span className="font-medium">Masculino, Femenino, Otro</span>
+                                    </p>
+                                    <p className="text-[10px] text-gray-400 mt-1">
+                                        Áreas: <span className="font-medium">Administración, Operaciones, Recursos Humanos, Finanzas, Tecnología, Ventas, Marketing, Producción, Logística, Atención al Cliente</span>
+                                    </p>
                                 </>
                             ) : (
                                 <>
