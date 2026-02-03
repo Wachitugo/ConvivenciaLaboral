@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
-import logoSavia from '../../assets/Convivencia Inteligente Logo.png';
 
 function Header() {
   const { current, isDark, toggleTheme } = useTheme();

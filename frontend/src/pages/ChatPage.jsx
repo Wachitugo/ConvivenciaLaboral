@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import ChatInterface from '../features/auth/ChatInterface';
 import LoginModal from '../features/login/LoginModal';
-import logoSavia from '../assets/Convivencia Inteligente Logo.png';
 
 function ChatPage() {
   const { current, isDark, toggleTheme } = useTheme();
@@ -42,43 +41,43 @@ function ChatPage() {
         {/* Header centrado con estilo card */}
         <header className="w-full py-11">
           <div className={`${current.cardBg} border ${current.cardBorder} rounded-2xl px-4 md:px-8 py-3 flex items-center justify-between shadow-sm backdrop-blur-sm`}>
-          {/* Logo con efecto hover */}
-          <Link to="/" className="group">
-            <img
-              src={logoSavia}
-              alt="Logo Savia"
-              className={`h-8 md:h-10 cursor-pointer transition-all group-hover:scale-105 ${isDark ? 'brightness-0 invert' : ''}`}
-            />
-          </Link>
+            {/* Logo con efecto hover */}
+            <Link to="/" className="group">
+              <img
+                src={logoSavia}
+                alt="Logo Savia"
+                className={`h-8 md:h-10 cursor-pointer transition-all group-hover:scale-105 ${isDark ? 'brightness-0 invert' : ''}`}
+              />
+            </Link>
 
-          {/* Botones derecha con mejor espaciado */}
-          <div className="flex items-center gap-2 md:gap-3">
-            {/* Botón modo oscuro con tooltip mejorado */}
-            <button
-              onClick={toggleTheme}
-              className={`p-2.5 rounded-xl ${current.formBg} border ${current.formBorder} ${current.textSecondary} hover:${current.textPrimary} transition-all hover:scale-105 active:scale-95`}
-              title={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-            >
-              {isDark ? (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 md:w-5 md:h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 md:w-5 md:h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                </svg>
-              )}
-            </button>
+            {/* Botones derecha con mejor espaciado */}
+            <div className="flex items-center gap-2 md:gap-3">
+              {/* Botón modo oscuro con tooltip mejorado */}
+              <button
+                onClick={toggleTheme}
+                className={`p-2.5 rounded-xl ${current.formBg} border ${current.formBorder} ${current.textSecondary} hover:${current.textPrimary} transition-all hover:scale-105 active:scale-95`}
+                title={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+              >
+                {isDark ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 md:w-5 md:h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 md:w-5 md:h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                  </svg>
+                )}
+              </button>
 
-            {/* Botón Login con gradiente y efecto */}
-            <button
-              onClick={handleOpenModal}
-              className="px-4 md:px-6 py-2 md:py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-xs md:text-sm font-semibold shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95"
-            >
-              Entrar
-            </button>
+              {/* Botón Login con gradiente y efecto */}
+              <button
+                onClick={handleOpenModal}
+                className="px-4 md:px-6 py-2 md:py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-xs md:text-sm font-semibold shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95"
+              >
+                Entrar
+              </button>
+            </div>
           </div>
-        </div>
         </header>
 
         {/* Contenido principal */}
@@ -286,7 +285,7 @@ function ChatPage() {
             </div>
           </div>
 
-     
+
         </div>
       </div>
 

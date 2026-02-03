@@ -1,8 +1,7 @@
 import { useTheme } from '../../contexts/ThemeContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import logoSavia from '../../assets/Convivencia Inteligente Logo.png';
-import icon3 from '../../assets/icon3.svg';
+import icon3 from '../../assets/icon3.png';
 import UserProfileMenu from './UserProfileMenu';
 import { createLogger } from '../../utils/logger';
 

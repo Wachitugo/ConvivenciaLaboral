@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
-import loginImage from '../../assets/login1.png';
 
 function ContactContainer() {
   const { current } = useTheme();

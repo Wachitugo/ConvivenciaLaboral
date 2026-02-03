@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import icon3 from '../../assets/icon3.svg';
+import icon3 from '../../assets/icon3.png';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown, ChevronRight, BarChart3, School, Users, FileText } from 'lucide-react';
 

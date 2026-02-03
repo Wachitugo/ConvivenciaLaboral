@@ -1,6 +1,6 @@
 import { useTheme } from '../../contexts/ThemeContext';
 import iconLogin from '../../assets/icon-login-new.svg';
-import icon3 from '../../assets/icon3.svg';
+import icon3 from '../../assets/icon3.png';
 import LoginForm from './LoginForm';
 
 function LoginContainer({ onClose }) {
