@@ -37,7 +37,7 @@ export default function IndividualForm({ uploadType, form, isProcessing, onUpdat
                 </div>
             </div>
 
-            {uploadType === 'alumnos' ? (
+            {uploadType === 'trabajadores' ? (
                 <>
                     <div>
                         <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
@@ -146,7 +146,7 @@ export default function IndividualForm({ uploadType, form, isProcessing, onUpdat
             <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-xl border border-blue-100">
                 <User size={16} className="text-blue-600 flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-blue-800 leading-relaxed">
-                    {uploadType === 'alumnos'
+                    {uploadType === 'trabajadores'
                         ? 'El trabajador será asociado automáticamente a esta empresa.'
                         : 'El usuario tendrá contraseña temporal "temporal123". Debe cambiarla en el primer inicio de sesión.'}
                 </p>

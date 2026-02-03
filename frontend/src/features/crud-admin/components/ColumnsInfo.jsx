@@ -19,7 +19,7 @@ export default function ColumnsInfo({ uploadType, onDownloadTemplate }) {
                 </button>
             </div>
 
-            {uploadType === 'alumnos' ? (
+            {uploadType === 'trabajadores' ? (
                 <div className="space-y-3">
                     <div>
                         <p className="text-[10px] font-semibold text-red-500 uppercase tracking-wider mb-1.5">Obligatorios</p>

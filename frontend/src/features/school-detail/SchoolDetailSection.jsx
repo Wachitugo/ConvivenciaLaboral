@@ -30,9 +30,9 @@ export default function SchoolDetailSection({ school, onBack, onRegistrarUsuario
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'alumnos':
+            case 'trabajadores':
                 return students.length === 0 ? (
-                    <EmptyState type="alumnos" onUploadClick={() => handleOpenUploadModal('alumnos')} />
+                    <EmptyState type="trabajadores" onUploadClick={() => handleOpenUploadModal('trabajadores')} />
                 ) : (
                     <StudentsTable
                         students={students}
@@ -62,7 +62,7 @@ export default function SchoolDetailSection({ school, onBack, onRegistrarUsuario
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
                 counts={{
-                    alumnos: students.length,
+                    trabajadores: students.length,
                     personal: schoolStaff.length,
                     documentos: null
                 }}

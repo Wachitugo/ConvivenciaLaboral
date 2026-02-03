@@ -5,7 +5,7 @@ import { studentsService } from '../../../services/api';
  * Hook para manejar la lógica de SchoolDetailSection
  */
 export function useSchoolDetailSection({ school, usuarios = [] }) {
-    const [activeTab, setActiveTab] = useState('alumnos');
+    const [activeTab, setActiveTab] = useState('trabajadores');
     const [uploadModal, setUploadModal] = useState({ isOpen: false, type: null });
     const [students, setStudents] = useState([]);
     const documentsRef = useRef(null);
@@ -79,8 +79,8 @@ export function useSchoolDetailSection({ school, usuarios = [] }) {
 
     const getUploadButtonLabel = () => {
         switch (activeTab) {
-            case 'alumnos':
-                return 'Cargar Alumnos';
+            case 'trabajadores':
+                return 'Cargar Trabajadores';
             case 'personal':
                 return 'Cargar Personal';
             default:

@@ -108,7 +108,7 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
 
               <div className="flex flex-col">
 
-                <h2 className="text-[30] font-bold text-gray-900 text-left whitespace-nowrap">Convivencia Inteligente</h2>
+                <h2 className="text-[30] font-bold text-gray-900 text-left whitespace-nowrap">Convivencia Laboral</h2>
 
               </div>
             </>

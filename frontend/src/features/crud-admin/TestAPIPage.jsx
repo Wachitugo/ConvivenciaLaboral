@@ -198,7 +198,7 @@ export default function AdminPage() {
   // Get header title based on active tab
   const getHeaderTitle = () => {
     if (activeTab === 'usuarios') return 'Gestión de Usuarios';
-    if (activeTab === 'colegios') return 'Gestión de Colegios';
+    if (activeTab === 'colegios') return 'Gestión de Organizaciones';
     if (isTokensTab) return 'Gestión de Tokens';
     return '';
   };

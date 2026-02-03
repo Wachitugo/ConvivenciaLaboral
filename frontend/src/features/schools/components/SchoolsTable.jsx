@@ -16,7 +16,7 @@ export default function SchoolsTable({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900">No se encontraron colegios</h3>
+                <h3 className="text-lg font-medium text-gray-900">No se encontraron organizaciones</h3>
                 <p className="text-gray-500 mt-1 max-w-sm text-center">
                     {searchTerm ? 'Intenta ajustar los términos de búsqueda' : 'Comienza creando el primer colegio en el sistema'}
                 </p>
@@ -25,7 +25,7 @@ export default function SchoolsTable({
                         onClick={onCreate}
                         className="mt-6 text-purple-600 font-medium hover:text-purple-700 hover:underline"
                     >
-                        Registrar primer colegio
+                        Registrar primera organización
                     </button>
                 )}
             </div>
@@ -37,7 +37,7 @@ export default function SchoolsTable({
             <table className="w-full min-w-[600px]">
                 <thead>
                     <tr className="border-b border-gray-100 bg-gray-50/50">
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Colegio</th>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Organización</th>
                         <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Dirección</th>
                         <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
                     </tr>

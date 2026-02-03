@@ -95,8 +95,8 @@ export default function EditSchoolModal({ isOpen, onClose, school, onSave }) {
             <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col transform transition-all duration-300 scale-100">
                 <div className="px-5 py-4 md:px-8 md:py-6 border-b border-gray-100 flex items-center justify-between">
                     <div>
-                        <h3 className="text-xl font-bold text-gray-900">Editar Colegio</h3>
-                        <p className="text-sm text-gray-500 mt-1">Modifica los datos del establecimiento educacional.</p>
+                        <h3 className="text-xl font-bold text-gray-900">Editar Organización</h3>
+                        <p className="text-sm text-gray-500 mt-1">Modifica los datos de la organización.</p>
                     </div>
                     <button
                         onClick={onClose}
@@ -116,7 +116,7 @@ export default function EditSchoolModal({ isOpen, onClose, school, onSave }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Nombre del colegio <span className="text-red-500">*</span>
+                                    Nombre de la organización <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"

@@ -15,16 +15,16 @@ function LoginContainer({ onClose }) {
 
           <img
             src={iconLogin}
-            alt="Convivencia Inteligente"
+            alt="Convivencia Laboral"
             className="w-full h-full object-cover"
           />
 
           {/* Logo en la esquina inferior izquierda del panel izquierdo */}
           <div className="absolute bottom-8 left-8 flex items-center justify-start gap-1 z-20">
-            <img src={icon3} alt="Convivencia Inteligente" className="h-12 w-12 object-contain" />
+            <img src={icon3} alt="Convivencia Laboral" className="h-12 w-12 object-contain" />
             <div className="flex flex-col items-start">
-              <h2 className="text-base font-bold text-white text-left whitespace-nowrap">Convivencia Inteligente</h2>
-              <h2 className="text-[10px] font-bold text-gray-100 text-left whitespace-nowrap">Armonizando la convivencia laboral</h2>
+              <h2 className="text-base font-bold text-white text-left whitespace-nowrap">Convivencia Laboral</h2>
+              <h2 className="text-[10px] font-bold text-gray-100 text-left whitespace-nowrap">Armonizando la convivencia en tu ambiente laboral</h2>
             </div>
           </div>
         </div>
@@ -39,7 +39,7 @@ function LoginContainer({ onClose }) {
             <LoginForm />
 
             <div className="mt-12 text-center">
-              <p className="text-xs text-gray-400">© 2025 Convivencia Inteligente</p>
+              <p className="text-xs text-gray-400">© 2025 Convivencia Laboral</p>
             </div>
           </div>
         </div>

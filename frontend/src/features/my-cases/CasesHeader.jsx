@@ -57,7 +57,7 @@ function CasesHeader({ isSidebarOpen, toggleSidebar, textPrimary }) {
             className={`text-lg font-semibold ${textPrimary} truncate max-w-md`}
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
-            Convivencia Inteligente
+            Convivencia Laboral
           </h1>
         </div>
 

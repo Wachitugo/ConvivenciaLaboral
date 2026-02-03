@@ -92,8 +92,8 @@ export default function CreateSchoolModal({
             <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col transform transition-all duration-300 scale-100">
                 <div className="px-5 py-4 md:px-8 md:py-6 border-b border-gray-100 flex items-center justify-between">
                     <div>
-                        <h3 className="text-xl font-bold text-gray-900">Crear Nuevo Colegio</h3>
-                        <p className="text-sm text-gray-500 mt-1">Ingresa los datos del nuevo establecimiento educacional.</p>
+                        <h3 className="text-xl font-bold text-gray-900">Crear Nueva Organización</h3>
+                        <p className="text-sm text-gray-500 mt-1">Ingresa los datos de la nueva organización.</p>
                     </div>
                     <button
                         onClick={onClose}
@@ -113,11 +113,11 @@ export default function CreateSchoolModal({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Nombre del colegio <span className="text-red-500">*</span>
+                                    Nombre de la organización <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
-                                    placeholder="Ej: Colegio San José"
+                                    placeholder="Ej: Empresa S.A."
                                     value={formData.nombre}
                                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                                     className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:bg-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all ${errors.nombre ? 'border-red-300 bg-red-50' : 'border-gray-200'
@@ -217,7 +217,7 @@ export default function CreateSchoolModal({
                                 <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                 Creando...
                             </span>
-                        ) : 'Crear Colegio'}
+                        ) : 'Crear Organización'}
                     </button>
                 </div>
             </div>

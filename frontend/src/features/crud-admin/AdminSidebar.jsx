@@ -27,7 +27,7 @@ function AdminSidebar({ activeTab, setActiveTab, isOpen, onToggle }) {
         },
         {
             id: 'colegios',
-            label: 'Colegios',
+            label: 'Organizaciones',
             icon: (
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 flex-shrink-0">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.499 5.258 50.558 50.558 0 00-2.658.813m-15.482 0A50.553 50.553 0 0112 13.489a50.553 50.553 0 0112-2.122M2.25 21h19.5" />
@@ -44,7 +44,7 @@ function AdminSidebar({ activeTab, setActiveTab, isOpen, onToggle }) {
             ),
             children: [
                 { id: 'tokens-dashboard', label: 'Dashboard', icon: BarChart3 },
-                { id: 'tokens-schools', label: 'Colegios', icon: School },
+                { id: 'tokens-schools', label: 'Organizaciones', icon: School },
                 { id: 'tokens-users', label: 'Usuarios', icon: Users },
                 { id: 'tokens-logs', label: 'Historial', icon: FileText },
             ]

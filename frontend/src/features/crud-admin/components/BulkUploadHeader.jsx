@@ -9,7 +9,7 @@ export default function BulkUploadHeader({ uploadType, schoolName, onClose }) {
         <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
             <div>
                 <h3 className="text-xl font-bold text-gray-900">
-                    Cargar {uploadType === 'alumnos' ? 'Alumnos' : 'Personal'}
+                    Cargar {uploadType === 'trabajadores' ? 'Trabajadores' : 'Personal'}
                 </h3>
                 <p className="text-sm text-gray-500 mt-1">{schoolName}</p>
             </div>

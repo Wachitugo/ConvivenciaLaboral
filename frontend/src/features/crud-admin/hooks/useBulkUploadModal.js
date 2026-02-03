@@ -38,7 +38,7 @@ export function useBulkUploadModal({ school, uploadType, onRegistrarUsuario, onS
             setError(null);
             setSuccess(null);
 
-            const validation = uploadType === 'alumnos'
+            const validation = uploadType === 'trabajadores'
                 ? validateFile(selectedFile)
                 : validateStaffFile(selectedFile);
 
@@ -88,7 +88,7 @@ export function useBulkUploadModal({ school, uploadType, onRegistrarUsuario, onS
 
             await studentsService.uploadStudents(studentsToUpload);
 
-            setSuccess(`¡${students.length} alumnos cargados exitosamente!`);
+            setSuccess(`¡${students.length} trabajadores cargados exitosamente!`);
             setTimeout(() => {
                 onSuccess?.();
                 handleClose();
@@ -155,7 +155,7 @@ export function useBulkUploadModal({ school, uploadType, onRegistrarUsuario, onS
     };
 
     const handleUpload = () => {
-        if (uploadType === 'alumnos') {
+        if (uploadType === 'trabajadores') {
             handleUploadStudents();
         } else {
             handleUploadStaff();
@@ -186,7 +186,7 @@ export function useBulkUploadModal({ school, uploadType, onRegistrarUsuario, onS
 
             await studentsService.uploadStudents([newStudent]);
 
-            setSuccess('¡Alumno registrado exitosamente!');
+            setSuccess('¡Trabajador registrado exitosamente!');
             resetForm();
             setTimeout(() => {
                 onSuccess?.();
@@ -194,7 +194,7 @@ export function useBulkUploadModal({ school, uploadType, onRegistrarUsuario, onS
             }, 1500);
 
         } catch (err) {
-            setError(err.message || 'Error al registrar alumno');
+            setError(err.message || 'Error al registrar trabajador');
             setIsProcessing(false);
         }
     };
@@ -233,7 +233,7 @@ export function useBulkUploadModal({ school, uploadType, onRegistrarUsuario, onS
     };
 
     const handleIndividualSubmit = () => {
-        if (uploadType === 'alumnos') {
+        if (uploadType === 'trabajadores') {
             handleIndividualStudent();
         } else {
             handleIndividualStaff();
@@ -241,7 +241,7 @@ export function useBulkUploadModal({ school, uploadType, onRegistrarUsuario, onS
     };
 
     const handleDownloadTemplate = () => {
-        if (uploadType === 'alumnos') {
+        if (uploadType === 'trabajadores') {
             downloadTemplate();
         } else {
             downloadStaffTemplate();

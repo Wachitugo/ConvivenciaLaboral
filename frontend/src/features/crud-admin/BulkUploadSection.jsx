@@ -6,7 +6,7 @@ import { processStaffExcelFile, validateStaffFile } from './utils/staffExcelProc
 import { downloadStaffTemplate } from './utils/staffTemplateGenerator';
 
 export default function BulkUploadSection({ colegios, onRegistrarUsuario }) {
-    const [activeSubTab, setActiveSubTab] = useState('alumnos');
+    const [activeSubTab, setActiveSubTab] = useState('trabajadores');
     const [file, setFile] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState(null);
@@ -15,7 +15,7 @@ export default function BulkUploadSection({ colegios, onRegistrarUsuario }) {
     const fileInputRef = useRef(null);
 
     const subTabs = [
-        { id: 'alumnos', label: 'Alumnos', icon: Users },
+        { id: 'trabajadores', label: 'Trabajadores', icon: Users },
         { id: 'personal', label: 'Personal', icon: UserPlus }
     ];
 
@@ -25,7 +25,7 @@ export default function BulkUploadSection({ colegios, onRegistrarUsuario }) {
             setError(null);
             setSuccess(null);
 
-            const validation = activeSubTab === 'alumnos'
+            const validation = activeSubTab === 'trabajadores'
                 ? validateFile(selectedFile)
                 : validateStaffFile(selectedFile);
 
@@ -131,7 +131,7 @@ export default function BulkUploadSection({ colegios, onRegistrarUsuario }) {
     };
 
     const handleUpload = () => {
-        if (activeSubTab === 'alumnos') {
+        if (activeSubTab === 'trabajadores') {
             handleUploadStudents();
         } else {
             handleUploadStaff();
@@ -139,7 +139,7 @@ export default function BulkUploadSection({ colegios, onRegistrarUsuario }) {
     };
 
     const handleDownloadTemplate = () => {
-        if (activeSubTab === 'alumnos') {
+        if (activeSubTab === 'trabajadores') {
             downloadTemplate();
         } else {
             downloadStaffTemplate();
@@ -187,11 +187,11 @@ export default function BulkUploadSection({ colegios, onRegistrarUsuario }) {
                         <Info size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
                         <div>
                             <h3 className="text-sm font-semibold text-blue-900">
-                                {activeSubTab === 'alumnos' ? 'Carga Masiva de Alumnos' : 'Carga Masiva de Personal'}
+                                {activeSubTab === 'trabajadores' ? 'Carga Masiva de Trabajadores' : 'Carga Masiva de Personal'}
                             </h3>
                             <p className="text-xs text-blue-700 mt-1">
-                                {activeSubTab === 'alumnos'
-                                    ? 'Sube un archivo Excel con los datos de los alumnos para agregarlos al sistema.'
+                                {activeSubTab === 'trabajadores'
+                                    ? 'Sube un archivo Excel con los datos de los trabajadores para agregarlos al sistema.'
                                     : 'Sube un archivo Excel con los datos del personal (profesores, encargados) para crear sus cuentas de usuario.'}
                             </p>
                         </div>
@@ -290,7 +290,7 @@ export default function BulkUploadSection({ colegios, onRegistrarUsuario }) {
                         </div>
 
                         <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                            {activeSubTab === 'alumnos' ? (
+                            {activeSubTab === 'trabajadores' ? (
                                 <>
                                     <p className="text-[10px] font-semibold text-red-500 uppercase tracking-wider mb-2">
                                         Obligatorios
@@ -338,7 +338,7 @@ export default function BulkUploadSection({ colegios, onRegistrarUsuario }) {
                     <div className="flex items-start gap-3 p-4 bg-yellow-50 rounded-xl border border-yellow-100">
                         <AlertTriangle size={18} className="text-yellow-600 flex-shrink-0 mt-0.5" />
                         <p className="text-xs text-yellow-800 leading-relaxed">
-                            {activeSubTab === 'alumnos'
+                            {activeSubTab === 'trabajadores'
                                 ? 'Esta información es confidencial. Asegúrese de cumplir con los protocolos de manejo de datos.'
                                 : 'Los usuarios creados tendrán una contraseña temporal "temporal123". Se recomienda que cambien su contraseña en el primer inicio de sesión.'}
                         </p>
@@ -376,7 +376,7 @@ export default function BulkUploadSection({ colegios, onRegistrarUsuario }) {
                         ) : (
                             <>
                                 <CloudUpload size={18} />
-                                <span>Cargar {activeSubTab === 'alumnos' ? 'Alumnos' : 'Personal'}</span>
+                                <span>Cargar {activeSubTab === 'trabajadores' ? 'Trabajadores' : 'Personal'}</span>
                             </>
                         )}
                     </button>

@@ -59,7 +59,7 @@ export default function SchoolsSection({
                     <SearchInput
                         value={searchTerm}
                         onChange={setSearchTerm}
-                        placeholder="Buscar colegios..."
+                        placeholder="Buscar organizaciones..."
                     />
 
                     <button
@@ -67,7 +67,7 @@ export default function SchoolsSection({
                         className="w-full sm:w-auto flex items-center justify-center px-4 py-2.5 bg-black hover:bg-gray-800 text-white text-sm font-semibold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 whitespace-nowrap"
                     >
                         <Plus className="w-5 h-5 mr-2" />
-                        Nuevo Colegio
+                        Nueva Organización
                     </button>
                 </div>
 
@@ -87,7 +87,7 @@ export default function SchoolsSection({
                 isOpen={confirmModal.isOpen}
                 onClose={closeConfirmModal}
                 onConfirm={confirmDelete}
-                title="¿Eliminar colegio?"
+                title="¿Eliminar organización?"
                 message={`¿Estás seguro de que deseas eliminar "${confirmModal.colegio?.nombre}"? Esta acción no se puede deshacer.`}
                 confirmText="Sí, eliminar"
                 type="danger"

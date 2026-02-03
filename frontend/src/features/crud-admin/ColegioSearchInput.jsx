@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 
-export default function ColegioSearchInput({ colegios, selectedColegioId, onSelect, label = "Colegio" }) {
+export default function ColegioSearchInput({ colegios, selectedColegioId, onSelect, label = "Organización" }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef(null);
@@ -89,7 +89,7 @@ export default function ColegioSearchInput({ colegios, selectedColegioId, onSele
           <div className="relative">
             <input
               type="text"
-              placeholder="Buscar colegio..."
+              placeholder="Buscar organización..."
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -122,13 +122,13 @@ export default function ColegioSearchInput({ colegios, selectedColegioId, onSele
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </div>
-                <span className="text-sm text-gray-500 italic">Sin colegio</span>
+                <span className="text-sm text-gray-500 italic">Sin organización</span>
               </button>
 
               {/* Lista de colegios filtrados */}
               {filteredColegios.length === 0 ? (
                 <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                  No se encontraron colegios
+                  No se encontraron organizaciones
                 </div>
               ) : (
                 filteredColegios.map((colegio) => (
@@ -166,7 +166,7 @@ export default function ColegioSearchInput({ colegios, selectedColegioId, onSele
       )}
 
       <p className="text-xs text-gray-500 mt-1">
-        El usuario solo puede pertenecer a un colegio
+        El usuario solo puede pertenecer a una organización
       </p>
     </div>
   );
