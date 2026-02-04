@@ -6,14 +6,14 @@ import { Navigate, Outlet, useLocation, useParams, useOutletContext } from 'reac
 const FULL_ACCESS_ROLES = ['Encargado de Convivencia', 'Directivo'];
 
 /**
- * Rutas permitidas para rol Docente (y sus subrutas)
+ * Rutas permitidas para rol Trabajador (y sus subrutas)
  */
-const DOCENTE_ALLOWED_PATHS = ['/ficha-alumnos'];
+const TRABAJADOR_ALLOWED_PATHS = ['/chat-general'];
 
 /**
- * Página por defecto para Docentes
+ * Página por defecto para Trabajadores
  */
-const DOCENTE_DEFAULT_PATH = '/ficha-alumnos';
+const TRABAJADOR_DEFAULT_PATH = '/chat-general';
 
 /**
  * Componente de ruta protegida con control de roles.
@@ -44,12 +44,12 @@ const RoleProtectedRoute = ({ requireFullAccess = false }) => {
         return <Outlet context={context} />;
     }
 
-    // Para Docentes: verificar si la ruta está permitida
-    if (userRole === 'Docente') {
+    // Para Trabajadores: verificar si la ruta está permitida
+    if (userRole === 'Trabajador') {
         // Ajustar paths permitidos con el slug si existe
         const adjustPath = (path) => schoolSlug ? `/${schoolSlug}${path}` : path;
 
-        const defaultPath = adjustPath(DOCENTE_DEFAULT_PATH);
+        const defaultPath = adjustPath(TRABAJADOR_DEFAULT_PATH);
 
         // Si la ruta requiere acceso completo, redirigir
         if (requireFullAccess) {
@@ -57,8 +57,8 @@ const RoleProtectedRoute = ({ requireFullAccess = false }) => {
         }
 
         // Verificar si la ruta actual está en las permitidas
-        // Nota: DOCENTE_ALLOWED_PATHS contiene rutas base como '/ficha-alumnos'
-        const isAllowed = DOCENTE_ALLOWED_PATHS.some(basePath => {
+        // Nota: TRABAJADOR_ALLOWED_PATHS contiene rutas base como '/chat-general'
+        const isAllowed = TRABAJADOR_ALLOWED_PATHS.some(basePath => {
             const pathToCheck = adjustPath(basePath);
             return location.pathname === pathToCheck || location.pathname.startsWith(`${pathToCheck}/`);
         });

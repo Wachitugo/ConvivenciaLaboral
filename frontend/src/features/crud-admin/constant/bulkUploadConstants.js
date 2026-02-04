@@ -17,7 +17,7 @@ export const INITIAL_FORM_STATE = {
 export const STAFF_ROLE_OPTIONS = [
     { value: 'Encargado de Convivencia', label: 'Encargado de Convivencia' },
     { value: 'Directivo', label: 'Director' },
-    { value: 'Docente', label: 'Docente' }
+    { value: 'Trabajador', label: 'Trabajador' }
 ];
 
 /**

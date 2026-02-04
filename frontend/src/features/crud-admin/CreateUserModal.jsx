@@ -151,7 +151,7 @@ export default function CreateUserModal({
                   >
                     <option value="Encargado de Convivencia">Encargado de Convivencia</option>
                     <option value="Directivo">Director</option>
-                    <option value="Docente">Docente</option>
+                    <option value="Trabajador">Trabajador</option>
                   </select>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -7,7 +7,7 @@ class RoleName(str, Enum):
     """Roles fijos del sistema"""
     ENCARGADO_CONVIVENCIA = "Encargado de Convivencia"
     ESTUDIANTE = "Estudiante"
-    DOCENTE = "Docente"
+    TRABAJADOR = "Trabajador"
     APODERADO = "Apoderado"
     DIRECTIVO = "Directivo"
 

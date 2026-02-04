@@ -66,21 +66,21 @@ function AppContent() {
         {/* 3. Tenant Paths (Encapsulated in MainLayout) */}
         <Route path="/:schoolSlug" element={<MainLayout />}>
 
-          {/* High Security Group */}
+          {/* High Security Group - Solo Encargado/Directivo */}
           <Route element={<RoleProtectedRoute requireFullAccess={true} />}>
             <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="chat-general" element={<ChatGeneralPage />} />
-            <Route path="chat" element={<Navigate to="chat-general" replace />} />
             <Route path="mis-casos" element={<MyCases />} />
             <Route path="mis-casos/:id" element={<CaseDetailPage />} />
             <Route path="entrevistas" element={<InterviewPage />} />
             <Route path="entrevistas/:id" element={<InterviewDetailPage />} />
-          </Route>
-
-          {/* Common Routes (All Roles) */}
-          <Route element={<RoleProtectedRoute requireFullAccess={false} />}>
             <Route path="ficha-alumnos" element={<FichaAlumnosPage />} />
             <Route path="ficha-alumnos/:id" element={<StudentDetailPage />} />
+          </Route>
+
+          {/* Common Routes - Accesible para Trabajadores */}
+          <Route element={<RoleProtectedRoute requireFullAccess={false} />}>
+            <Route path="chat-general" element={<ChatGeneralPage />} />
+            <Route path="chat" element={<Navigate to="chat-general" replace />} />
           </Route>
         </Route>
       </Routes>

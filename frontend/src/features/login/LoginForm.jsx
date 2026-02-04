@@ -49,8 +49,8 @@ function LoginForm() {
       const firstSchoolSlug = slugs[0];
       const destinationBase = firstSchoolSlug ? `/${firstSchoolSlug}` : '';
 
-      if (userRole === 'Docente') {
-        navigate(`${destinationBase}/ficha-alumnos`);
+      if (userRole === 'Trabajador') {
+        navigate(`${destinationBase}/chat-general`);
       } else {
         navigate(`${destinationBase}/dashboard`);
       }

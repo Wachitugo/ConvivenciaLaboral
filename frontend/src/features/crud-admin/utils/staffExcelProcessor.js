@@ -55,7 +55,7 @@ const normalizeStaffData = (row, index) => {
     const apellido = row['Apellido'] || row['apellido'] || row['Apellidos'] || row['apellidos'] || '';
     const rut = row['RUT'] || row['rut'] || row['Rut'] || '';
     const email = row['Email'] || row['email'] || row['Correo'] || row['correo'] || '';
-    const rol = row['Rol'] || row['rol'] || row['Cargo'] || row['cargo'] || 'Docente';
+    const rol = row['Rol'] || row['rol'] || row['Cargo'] || row['cargo'] || 'Trabajador';
     const asignatura = row['Asignatura'] || row['asignatura'] || row['Área'] || row['area'] || '';
 
     // Validar campos obligatorios
@@ -66,7 +66,7 @@ const normalizeStaffData = (row, index) => {
 
     // Normalizar rol
     const normalizeRol = (value) => {
-        if (!value) return 'Docente';
+        if (!value) return 'Trabajador';
         const lower = value.toString().toLowerCase().trim();
 
         // Mapeo a RoleName enum del backend
@@ -77,10 +77,10 @@ const normalizeStaffData = (row, index) => {
             return 'Directivo';
         }
         if (lower.includes('psicolog') || lower.includes('orientador') || lower.includes('dupla')) {
-            return 'Encargado de Convivencia'; // Asumimos rol de staff/equipo por ahora, o podría ser Docente dependiendo del uso
+            return 'Encargado de Convivencia'; // Asumimos rol de staff/equipo por ahora
         }
 
-        return 'Docente';
+        return 'Trabajador';
     };
 
     return {
