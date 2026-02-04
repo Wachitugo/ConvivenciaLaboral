@@ -1,12 +1,74 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { API_URL } from '../../services/api';
 import { createLogger } from '../../utils/logger';
 
 const logger = createLogger('EmailComposer');
 
+// Función para convertir markdown a HTML
+const markdownToHtml = (text) => {
+    if (!text) return '';
+
+    // Primero procesamos todo el texto junto para manejar mejor los patrones
+    let processed = text
+        // ***texto*** -> negrita + cursiva
+        .replace(/\*\*\*([^*]+)\*\*\*/g, '<strong><em>$1</em></strong>')
+        // **texto** -> negrita (captura cualquier cosa que no sea asterisco)
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        // *texto* -> cursiva (solo si no empieza/termina con espacio y tiene contenido)
+        .replace(/(?<!\*)\*([^*\s][^*]*?)\*(?!\*)/g, '<em>$1</em>');
+
+    // Luego procesamos línea por línea para listas y saltos
+    return processed
+        .split('\n')
+        .map(line => {
+            // Procesar listas (viñetas)
+            if (/^[\s]*[-•]\s/.test(line)) {
+                return line.replace(/^[\s]*[-•]\s/, '• ');
+            }
+            // Lista con asterisco (solo si es marcador de lista, no negrita)
+            if (/^[\s]*\*\s+[^*]/.test(line)) {
+                return line.replace(/^[\s]*\*\s+/, '• ');
+            }
+            return line;
+        })
+        .join('<br>');
+};
+
+// Función para convertir HTML a texto con markdown (para enviar)
+const htmlToMarkdown = (html) => {
+    if (!html) return '';
+
+    return html
+        // Convertir <strong><em> a ***texto*** (negrita + cursiva)
+        .replace(/<strong><em>(.*?)<\/em><\/strong>/gi, '***$1***')
+        .replace(/<b><i>(.*?)<\/i><\/b>/gi, '***$1***')
+        // Convertir <strong> y <b> a **texto** (negrita)
+        .replace(/<strong>(.*?)<\/strong>/gi, '**$1**')
+        .replace(/<b>(.*?)<\/b>/gi, '**$1**')
+        // Convertir <em> y <i> a *texto* (cursiva)
+        .replace(/<em>(.*?)<\/em>/gi, '*$1*')
+        .replace(/<i>(.*?)<\/i>/gi, '*$1*')
+        // Convertir <br> a saltos de línea
+        .replace(/<br\s*\/?>/gi, '\n')
+        // Convertir <div> a saltos de línea
+        .replace(/<\/div><div>/gi, '\n')
+        .replace(/<div>/gi, '\n')
+        .replace(/<\/div>/gi, '')
+        // Quitar otras etiquetas HTML pero mantener el contenido
+        .replace(/<[^>]*>/g, '')
+        // Limpiar entidades HTML
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        // Limpiar saltos de línea múltiples al inicio
+        .replace(/^\n+/, '');
+};
+
 function EmailComposer({ to, subject, body, cc, introText, onSend, onCancel, sessionId, messageIndex, initialSuccess = false }) {
     const { current } = useTheme();
+    const editorRef = useRef(null);
 
     // Get user from localStorage
     const [user, setUser] = useState(null);
@@ -22,13 +84,46 @@ function EmailComposer({ to, subject, body, cc, introText, onSend, onCancel, ses
         }
     }, []);
 
+    // Inicializar el editor con el contenido HTML
+    const [initialized, setInitialized] = useState(false);
+
+    useEffect(() => {
+        if (editorRef.current && body && !initialized) {
+            editorRef.current.innerHTML = markdownToHtml(body);
+            setInitialized(true);
+        }
+    }, [body, initialized]);
+
     const [toInput, setToInput] = useState(to || '');
     const [ccInput, setCcInput] = useState(Array.isArray(cc) ? cc.join(', ') : (cc || ''));
     const [subjectInput, setSubjectInput] = useState(subject || '');
-    const [bodyInput, setBodyInput] = useState(body || '');
     const [isSending, setIsSending] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(initialSuccess);
+    const [isBold, setIsBold] = useState(false);
+    const [isItalic, setIsItalic] = useState(false);
+
+    // Verificar el estado de formato actual
+    const checkFormatState = () => {
+        setIsBold(document.queryCommandState('bold'));
+        setIsItalic(document.queryCommandState('italic'));
+    };
+
+    // Aplicar negrita
+    const applyBold = (e) => {
+        e.preventDefault();
+        document.execCommand('bold', false, null);
+        editorRef.current?.focus();
+        checkFormatState();
+    };
+
+    // Aplicar cursiva
+    const applyItalic = (e) => {
+        e.preventDefault();
+        document.execCommand('italic', false, null);
+        editorRef.current?.focus();
+        checkFormatState();
+    };
 
     const handleSend = async (e) => {
         e.preventDefault();
@@ -39,6 +134,9 @@ function EmailComposer({ to, subject, body, cc, introText, onSend, onCancel, ses
             if (!user || !user.id) {
                 throw new Error("Usuario no identificado. No se puede enviar el correo.");
             }
+
+            // Obtener el contenido del editor y convertir a markdown
+            const bodyContent = htmlToMarkdown(editorRef.current?.innerHTML || '');
 
             // Parse CC input to list
             const ccList = ccInput.split(',').map(email => email.trim()).filter(email => email);
@@ -51,7 +149,7 @@ function EmailComposer({ to, subject, body, cc, introText, onSend, onCancel, ses
                 body: JSON.stringify({
                     to: toInput,
                     subject: subjectInput,
-                    body: bodyInput,
+                    body: bodyContent,
                     user_id: user.id,
                     cc: ccList,
                     session_id: sessionId,
@@ -94,12 +192,9 @@ function EmailComposer({ to, subject, body, cc, introText, onSend, onCancel, ses
 
     return (
         <div className="w-full h-full flex flex-col font-sans animate-fade-in space-y-4">
-            {/* Header / Contexto */}
+            <div className={`w-full flex-grow overflow-hidden rounded-xl ${current.cardBg} flex flex-col transition-all duration-300`}>
 
-
-            <div className={`w-full flex-grow overflow-hidden rounded-xl   ${current.cardBg} flex flex-col transition-all duration-300`}>
-
-                {/* Header de la tarjeta "Mensaje nuevo" */}
+                {/* Header de la tarjeta */}
                 <div className={`px-6 py-4 bg-gray-50 border-b ${current.cardBorder || 'border-gray-100'}`}>
                     {introText && (
                         <div className={`px-1 text-sm ${current.textSecondary} italic font-medium`}>
@@ -117,9 +212,10 @@ function EmailComposer({ to, subject, body, cc, introText, onSend, onCancel, ses
                             {error}
                         </div>
                     )}
-                    {/* Input Para */}
-                    <div className="group"><h2 className={`text-lg mb-1 font-bold text-blue-800`}>Redactar nuevo mensaje</h2>
 
+                    {/* Input Para */}
+                    <div className="group">
+                        <h2 className={`text-lg mb-1 font-bold text-blue-800`}>Redactar nuevo mensaje</h2>
                         <div className={`flex items-center border-b ${current.inputBorder || 'border-gray-200'} group-focus-within:border-blue-400 transition-colors py-1`}>
                             <span className={`text-gray-400 w-16 font-medium text-md`}>Para:</span>
                             <input
@@ -163,14 +259,43 @@ function EmailComposer({ to, subject, body, cc, introText, onSend, onCancel, ses
                         </div>
                     </div>
 
-                    {/* Textarea Cuerpo */}
-                    <div className="flex-grow min-h-[300px] relative">
-                        <textarea
-                            value={bodyInput}
-                            onChange={(e) => setBodyInput(e.target.value)}
-                            className={`w-full h-full resize-none focus:outline-none bg-transparent ${current.textPrimary} custom-scrollbar leading-relaxed text-sm`}
+                    {/* Cuerpo del mensaje con editor WYSIWYG */}
+                    <div className="flex-grow min-h-[200px] flex flex-col">
+                        {/* Toolbar de formato */}
+                        <div className="flex items-center gap-1 mb-2 pb-2 border-b border-gray-100">
+                            <button
+                                type="button"
+                                onMouseDown={applyBold}
+                                className={`p-2 rounded-lg transition-colors ${isBold ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}
+                                title="Negrita (Ctrl+B)"
+                            >
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z"/>
+                                </svg>
+                            </button>
+                            <button
+                                type="button"
+                                onMouseDown={applyItalic}
+                                className={`p-2 rounded-lg transition-colors ${isItalic ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}
+                                title="Cursiva (Ctrl+I)"
+                            >
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4z"/>
+                                </svg>
+                            </button>
+                            <span className="text-xs text-gray-400 ml-2">Selecciona texto y haz clic para aplicar formato</span>
+                        </div>
+
+                        {/* Editor contentEditable */}
+                        <div
+                            ref={editorRef}
+                            contentEditable
+                            onSelect={checkFormatState}
+                            onKeyUp={checkFormatState}
+                            onClick={checkFormatState}
+                            className={`w-full flex-grow min-h-[180px] resize-none focus:outline-none bg-white ${current.textPrimary} leading-relaxed text-sm border border-gray-200 rounded-lg p-3 overflow-y-auto focus:border-blue-400 transition-colors`}
                             style={{ fontFamily: "'Open Sans', sans-serif" }}
-                            placeholder="Escribe tu mensaje aquí..."
+                            suppressContentEditableWarning={true}
                         />
                     </div>
 

@@ -590,14 +590,22 @@ INSTRUCCIONES DE REDACCIÓN:
 4. La estructura debe ser clara y profesional.
 5. PROTOCOLO: Si hay un 'PROTOCOLO SUGERIDO', puedes mencionar genéricamente que se está siguiendo un protocolo.
 
+⚠️ FORMATO DE TEXTO (CRÍTICO):
+- USA NEGRITAS MARKDOWN para etiquetas o campos importantes: **Etiqueta:** valor
+- Ejemplos de uso de negritas:
+  • **Denunciante:** nombre de la persona
+  • **Fecha de los hechos:** fecha
+  • **Descripción:** descripción del caso
+- Las negritas se escriben con doble asterisco: **texto en negrita**
+
 ⚠️ FORMATO DE LISTAS (CRÍTICO):
-- USA VIÑETAS (•, -, *) para cualquier lista o enumeración en el cuerpo del correo
+- USA VIÑETAS (•, -) para cualquier lista o enumeración en el cuerpo del correo
 - **NUNCA uses números (1., 2., 3.)** - causan problemas de renderizado
 - Para sub-items, usa viñetas con 3 espacios de indentación: "   •"
 - Ejemplo correcto:
-  • Punto principal
+  • **Campo:** valor
+  • **Otro campo:** otro valor
      • Sub-punto con indentación
-  • Siguiente punto
 
 CONTEXTO (SOLO REFERENCIA INTERNA - NO INCLUIR LITERALMENTE EN EL CORREO):
 {context_str}

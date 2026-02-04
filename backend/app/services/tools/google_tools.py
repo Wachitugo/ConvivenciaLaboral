@@ -35,10 +35,14 @@ class GoogleTools:
         
         # Escapar caracteres HTML especiales
         text = html.escape(text)
-        
-        
-        # Eliminar negritas markdown (**) antes de procesar
-        text = text.replace('**', '')
+
+        # Convertir markdown a HTML (negritas, cursivas)
+        # ***texto*** -> negrita + cursiva
+        text = re.sub(r'\*\*\*(.*?)\*\*\*', r'<strong><em>\1</em></strong>', text)
+        # **texto** -> negrita
+        text = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', text)
+        # *texto* -> cursiva (solo si tiene contenido)
+        text = re.sub(r'\*([^\*\s][^\*]*?)\*', r'<em>\1</em>', text)
         
         # Normalizar saltos de línea
         text = text.replace('\r\n', '\n')
