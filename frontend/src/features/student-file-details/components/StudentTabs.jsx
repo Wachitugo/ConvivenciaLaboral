@@ -6,7 +6,7 @@ const StudentTabs = ({ activeTab, setActiveTab, canViewConvivencia = true }) => 
         { id: 'salud', label: 'Salud', icon: Heart, requiresConvivencia: false },
         { id: 'bitacora', label: 'Bitácora', icon: BookOpen, requiresConvivencia: false },
         { id: 'convivencia', label: 'Convivencia Laboral', icon: Users, requiresConvivencia: true },
-        { id: 'compromisos', label: 'Compromisos', icon: FileWarning, requiresConvivencia: false }
+        { id: 'compromisos', label: 'Sanciones', icon: FileWarning, requiresConvivencia: false }
     ];
 
     // Filtrar tabs según permisos

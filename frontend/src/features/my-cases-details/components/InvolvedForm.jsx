@@ -3,8 +3,8 @@ import { studentsService } from '../../../services/api';
 import { GRADE_OPTIONS } from '../constants/gradeOptions';
 
 const ROLE_OPTIONS = [
-  { value: 'afectado', label: 'Afectado/Víctima' },
-  { value: 'agresor', label: 'Agresor' },
+  { value: 'afectado', label: 'Denunciante' },
+  { value: 'agresor', label: 'Denunciado' },
   { value: 'testigo', label: 'Testigo' },
   { value: 'otro', label: 'Otro' }
 ];

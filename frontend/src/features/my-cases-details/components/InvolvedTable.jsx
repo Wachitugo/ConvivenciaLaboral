@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
 const ROLE_OPTIONS = [
-  { value: 'afectado', label: 'Afectado/Víctima', color: 'red' },
-  { value: 'agresor', label: 'Agresor', color: 'orange' },
+  { value: 'afectado', label: 'Denunciante', color: 'red' },
+  { value: 'agresor', label: 'Denunciado', color: 'orange' },
   { value: 'testigo', label: 'Testigo', color: 'blue' },
   { value: 'otro', label: 'Otro', color: 'gray' }
 ];
