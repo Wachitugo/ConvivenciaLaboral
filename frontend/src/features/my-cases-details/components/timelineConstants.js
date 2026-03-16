@@ -2,8 +2,8 @@ export const PROTOCOLOS_PREDEFINIDOS = {
   bullying: {
     nombre: 'Protocolo de Bullying',
     pasos: [
-      { titulo: 'Entrevista inicial con víctima', descripcion: 'Realizar entrevista individual con el estudiante afectado para recabar información', estimated_time: '24 horas' },
-      { titulo: 'Entrevista con agresor', descripcion: 'Entrevistar al estudiante agresor para conocer su versión de los hechos', estimated_time: '48 horas' },
+      { titulo: 'Entrevista inicial con denunciante', descripcion: 'Realizar entrevista individual con el trabajador denunciante para recabar información', estimated_time: '24 horas' },
+      { titulo: 'Entrevista con denunciado', descripcion: 'Entrevistar al trabajador denunciado para conocer su versión de los hechos', estimated_time: '48 horas' },
       { titulo: 'Citación a apoderados', descripcion: 'Convocar a los apoderados de ambas partes para informar la situación', estimated_time: '3 días hábiles' },
       { titulo: 'Aplicación de medidas formativas', descripcion: 'Implementar medidas formativas según reglamento interno', estimated_time: '5 días hábiles' },
       { titulo: 'Seguimiento y cierre', descripcion: 'Monitorear la situación y evaluar efectividad de las medidas', estimated_time: '15 días hábiles' }
@@ -65,9 +65,10 @@ export const getRolColor = (rol) => {
 export const getRolTexto = (rol) => {
   switch (rol) {
     case 'agresor':
-      return 'Agresor';
+      return 'Denunciado';
+    case 'afectado':
     case 'victima':
-      return 'Víctima';
+      return 'Denunciante';
     case 'testigo':
       return 'Testigo';
     default:

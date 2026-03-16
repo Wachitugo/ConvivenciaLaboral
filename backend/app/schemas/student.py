@@ -29,6 +29,10 @@ class StudentBase(BaseModel):
     contactos_emergencia: List[dict] = [] # List of {nombre, parentesco, telefono, prioridad}
     paec_info: Optional[Dict[str, Any]] = None # Detailed PAEC profile data
     
+    fecha_ingreso: Optional[str] = None  # Format DD/MM/YYYY
+    profesion: Optional[str] = None
+    cargo: Optional[str] = None
+
     colegio_id: str
 
 class StudentCreate(StudentBase):
@@ -59,6 +63,9 @@ class StudentUpdate(BaseModel):
     alergias_medicamentos: Optional[List[str]] = None
     contactos_emergencia: Optional[List[dict]] = None
     paec_info: Optional[Dict[str, Any]] = None
+    fecha_ingreso: Optional[str] = None
+    profesion: Optional[str] = None
+    cargo: Optional[str] = None
 
 class Student(StudentBase):
     id: str

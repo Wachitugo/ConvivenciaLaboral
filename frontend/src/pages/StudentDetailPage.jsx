@@ -11,7 +11,6 @@ import {
   ConvivenciaTab,
   CompromisosTab,
   SaludFamiliaTab,
-  BitacoraTab,
   StudentDetailPageSkeleton
 } from '../features/student-file-details';
 
@@ -97,8 +96,6 @@ function StudentDetailPage() {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'bitacora':
-        return <BitacoraTab student={student} canEdit={canEditBitacora} />;
       case 'convivencia':
         return <ConvivenciaTab student={student} canEdit={canEdit} />;
       case 'compromisos':

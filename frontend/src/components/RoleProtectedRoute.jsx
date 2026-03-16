@@ -8,7 +8,7 @@ const FULL_ACCESS_ROLES = ['Encargado de Convivencia', 'Directivo', 'Gerente Rel
 /**
  * Roles con acceso a casos, entrevistas y ficha (sin dashboard)
  */
-const INVESTIGADOR_ALLOWED_PATHS = ['/mis-casos', '/entrevistas', '/ficha-alumnos', '/chat-general'];
+const INVESTIGADOR_ALLOWED_PATHS = ['/mis-casos', '/entrevistas', '/ficha-alumnos'];
 
 /**
  * Rutas permitidas para rol Trabajador (y sus subrutas)

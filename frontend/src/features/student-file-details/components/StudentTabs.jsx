@@ -4,7 +4,6 @@ import { FileText, Users, Heart, ClipboardList, FileWarning, BookOpen } from 'lu
 const StudentTabs = ({ activeTab, setActiveTab, canViewConvivencia = true }) => {
     const allTabs = [
         { id: 'salud', label: 'Salud', icon: Heart, requiresConvivencia: false },
-        { id: 'bitacora', label: 'Bitácora', icon: BookOpen, requiresConvivencia: false },
         { id: 'convivencia', label: 'Convivencia Laboral', icon: Users, requiresConvivencia: true },
         { id: 'compromisos', label: 'Sanciones', icon: FileWarning, requiresConvivencia: false }
     ];

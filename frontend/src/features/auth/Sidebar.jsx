@@ -155,8 +155,8 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
           </>
         )}
 
-        {/* Nueva Consulta / Chat - Visible para todos los roles */}
-        <button
+        {/* Nueva Consulta / Chat - Visible para todos excepto Investigador */}
+        {usuario?.rol !== 'Investigador' && <button
           onClick={() => {
             navigate(getPath('/chat-general'), {
               state: {
@@ -179,7 +179,7 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
             </svg>
           </span>
           {isOpen && <span className="whitespace-nowrap">Nueva Consulta</span>}
-        </button>
+        </button>}
 
         {/* Secciones para roles con acceso a casos (todos menos Trabajador) */}
         {usuario?.rol !== 'Trabajador' && (
@@ -250,7 +250,7 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
         )}
 
         {/* Sección Recientes - solo mostrar si está abierto y no es Trabajador */}
-        <div className={`flex-1 flex flex-col overflow-hidden ${isOpen && usuario?.rol !== 'Trabajador' ? 'sidebar-fade-in' : 'hidden'}`}>
+        <div className={`flex-1 flex flex-col overflow-hidden ${isOpen && usuario?.rol !== 'Trabajador' && usuario?.rol !== 'Investigador' ? 'sidebar-fade-in' : 'hidden'}`}>
           <div className="px-2 mb-2 flex-shrink-0">
             <h3 className="text-[12px] font-bold text-gray-500 tracking-wide whitespace-nowrap">
               Recientes

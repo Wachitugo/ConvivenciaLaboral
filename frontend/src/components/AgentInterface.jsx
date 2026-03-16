@@ -306,8 +306,8 @@ ${consultation.suggestions.map((suggestion, index) => `${index + 1}. ${suggestio
                                     onChange={(e) => updateStudent(index, 'role', e.target.value)}
                                     className="w-24 border border-gray-300 rounded px-2 py-1"
                                 >
-                                    <option value="víctima">Víctima</option>
-                                    <option value="agresor">Agresor</option>
+                                    <option value="afectado">Denunciante</option>
+                                    <option value="agresor">Denunciado</option>
                                     <option value="testigo">Testigo</option>
                                 </select>
                                 {caseData.students.length > 1 && (
