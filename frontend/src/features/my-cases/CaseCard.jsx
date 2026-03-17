@@ -73,7 +73,7 @@ function CaseCard({ student: caseItem, onSelect }) {
           onClick={() => onSelect(caseItem)}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          className=" bg-[#0A3866]/40 backdrop-blur-md border border-[#1A71B8]/30 p-4 rounded-2xl hover:bg-[#0A3866]/60 hover:border-[#34B6D8]/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(26,113,184,0.3)] group flex flex-col relative cursor-pointer h-full"
+          className="bg-white/90 border-b border-r border-[#e2e8f0] p-4 hover:bg-[#f8fafc] hover:border-[#1A71B8]/20 transition-all duration-150 group flex flex-col relative cursor-pointer h-full"
           style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
         >
           {/* Semáforo de plazos Protocolo */}
@@ -108,7 +108,11 @@ function CaseCard({ student: caseItem, onSelect }) {
           {/* Primera fila: título y botones de acción */}
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="text-left flex-1 min-w-0">
+<<<<<<< HEAD
               <h3 className="font-semibold text-white group-hover:text-[#34B6D8] transition-colors text-sm line-clamp-2">
+=======
+              <h3 className="font-semibold text-[#0f172a] group-hover:text-[#1A71B8] transition-colors text-sm line-clamp-2">
+>>>>>>> e9bcc40 (feat: Introduce `GlowEffect` component and revamp `CasesToolbar` UI with updated styling and quick case creation functionality.)
                 {caseItem.title}
               </h3>
             </div>
@@ -118,9 +122,27 @@ function CaseCard({ student: caseItem, onSelect }) {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+<<<<<<< HEAD
                   setIsShareModalOpen(true);
                 }}
                 className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+=======
+                  onEdit(caseItem);
+                }}
+                className="p-1.5 rounded-lg text-[#64748b] hover:text-[#1A71B8] hover:bg-[#f0f4f8] transition-colors"
+                title="Editar caso"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsShareModalOpen(true);
+                }}
+                className="p-1.5 rounded-lg text-[#64748b] hover:text-[#1A71B8] hover:bg-[#f0f4f8] transition-colors"
+>>>>>>> e9bcc40 (feat: Introduce `GlowEffect` component and revamp `CasesToolbar` UI with updated styling and quick case creation functionality.)
                 title="Compartir caso"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,9 +154,15 @@ function CaseCard({ student: caseItem, onSelect }) {
 
           {/* Segunda fila: involucrados, fecha y estados */}
           <div className="flex items-center justify-between gap-3 mt-auto">
+<<<<<<< HEAD
             <div className="flex items-center gap-3 text-xs text-white/60">
               {caseItem.counterCase && (
                 <span className="text-[12px] text-white font-mono bg-[#1A71B8]/20 px-1.5 py-0.5 rounded border border-[#1A71B8]/40">
+=======
+            <div className="flex items-center gap-3 text-xs text-[#64748b]">
+              {caseItem.counterCase && (
+                <span className="text-[12px] text-[#0f172a] font-mono bg-[#f0f4f8] px-1.5 py-0.5 rounded border border-[#e2e8f0]">
+>>>>>>> e9bcc40 (feat: Introduce `GlowEffect` component and revamp `CasesToolbar` UI with updated styling and quick case creation functionality.)
                   {caseItem.counterCase}
                 </span>
               )}
