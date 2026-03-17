@@ -439,7 +439,7 @@ function ChatInterfaceGeneral({ onSendMessage, relatedCase, isThinking, isStream
 
   return (
     <div
-      className="relative "
+      className="relative"
       onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -487,104 +487,20 @@ function ChatInterfaceGeneral({ onSendMessage, relatedCase, isThinking, isStream
 
       {/* Overlay de drag and drop */}
       {isDragging && (
-        <div className="absolute inset-0 bg-blue-50/90 dark:bg-blue-900/30 border-2 border-dashed border-blue-400 rounded-2xl z-50 flex items-center justify-center backdrop-blur-sm">
+        <div className="absolute inset-0 bg-[#EBF4FF]/90 border-2 border-dashed border-[#1A71B8] rounded-2xl z-50 flex items-center justify-center backdrop-blur-sm">
           <div className="text-center">
-            <svg className="w-10 h-10 mx-auto text-blue-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-10 h-10 mx-auto text-[#1A71B8] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
             </svg>
           </div>
         </div>
       )}
 
-      {/* Badge de caso relacionado */}
-      {relatedCase && (
-        <div
-          onClick={() => {
-            const basePath = schoolSlug ? `/${schoolSlug}` : '';
-            navigate(`${basePath}/mis-casos/${relatedCase.id}`);
-          }}
-          className="mb-3 flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow w-fit cursor-pointer"
-        >
-          <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-          </svg>
-          <span className="text-sm text-gray-700 font-medium">
-            Caso: {relatedCase.title}
-          </span>
-        </div>
-      )}
-
-      {/* Archivos adjuntos */}
-      {attachedFiles.length > 0 && (
-        <div className="mb-3 flex flex-wrap gap-2">
-          {attachedFiles.map(file => (
-            <div
-              key={file.id}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="text-blue-500">
-                {getFileIcon(file.type)}
-              </div>
-              <span className="text-sm text-gray-700 font-medium truncate max-w-[150px]">
-                {file.name}
-              </span>
-              <button
-                type="button"
-                onClick={() => removeFile(file.id)}
-                className="text-gray-400 hover:text-red-500 transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
       {/* Input con botones integrados */}
       <form onSubmit={handleSubmit}>
-        <div className={`${isMultiLine ? 'px-4 pt-3 pb-4 rounded-3xl' : 'flex items-center gap-3 pl-4 pr-5 py-4 rounded-full'} border border-gray-200 bg-white  `}>
-          {!isMultiLine && (
-            <>
-              {/* Botón subir archivos - inline */}
-              <label
-                htmlFor="file-upload"
-                className="flex-shrink-0 cursor-pointer text-gray-500 hover:text-gray-700 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                </svg>
-              </label>
-
-              {/* Botón Micrófono - inline */}
-              <button
-                type="button"
-                onClick={toggleListening}
-                disabled={!hasRecognitionSupport}
-                className={`flex-shrink-0 transition-colors ${!hasRecognitionSupport
-                  ? 'text-gray-300 cursor-not-allowed'
-                  : isListening
-                    ? 'text-red-500 animate-pulse'
-                    : 'cursor-pointer text-gray-500 hover:text-gray-700'
-                  }`}
-                title={!hasRecognitionSupport ? "Navegador no compatible con dictado por voz" : (isListening ? "Detener grabación" : "Activar micrófono")}
-              >
-                {isListening ? (
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
-                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                  </svg>
-                )}
-              </button>
-
-
-            </>
-          )}
+        <div className="relative overflow-hidden rounded-[32px] bg-white/80 backdrop-blur-2xl border border-white p-4 shadow-[0_32px_64px_-15px_rgba(10,56,102,0.15)] focus-within:shadow-[0_40px_80px_-15px_rgba(10,56,102,0.22)] transition-all group">
+          {/* Interior glow */}
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#1A71B8]/10 rounded-full blur-3xl group-focus-within:bg-[#1A71B8]/20 transition-colors pointer-events-none" />
 
           <input
             id="file-upload"
@@ -595,117 +511,164 @@ function ChatInterfaceGeneral({ onSendMessage, relatedCase, isThinking, isStream
             onChange={handleFileChange}
           />
 
-          {/* Input de texto */}
-          <textarea
-            ref={textareaRef}
-            value={input + (isListening ? interimTranscript : '')}
-            onChange={handleInputChange}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit(e);
-              }
-            }}
-            className={`${isMultiLine ? 'w-full' : 'flex-1'} text-sm md:text-base bg-transparent text-gray-800 placeholder-gray-400 focus:outline-none resize-none max-h-[230px] overflow-y-auto custom-scrollbar ${isListening ? 'placeholder-red-400' : ''}`}
-            placeholder={isListening ? "Escuchando..." : "Pregúntame lo que necesites..."}
-            rows="1"
-          />
+          {/* Fila superior: adjuntar + textarea */}
+          <div className="relative flex items-start gap-4 px-2">
+            <label
+              htmlFor="file-upload"
+              className="flex-shrink-0 mt-[14px] cursor-pointer text-[#64748b] hover:text-[#1A71B8] transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+              </svg>
+            </label>
 
-          {!isMultiLine && (
-            <>
-              {/* Botón enviar/stop - inline */}
-              {isThinking || isStreaming ? (
-                <button
-                  type="button"
-                  onClick={handleStopClick}
-                  className="flex-shrink-0 text-red-500 hover:text-red-600 transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <rect x="6" y="6" width="12" height="12" rx="1" />
-                  </svg>
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  className="flex-shrink-0 text-blue-600 hover:text-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={!input.trim() && attachedFiles.length === 0}
-                >
-                  <svg className="w-5 h-5 transform -rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0 1 21.485 12 59.77 59.77 0 0 1 3.27 20.876L5.999 12zm0 0h7.5" />
-                  </svg>
-                </button>
-              )}
-            </>
-          )}
+            <textarea
+              ref={textareaRef}
+              value={input + (isListening ? interimTranscript : '')}
+              onChange={handleInputChange}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }
+              }}
+              className={`flex-1 bg-transparent text-[#0A3866] placeholder-[#94a3b8]/60 focus:outline-none resize-none max-h-[230px] overflow-y-auto custom-scrollbar text-base md:text-lg font-semibold py-3 leading-relaxed ${isListening ? 'placeholder-red-400' : ''}`}
+              placeholder={isListening ? "Escuchando..." : "Describe una situación o haz una consulta..."}
+              rows="1"
+            />
+          </div>
 
-          {isMultiLine && (
-            <>
-              {/* Botones de acción - vertical */}
-              <div className="flex items-center justify-between mt-2 pb-1">
-                <div className="flex items-center gap-2">
-                  {/* Botón subir archivos */}
-                  <label
-                    htmlFor="file-upload"
-                    className="flex-shrink-0 cursor-pointer text-gray-500 hover:text-gray-700 transition-colors p-1"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+          {/* Chips de caso y archivos dentro del input */}
+          {(relatedCase || attachedFiles.length > 0) && (
+            <div className="flex flex-wrap gap-1.5 px-2 pt-3">
+              {/* Badge caso relacionado */}
+              {relatedCase && (
+                <div
+                  onClick={() => {
+                    const basePath = schoolSlug ? `/${schoolSlug}` : '';
+                    navigate(`${basePath}/mis-casos/${relatedCase.id}`);
+                  }}
+                  className="flex items-center gap-1.5 pl-2 pr-2.5 py-1.5 rounded-xl border border-[#1A71B8]/20 bg-[#EBF4FF] hover:bg-[#dbeafe] hover:border-[#1A71B8]/35 transition-all cursor-pointer group/case"
+                >
+                  <div className="flex-shrink-0 w-5 h-5 rounded-md bg-[#1A71B8]/15 flex items-center justify-center">
+                    <svg className="w-3 h-3 text-[#1A71B8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                     </svg>
-                  </label>
-
-                  {/* Botón Micrófono - vertical */}
-                  <button
-                    type="button"
-                    onClick={toggleListening}
-                    disabled={!hasRecognitionSupport}
-                    className={`flex-shrink-0 transition-colors p-1 ${!hasRecognitionSupport
-                      ? 'text-gray-300 cursor-not-allowed'
-                      : isListening
-                        ? 'text-red-500 animate-pulse'
-                        : 'cursor-pointer text-gray-500 hover:text-gray-700'
-                      }`}
-                    title={!hasRecognitionSupport ? "Navegador no compatible con dictado por voz" : (isListening ? "Detener grabación" : "Activar micrófono")}
-                  >
-                    {isListening ? (
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
-                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
-                      </svg>
-                    ) : (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                      </svg>
-                    )}
-                  </button>
-
-
+                  </div>
+                  <span className="text-[10px] font-bold text-[#1A71B8] uppercase tracking-wider">Caso</span>
+                  <div className="w-px h-3 bg-[#1A71B8]/20" />
+                  <span className="text-xs text-[#0A3866] font-medium truncate max-w-[180px] group-hover/case:text-[#1A71B8] transition-colors">
+                    {relatedCase.title}
+                  </span>
+                  <svg className="w-3 h-3 text-[#1A71B8]/40 group-hover/case:text-[#1A71B8] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </div>
+              )}
 
-                {/* Botón enviar/stop */}
-                {isThinking ? (
+              {/* Chips archivos adjuntos */}
+              {attachedFiles.map(file => (
+                <div
+                  key={file.id}
+                  className="flex items-center gap-1.5 pl-2 pr-1.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-slate-100 transition-all group/file"
+                >
+                  <div className="flex-shrink-0 w-4 h-4 text-[#1A71B8]">
+                    {getFileIcon(file.type)}
+                  </div>
+                  <span className="text-xs text-slate-600 font-medium truncate max-w-[130px]">
+                    {file.name}
+                  </span>
                   <button
                     type="button"
-                    onClick={handleStopClick}
-                    className="flex-shrink-0 text-red-500 hover:text-red-600 transition-colors"
+                    onClick={() => removeFile(file.id)}
+                    className="flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
                   >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <rect x="6" y="6" width="12" height="12" rx="1" />
+                    <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
-                ) : (
-                  <button
-                    type="submit"
-                    className="flex-shrink-0 text-blue-600 hover:text-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={!input.trim() && attachedFiles.length === 0}
-                  >
-                    <svg className="w-5 h-5 transform -rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            </>
+                </div>
+              ))}
+            </div>
           )}
+
+          {/* Separador */}
+          <div className="border-t border-slate-100 mt-3 mx-2" />
+
+          {/* Fila inferior: controles izquierda + enviar derecha */}
+          <div className="flex items-center justify-between pt-3 px-2">
+            {/* Controles izquierda */}
+            <div className="flex items-center gap-1">
+              {/* Micrófono */}
+              <button
+                type="button"
+                onClick={toggleListening}
+                disabled={!hasRecognitionSupport}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  !hasRecognitionSupport
+                    ? 'text-[#cbd5e1] cursor-not-allowed'
+                    : isListening
+                      ? 'text-red-500 bg-red-50 animate-pulse'
+                      : 'text-[#64748b] hover:bg-slate-50 hover:text-[#1A71B8]'
+                }`}
+                title={!hasRecognitionSupport ? "Navegador no compatible con dictado por voz" : (isListening ? "Detener grabación" : "Activar micrófono")}
+              >
+                {isListening ? (
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                  </svg>
+                )}
+                <span>Voz</span>
+              </button>
+
+              {/* Divisor */}
+              <div className="w-px h-4 bg-slate-200 mx-2" />
+
+              {/* Tags de sugerencia rápida */}
+              <div className="hidden sm:flex gap-2">
+                {['Conflicto laboral', 'Protocolo', 'Ley 21.643'].map(tag => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => setInput(prev => prev ? `${prev} ${tag}` : tag)}
+                    className="px-3 py-1 bg-slate-50 hover:bg-[#1A71B8]/5 rounded-lg text-[10px] font-black uppercase tracking-wider text-[#64748b] hover:text-[#1A71B8] transition-all"
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Botón enviar / stop */}
+            {isThinking || isStreaming ? (
+              <button
+                type="button"
+                onClick={handleStopClick}
+                className="flex items-center gap-2 px-5 py-2.5 bg-red-50 border border-red-200 text-red-500 hover:bg-red-100 font-bold text-sm rounded-2xl transition-all shadow-sm"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <rect x="6" y="6" width="12" height="12" rx="1" />
+                </svg>
+                <span>Detener</span>
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={!input.trim() && attachedFiles.length === 0}
+                className="flex items-center gap-2 px-6 py-2.5 bg-[#1A71B8] hover:bg-[#0A3866] text-white font-black text-sm uppercase tracking-widest rounded-2xl shadow-xl shadow-[#1A71B8]/20 hover:shadow-[#0A3866]/30 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+              >
+                <span>Enviar</span>
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
       </form>
     </div>

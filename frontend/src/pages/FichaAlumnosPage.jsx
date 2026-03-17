@@ -62,7 +62,7 @@ function FichaAlumnosPage() {
   }
 
   return (
-    <div className={`flex-1 flex flex-col rounded-lg shadow-sm shadow-cyan-600/20 ${current.cardBg} border border-gray-300 transition-all duration-300 overflow-hidden`}>
+    <div className={`flex-1 flex flex-col rounded-lg shadow-sm shadow-cyan-600/20 border border-gray-300 transition-all duration-300 overflow-hidden`}>
       <StudentHeader isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} textPrimary={current.textPrimary} />
       <StudentToolbar
         filters={filters}

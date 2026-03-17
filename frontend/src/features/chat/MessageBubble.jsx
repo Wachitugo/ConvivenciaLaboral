@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
 import FileAttachment from './FileAttachment';
 import ProtocolView from './ProtocolView';
 import { API_URL } from '../../services/api';
@@ -11,7 +10,6 @@ import AvatarChat from '../../assets/avatar-chat.svg';
 const logger = createLogger('MessageBubble');
 
 function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, onDownload, onCompleteStep, onSuggestionClick, sessionId }) {
-  const { current } = useTheme();
   const isUser = message.sender === 'user';
   const [showCopied, setShowCopied] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
@@ -269,30 +267,30 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
         }
       }
 
-      if (isHorizontalRule) return <hr key={lineIndex} className="my-4 border-t border-gray-300" />;
+      if (isHorizontalRule) return <hr key={lineIndex} className="my-4 border-t border-white/20" />;
 
-      const textClass = inRefSection ? "text-xs text-gray-500 leading-tight" : "";
+      const textClass = inRefSection ? "text-xs text-gray-400 leading-tight" : "";
 
       if (headerMatch) {
         const level = headerMatch[1].length;
         const content = headerMatch[2].replace(/\*\*/g, '').trim();
         if (inRefSection) {
-          return <div key={lineIndex} className="text-xs font-bold mt-4 mb-2 text-gray-500 uppercase tracking-wide block">{content}</div>;
+          return <div key={lineIndex} className="text-xs font-bold mt-4 mb-2 text-gray-400 uppercase tracking-wide block">{content}</div>;
         }
         const sizes = { 1: "text-xl", 2: "text-lg", 3: "text-base", 4: "text-base", 5: "text-sm", 6: "text-sm" };
-        return <div key={lineIndex} className={`${sizes[level] || sizes[3]} font-bold mt-3 mb-2 text-blue-700 block`}>{content}</div>;
+        return <div key={lineIndex} className={`${sizes[level] || sizes[3]} font-bold mt-3 mb-2 text-blue-300 block`}>{content}</div>;
       }
 
       if (isBoldTitle) {
         const cleanContent = line.replace(/\*/g, '').trim();
-        return <div key={lineIndex} className="text-base font-bold mt-3 mb-2 text-blue-800 block">{cleanContent}</div>;
+        return <div key={lineIndex} className="text-base font-bold mt-3 mb-2 text-blue-200 block">{cleanContent}</div>;
       }
 
       if (isQuote) {
         const quoteContent = line.replace(/^>\s*/, '');
         return (
-          <div key={lineIndex} className="my-2 pl-4 border-l-3 border-blue-400 bg-blue-50/40 py-2.5 pr-3 rounded-r-xl">
-            <p className={`${inRefSection ? 'text-xs' : 'text-sm'} italic ${current.textSecondary} text-justify leading-relaxed`}>{quoteContent}</p>
+          <div key={lineIndex} className="my-2 pl-4 border-l-3 border-blue-400 bg-blue-900/20 py-2.5 pr-3 rounded-r-xl">
+            <p className={`${inRefSection ? 'text-xs' : 'text-sm'} italic text-gray-300 text-justify leading-relaxed`}>{quoteContent}</p>
           </div>
         );
       }
@@ -301,7 +299,7 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
       if (isItalicSubtitle) {
         const content = line.replace(/^[\s]*[-*]\s*\*+/, '').replace(/\*+:?\s*$/, '');
         return (
-          <div key={lineIndex} className="text-sm font-semibold mt-3 mb-1.5 text-blue-800 block pl-0">
+          <div key={lineIndex} className="text-sm font-semibold mt-3 mb-1.5 text-blue-300 block pl-0">
             {content}
           </div>
         );
@@ -310,10 +308,10 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
       const parts = line.split(/(\*\*\*.*?\*\*\*|\*\*.*?\*\*|\*.*?\*)/g);
       return (
         <span key={lineIndex} className={`block ${isListItem ? 'pl-4 relative my-1' : ''} ${textClass}`}>
-          {isListItem && <span className={`absolute left-0 font-bold ${inRefSection ? 'text-gray-400 text-[10px] top-0.5' : 'text-blue-500'}`}>•</span>}
+          {isListItem && <span className={`absolute left-0 font-bold ${inRefSection ? 'text-gray-500 text-[10px] top-0.5' : 'text-blue-400'}`}>•</span>}
           {parts.map((part, partIndex) => {
-            if (part.startsWith('***') && part.endsWith('***')) return <strong key={partIndex} className="font-bold italic text-blue-900">{part.slice(3, -3)}</strong>;
-            if (part.startsWith('**') && part.endsWith('**')) return <strong key={partIndex} className="font-bold text-blue-900">{part.slice(2, -2)}</strong>;
+            if (part.startsWith('***') && part.endsWith('***')) return <strong key={partIndex} className="font-bold italic text-blue-200">{part.slice(3, -3)}</strong>;
+            if (part.startsWith('**') && part.endsWith('**')) return <strong key={partIndex} className="font-bold text-blue-200">{part.slice(2, -2)}</strong>;
             if (part.startsWith('*') && part.endsWith('*')) {
               // Solo aplicar padding izquierdo si no es el primer elemento con contenido
               const isFirstPart = partIndex === 0 || parts.slice(0, partIndex).every(p => !p.trim());
@@ -322,7 +320,7 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
               return (
                 <em
                   key={partIndex}
-                  className="italic text-gray-800 text-sm inline-block"
+                  className="italic text-gray-300 text-sm inline-block"
                   style={{ letterSpacing: '0.01em', paddingLeft, paddingRight: '0.3em' }}
                 >
                   {part.slice(1, -1)}
@@ -349,53 +347,61 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
   };
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} group w-full`} style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} group w-full`}>
       {/* Mensaje del usuario */}
       {isUser ? (
-        <div className="w-full flex flex-col gap-1 items-end animate-fade-in">
-          {messageContent && (
-            <div className="rounded-3xl rounded-br-md px-4 py-2 shadow-sm max-w-full" style={{ backgroundColor: '#579991' }}>
-              <p className={`text-sm text-white leading-normal whitespace-pre-wrap text-justify`}>
-                {messageContent}
-              </p>
-            </div>
-          )}
+        <div className="flex gap-3 flex-row-reverse max-w-[85%] animate-fade-in">
+          {/* Avatar usuario */}
+          <div className="flex-shrink-0 w-9 h-9 rounded-2xl bg-[#0A3866] flex items-center justify-center text-white text-xs font-bold shadow-sm">
+            {message.senderInitials || 'Tú'}
+          </div>
 
-          {allFiles.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {allFiles.map((file) => (
-                <FileAttachment
-                  key={file.id}
-                  file={file}
-                  onClick={onFileClick}
-                  isUserMessage={isUser}
-                />
-              ))}
-            </div>
-          )}
+          <div className="flex flex-col gap-1 items-end">
+            {messageContent && (
+              <div className="bg-[#1A71B8] text-white px-5 py-3.5 rounded-2xl rounded-tr-none shadow-sm ring-1 ring-[#1A71B8]/40">
+                <p className="text-[1rem] font-[450] leading-[1.65] tracking-[0.008em] whitespace-pre-wrap">
+                  {messageContent}
+                </p>
+                {message.timestamp && (
+                  <div className="flex items-center gap-1 mt-2 opacity-50">
+                    <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-[9px] font-bold uppercase tracking-widest">
+                      {new Date(message.timestamp).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
 
-          {/* Timestamp */}
-          {message.timestamp && (
-            <span className="text-[10px] text-gray-400 mr-1">
-              {new Date(message.timestamp).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
-            </span>
-          )}
+            {allFiles.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {allFiles.map((file) => (
+                  <FileAttachment
+                    key={file.id}
+                    file={file}
+                    onClick={onFileClick}
+                    isUserMessage={isUser}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       ) : (
         /* Mensaje de la IA */
         <div className="w-full flex gap-3 animate-fade-in">
-          {/* Avatar de IA */}
-          <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden shadow-md">
-            <img src={AvatarChat} alt="IA" className="w-full h-full object-cover" />
-          </div>
+       
 
-          <div className="flex-1 flex flex-col gap-2">
+          <div className="flex-1 flex flex-col gap-2 max-w-[85%]">
             {/* Solo mostrar la burbuja de texto si hay contenido o hay un protocolo activo */}
             {(messageContent?.trim() || contentData.type !== 'none') && (
               <div
-                className={`text-sm ${current.textPrimary} leading-relaxed space-y-0.5 text-justify
-                          ${(contentData.type === 'email_draft' || contentData.type === 'calendar_draft') ? 'p-0 overflow-hidden' : 'px-4 py-3'} rounded-2xl rounded-tl-md bg-gray-50 border border-gray-200
-                          shadow-sm transition-shadow duration-200 max-w-full`}
+                className={`text-[1rem] font-[450] text-[#E8EDF5] leading-[1.75] tracking-[0.008em] space-y-0.5 text-justify
+                          ${(contentData.type === 'email_draft' || contentData.type === 'calendar_draft') ? 'p-0 overflow-hidden' : 'px-5 py-4'}
+                          rounded-2xl rounded-tl-none bg-gray-800 backdrop-blur-sm border border-white/10
+                          shadow-sm hover:shadow-md hover:shadow-black/20 transition-shadow duration-200 max-w-full`}
               >
                 {contentData.type === 'complete' ? (
                   <>
@@ -409,7 +415,7 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
                       // Mostrar solo texto cuando se cancela
                       <>
                         {contentData.textBefore && <div className="mb-2">{renderFormattedText(contentData.textBefore)}</div>}
-                        <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-gray-600 text-sm italic">
+                        <div className="p-4 bg-white/8 border border-white/10 rounded-lg text-gray-400 text-sm italic">
                           Borrador de email cancelado
                         </div>
                       </>
@@ -434,7 +440,7 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
                       // Mostrar solo texto cuando se cancela
                       <>
                         {contentData.textBefore && <div className="mb-2">{renderFormattedText(contentData.textBefore)}</div>}
-                        <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-gray-600 text-sm italic">
+                        <div className="p-4 bg-white/8 border border-white/10 rounded-lg text-gray-400 text-sm italic">
                           Borrador de evento de calendario cancelado
                         </div>
                       </>
@@ -457,7 +463,7 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
                 ) : contentData.type === 'email_success' ? (
                   // Email success card
                   <div className="w-full flex flex-col items-center justify-center py-6">
-                    <div className="bg-white rounded-2xl p-6 text-left shadow-sm border border-gray-100 max-w-md w-full">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-left shadow-sm border border-white/15 max-w-md w-full">
                       <div className="flex items-start gap-3 mb-3">
                         <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-green-100">
                           <svg className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -465,23 +471,23 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
                           </svg>
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-base font-bold text-teal-900 mb-1">Correo enviado exitosamente</h3>
-                          <p className="text-sm text-teal-700">El correo ha sido enviado desde tu cuenta.</p>
+                          <h3 className="text-base font-bold text-white mb-1">Correo enviado exitosamente</h3>
+                          <p className="text-sm text-gray-300">El correo ha sido enviado desde tu cuenta.</p>
                         </div>
                       </div>
                       <div className="space-y-1.5 text-sm">
                         <div className="flex items-start gap-2">
-                          <span className="text-gray-500 min-w-[60px]">📧 Para:</span>
-                          <span className="text-gray-900">{contentData.data.to}</span>
+                          <span className="text-gray-400 min-w-[60px]">📧 Para:</span>
+                          <span className="text-gray-100">{contentData.data.to}</span>
                         </div>
                         <div className="flex items-start gap-2">
-                          <span className="text-gray-500 min-w-[60px]">📝 Asunto:</span>
-                          <span className="text-gray-900">{contentData.data.subject}</span>
+                          <span className="text-gray-400 min-w-[60px]">📝 Asunto:</span>
+                          <span className="text-gray-100">{contentData.data.subject}</span>
                         </div>
                         {contentData.data.cc && contentData.data.cc.length > 0 && (
                           <div className="flex items-start gap-2">
-                            <span className="text-gray-500 min-w-[60px]">📄 CC:</span>
-                            <span className="text-gray-900">{contentData.data.cc.join(', ')}</span>
+                            <span className="text-gray-400 min-w-[60px]">📄 CC:</span>
+                            <span className="text-gray-100">{contentData.data.cc.join(', ')}</span>
                           </div>
                         )}
                       </div>
@@ -490,7 +496,7 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
                 ) : contentData.type === 'calendar_success' ? (
                   // Calendar success card
                   <div className="w-full flex flex-col items-center justify-center py-6">
-                    <div className="bg-white rounded-2xl p-6 text-left shadow-sm border border-gray-100 max-w-md w-full">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-left shadow-sm border border-white/15 max-w-md w-full">
                       <div className="flex items-start gap-3 mb-3">
                         <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-green-100">
                           <svg className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -498,13 +504,13 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
                           </svg>
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-base font-bold text-teal-900 mb-1">Evento agendado exitosamente</h3>
-                          <p className="text-sm text-teal-700">El evento **{contentData.data.summary}** ha sido creado en el calendario.</p>
+                          <h3 className="text-base font-bold text-white mb-1">Evento agendado exitosamente</h3>
+                          <p className="text-sm text-gray-300">El evento **{contentData.data.summary}** ha sido creado en el calendario.</p>
                         </div>
                       </div>
                       <div className="space-y-1.5 text-sm">
                         <div className="flex items-start gap-2">
-                          <span className="text-gray-500 min-w-[60px]">📅 Inicio:</span>
+                          <span className="text-gray-400 min-w-[60px]">📅 Inicio:</span>
                           <span className="text-gray-900">
                             {(() => {
                               const date = new Date(contentData.data.start_time);
@@ -516,7 +522,7 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
                           </span>
                         </div>
                         <div className="flex items-start gap-2">
-                          <span className="text-gray-500 min-w-[60px]">📅 Fin:</span>
+                          <span className="text-gray-400 min-w-[60px]">📅 Fin:</span>
                           <span className="text-gray-900">
                             {(() => {
                               const date = new Date(contentData.data.end_time);
@@ -529,8 +535,8 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
                         </div>
                         {contentData.data.attendees && contentData.data.attendees.length > 0 && (
                           <div className="flex items-start gap-2">
-                            <span className="text-gray-500 min-w-[60px]">👥 Asistentes:</span>
-                            <span className="text-gray-900">{contentData.data.attendees.join(', ')}</span>
+                            <span className="text-gray-400 min-w-[60px]">👥 Asistentes:</span>
+                            <span className="text-gray-100">{contentData.data.attendees.join(', ')}</span>
                           </div>
                         )}
                       </div>
@@ -543,17 +549,17 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
                         {renderFormattedText(contentData.textBefore)}
                       </div>
                     )}
-                    <div className="mt-4 mb-4 rounded-2xl border border-blue-200 p-4 bg-blue-50/30 backdrop-blur-sm">
+                    <div className="mt-4 mb-4 rounded-2xl border border-white/10 p-4 bg-white/8">
                       <div className="flex items-center gap-3">
-                        <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                        <span className={`text-sm font-medium ${current.textSecondary}`}>Generando respuesta...</span>
+                        <div className="w-5 h-5 border-2 border-[#34B6D8] border-t-transparent rounded-full animate-spin"></div>
+                        <span className="text-sm font-medium text-gray-300">Generando respuesta...</span>
                       </div>
                     </div>
                   </>
                 ) : contentData.type === 'error' ? (
                   <>
                     {contentData.textBefore && <div className="mb-2">{renderFormattedText(contentData.textBefore)}</div>}
-                    <div className="p-4 bg-red-50/50 border border-red-200 rounded-2xl text-red-600 text-sm shadow-sm">
+                    <div className="p-4 bg-red-900/20 border border-red-400/30 rounded-2xl text-red-400 text-sm shadow-sm">
                       <p className="font-semibold flex items-center gap-2">Error visualizando contenido</p>
                       <p className="mt-1.5">{contentData.error}</p>
                     </div>
@@ -580,35 +586,27 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
 
             {/* Sugerencias de preguntas */}
             {message.suggestions && message.suggestions.length > 0 && !message.isStreaming && (
-              <div className="mt-4 animate-fade-in">
-                <p className="text-xs font-bold text-blue-600 mb-2 flex items-center gap-1.5 uppercase tracking-wide">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                  Sugerencias
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {message.suggestions.map((suggestion, index) => (
-                    <button
-                      key={index}
-                      onClick={() => onSuggestionClick && onSuggestionClick(suggestion)}
-                      className={`text-sm px-3 py-1.5 rounded-full border ${current.borderColor} 
-                                bg-white hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 
-                                transition-all duration-200 text-left shadow-sm ${current.textSecondary}`}
-                    >
-                      {suggestion}
-                    </button>
-                  ))}
-                </div>
+              <div className="mt-2 animate-fade-in flex flex-wrap gap-2">
+                {message.suggestions.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    onClick={() => onSuggestionClick && onSuggestionClick(suggestion)}
+                    className="px-4 py-2 bg-white/8 border border-white/15 text-[#34B6D8] text-[11px] font-bold uppercase tracking-[0.12em] rounded-xl hover:border-white/30 hover:bg-white/15 hover:-translate-y-0.5 hover:shadow-sm transition-all shadow-sm active:scale-95"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
               </div>
             )}
 
-            {/* Botones de interacción - solo mostrar cuando hay contenido Y no está streameando */}
+            {/* Botones de interacción */}
             {messageContent && messageContent.trim().length > 0 && !message.isStreaming && (
-              <div className="flex items-center gap-2 mt-1 opacity-60 group-hover:opacity-100 transition-opacity duration-200 animate-fade-in">
-                {/* Timestamp */}
+              <div className="flex items-center gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 animate-fade-in">
                 {message.timestamp && (
-                  <span className="text-[10px] text-gray-400">
+                  <span className="text-[10px] text-gray-400 flex items-center gap-1">
+                    <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                     {new Date(message.timestamp).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 )}
@@ -616,18 +614,15 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
                 <div className="relative">
                   <button
                     onClick={handleCopy}
-                    className={`p-2 rounded-lg ${current.textSecondary} hover:bg-gray-100 hover:text-blue-600 transition-all duration-200`}
+                    className="p-1.5 rounded-lg text-gray-400 hover:bg-white/10 hover:text-[#34B6D8] transition-all duration-200"
                     title="Copiar respuesta"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
                   </button>
                   {showCopied && (
-                    <div
-                      className={`absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-600 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap transition-opacity duration-300 ${isFadingOut ? 'opacity-0' : 'opacity-100'
-                        }`}
-                    >
+                    <div className={`absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#0A3866] text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap transition-opacity duration-300 ${isFadingOut ? 'opacity-0' : 'opacity-100'}`}>
                       Copiado!
                     </div>
                   )}
