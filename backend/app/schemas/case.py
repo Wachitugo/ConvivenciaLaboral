@@ -5,7 +5,11 @@ from enum import Enum
 
 class InvolvedPerson(BaseModel):
     name: str
-    role: Optional[str] = None # Estudiante, Apoderado, Docente, etc.
+    role: Optional[str] = None
+    rut: Optional[str] = None
+    grade: Optional[str] = None   # área de trabajo
+    gender: Optional[str] = None
+    studentId: Optional[str] = None
 
 # ============ PERMISOS ============
 

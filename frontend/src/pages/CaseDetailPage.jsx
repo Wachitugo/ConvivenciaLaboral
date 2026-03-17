@@ -24,8 +24,10 @@ function CaseDetailPage() {
       id: person.id || `inv-${index}-${Date.now()}`,
       name: person.name,
       role: person.role || 'Sin rol',
-      grade: person.grade, // Mantener por si acaso, pero usaremos role
-      rut: person.rut
+      grade: person.grade,
+      rut: person.rut,
+      gender: person.gender,
+      studentId: person.studentId
     }));
 
     let protocolSteps = data.protocolSteps || [];
