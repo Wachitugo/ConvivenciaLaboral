@@ -465,13 +465,9 @@ function MyCases() {
         <>
           {/* Contenedor principal */}
           <div
-            className={`flex-1 flex flex-col bg-white rounded-lg shadow-md border border-gray-300 transition-all duration-300 overflow-hidden`}
+            className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden `}
           >
-            <CasesHeader
-              isSidebarOpen={isSidebarOpen}
-              toggleSidebar={toggleSidebar}
-              textPrimary={current.textPrimary}
-            />
+      
             <CasesToolbar
               filters={filters}
               onFilterChange={handleFilterChange}

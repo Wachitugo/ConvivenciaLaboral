@@ -98,7 +98,7 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
         fixed left-4 top-4 bottom-4 z-50
         rounded-[28px]
         shadow-[0_8px_32px_rgba(10,56,102,0.16),0_2px_8px_rgba(26,113,184,0.10),0_0_0_1px_rgba(226,232,240,0.8)]
-        bg-white/85 backdrop-blur-xl
+        bg-white/90 backdrop-blur-xl
         border border-white/60
         ${isOpen ? 'translate-x-0 w-72' : '-translate-x-full lg:translate-x-0 lg:w-[68px]'}
         ${isHidden ? 'hidden' : ''}

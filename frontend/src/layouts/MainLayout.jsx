@@ -231,8 +231,8 @@ function MainLayout() {
     
         transition-all duration-300 ease-in-out
         overflow-hidden
-        ${isSidebarOpen ? 'lg:pl-[280px]' : 'lg:pl-[88px]'}
-        pl-2
+        ${isSidebarOpen ? 'lg:pl-[320px]' : 'lg:pl-[100px]'}
+        p-4
       `}>
         {/* Mobile Header */}
         <Outlet

@@ -1,4 +1,4 @@
-import { useState } from 'react'; // Import useState
+import { useState } from 'react';
 import Breadcrumb from '../../components/Breadcrumb';
 import FilterDropdown from './FilterDropdown';
 
@@ -49,13 +49,10 @@ function CasesToolbar({
   ];
 
   return (
-    <div style={{ fontFamily: "'Poppins', sans-serif" }}>
-      {/* Breadcrumb */}
-      <div className="px-6 pt-5 pb-2">
-        <Breadcrumb />
-      </div>
+    <div className=" bg-white/90 p-3 pb-3 backdrop-blur-xl border-t border-l border-r border-white/20 rounded-t-3xl relative z-[100]" style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" }}>
+   
 
-      <div className="relative flex flex-col gap-3 px-6 pt-3">
+      <div className="relative flex flex-col gap-3 p">
         <div className="flex items-center justify-between gap-4">
           {/* Fila Principal: Search + Filtros Principales + Botón Más Filtros + Acciones */}
           <div className="flex items-center gap-2 flex-1 flex-wrap">
@@ -67,7 +64,7 @@ function CasesToolbar({
                 name="searchTerm"
                 value={filters.searchTerm}
                 onChange={onFilterChange}
-                className="w-full px-3 py-1.5 pl-4 bg-gray-50/50 border-2 border-gray-200 text-sm rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none shadow-sm focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all"
+                className="w-full px-3 py-1.5 pl-4 bg-[#f8fafc] border border-[#e2e8f0] text-sm rounded-3xl text-[#0f172a] placeholder-[#94a3b8] focus:outline-none shadow-sm focus:border-[#1A71B8]/40 focus:ring-4 focus:ring-[#1A71B8]/8 transition-all"
               />
             </div>
 
@@ -80,9 +77,9 @@ function CasesToolbar({
             <div className="relative">
               <button
                 onClick={() => setShowMoreFilters(!showMoreFilters)}
-                className={`px-3 bg-gray-50 py-1.5 border-2 border-stone-200 shadow-sm rounded-lg text-gray-600 text-sm  flex items-center gap-2 transition-all ${showMoreFilters || filters.year !== 'all' || filters.month !== 'all'
-                  ? 'bg-blue-50 text-gray-500 border-blue-200'
-                  : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                className={`px-3 py-1.5 border rounded-xl text-sm flex items-center gap-2 transition-all shadow-sm ${showMoreFilters || filters.year !== 'all' || filters.month !== 'all'
+                  ? 'bg-[#1A71B8]/10 text-[#1A71B8] border-[#1A71B8]/20'
+                  : 'bg-[#f8fafc] text-[#475569] border-[#e2e8f0] hover:bg-[#f0f4f8] hover:text-[#0A3866]'
                   }`}
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,14 +87,14 @@ function CasesToolbar({
                 </svg>
                 <span>{showMoreFilters ? 'Cerrar' : 'Más filtros'}</span>
                 {(filters.year !== 'all' || filters.month !== 'all') && (
-                  <span className="w-2 h-2 rounded-full bg-blue-500 ml-1"></span>
+                  <span className="w-2 h-2 rounded-full bg-[#1A71B8] ml-1"></span>
                 )}
               </button>
 
               {/* Dropdown Flotante Anclado al Botón */}
               {showMoreFilters && (
-                <div className="absolute top-full left-0 z-50 mt-2 p-3 bg-white rounded-xl border border-gray-200 shadow-xl flex items-center gap-2 animate-fade-in-down w-max min-w-[300px]">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide mr-2 whitespace-nowrap">Filtrar por fecha:</span>
+                <div className="absolute top-full left-0 z-50 mt-2 p-3 bg-white/85 backdrop-blur-xl rounded-2xl border border-white/60 shadow-[0_8px_32px_rgba(10,56,102,0.16),0_2px_8px_rgba(26,113,184,0.10),0_0_0_1px_rgba(226,232,240,0.8)] flex items-center gap-2 animate-fade-in-down w-max min-w-[300px]">
+                  <span className="text-xs font-black text-[#94a3b8] uppercase tracking-widest mr-2 whitespace-nowrap">Filtrar por fecha:</span>
                   <div className="flex items-center gap-2">
                     <FilterDropdown name="year" value={filters.year} onChange={onFilterChange} options={yearOptions} />
                     <FilterDropdown name="month" value={filters.month} onChange={onFilterChange} options={monthOptions} />
@@ -108,46 +105,52 @@ function CasesToolbar({
           </div>
 
           <div className="flex items-center gap-1 relative">
-            {/* Nuevo Caso */}
+            {/* Nuevo Caso - El botón base */}
             <button
               onClick={() => setShowNewCasePopover(!showNewCasePopover)}
-              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium flex items-center gap-2 transition-colors shadow-sm transition-all whitespace-nowrap"
+              className={` px-6 py-2 text-[18px]  shadow-xl rounded-[28px] font-bold text-sm flex items-center gap-2 transition-all  active:scale-[0.98] whitespace-nowrap z-50 ${showNewCasePopover
+                ? 'bg-[#0A3866] text-white text-lg shadow-xl ring-4 ring-[#0A3866]/20'
+                : 'bg-[#0A3866] hover:bg-[#1A71B8] text-white shadow-[#1A71B8]/20'
+                }`}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`w-5 h-5 transition-transform duration-300 ${showNewCasePopover ? 'rotate-45' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
               Nuevo Caso
             </button>
 
-            {/* Popover para crear caso rápido */}
+            {/* Popover Invertido (Azul Oscuro) */}
             {showNewCasePopover && (
-              <div className="absolute top-full right-0 z-50 mt-2 p-4 bg-white rounded-xl border border-gray-200 shadow-xl animate-fade-in-down w-72">
-                <div className="flex flex-col gap-3">
-                  <label className="text-sm font-medium text-gray-700">
-                    Título del caso
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Ej: Conflicto entre estudiantes..."
-                    value={newCaseTitle}
-                    onChange={(e) => setNewCaseTitle(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && newCaseTitle.trim() && !isSaving) {
-                        onQuickCreate(newCaseTitle.trim());
-                        setNewCaseTitle('');
-                        setShowNewCasePopover(false);
-                      }
-                    }}
-                    className="w-full px-3 py-2 bg-gray-50 border-2 border-gray-200 text-sm rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all"
-                    autoFocus
-                  />
-                  <div className="flex justify-end gap-2">
+              <div className="absolute top-full right-0 z-40 mt-3 p-5 bg-[#0A3866] rounded-2xl shadow-[0_20px_40px_rgba(10,56,102,0.4)] border border-[#1A71B8]/50 animate-fade-in-down w-80">
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-white/80 uppercase tracking-wider mb-2">
+                      Título del nuevo caso
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ej: Conflicto entre estudiantes..."
+                      value={newCaseTitle}
+                      onChange={(e) => setNewCaseTitle(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && newCaseTitle.trim() && !isSaving) {
+                          onQuickCreate(newCaseTitle.trim());
+                          setNewCaseTitle('');
+                          setShowNewCasePopover(false);
+                        }
+                      }}
+                      className="w-full px-3 py-2.5 bg-[#1A71B8]/30 border border-[#1A71B8]/50 text-sm rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-white/60 focus:ring-4 focus:ring-white/10 transition-all"
+                      autoFocus
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-2 mt-2">
                     <button
                       onClick={() => {
                         setShowNewCasePopover(false);
                         setNewCaseTitle('');
                       }}
-                      className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                      className="px-4 py-2 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-xl font-medium transition-all"
                     >
                       Cancelar
                     </button>
@@ -160,9 +163,9 @@ function CasesToolbar({
                         }
                       }}
                       disabled={!newCaseTitle.trim() || isSaving}
-                      className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white text-sm rounded-lg font-medium transition-colors"
+                      className="px-5 py-2 bg-white text-[#0A3866] hover:bg-gray-100 disabled:bg-white/20 disabled:text-white/40 disabled:shadow-none disabled:active:scale-100 text-sm rounded-xl font-bold transition-all shadow-lg shadow-black/10 active:scale-[0.98]"
                     >
-                      {isSaving ? 'Creando...' : 'Crear'}
+                      {isSaving ? 'Creando...' : 'Crear caso'}
                     </button>
                   </div>
                 </div>

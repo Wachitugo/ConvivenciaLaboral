@@ -349,3 +349,35 @@
 .animate-sparkle-pulse {
   animation: sparkle-pulse 2s ease-in-out infinite;
 }
+
+/* Glow Effect - rotating conic gradient */
+@keyframes glow-rotate {
+  from { --glow-angle: 0deg; }
+  to   { --glow-angle: 360deg; }
+}
+
+@property --glow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.glow-rotate {
+  animation: glow-rotate 4s linear infinite;
+  background: conic-gradient(
+    from var(--glow-angle) at 50% 50%,
+    var(--glow-c1, #1A71B8),
+    var(--glow-c2, #34B6D8),
+    var(--glow-c3, #0A3866),
+    var(--glow-c4, #1A71B8)
+  );
+}
+
+.glow-flow {
+  animation: glow-flow 3s ease-in-out infinite alternate;
+}
+
+@keyframes glow-flow {
+  from { background-position: 0% 50%; }
+  to   { background-position: 100% 50%; }
+}
