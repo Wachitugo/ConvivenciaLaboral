@@ -3,7 +3,7 @@ import {
     convertInchesToTwip, ImageRun, BorderStyle, Packer,
     Table, TableCell, TableRow, WidthType, VerticalAlign,
     HorizontalPositionRelativeFrom, VerticalPositionRelativeFrom,
-    TextWrappingType, TextWrappingSide, ShadingType
+    TextWrappingType, TextWrappingSide, ShadingType, TableLayoutType
 } from 'docx';
 import { saveAs } from 'file-saver';
 import { getImageAsBase64, getCombinedChronology } from './exportHelpers';
@@ -22,6 +22,16 @@ const COLOR_SUBHDR_BG  = 'BFDBFE'; // azul medio para sub-cabeceras (DENUNCIANTE
 
 // ── Helpers de celda ─────────────────────────────────────────────
 
+// Ancho total útil de página carta con márgenes de 1" cada lado: 9360 twips
+const PAGE_WIDTH_DXA = 9360;
+const pct = (p) => Math.round(p / 100 * PAGE_WIDTH_DXA);
+
+// Presets de anchos de columna (deben sumar PAGE_WIDTH_DXA)
+const COL_4_EQ   = [pct(25), pct(25), pct(25), pct(25)]; // 4 columnas iguales
+const COL_2_STD  = [pct(35), pct(65)];                    // etiqueta / valor
+const COL_2_WIDE = [pct(25), pct(75)];                    // fecha / contenido
+const COL_3_ANT  = [pct(40), pct(20), pct(40)];           // etapa / fecha / notas
+
 const cell = (children, { width = 50, fill = 'FFFFFF', bold = false, color = COLOR_BODY_TXT, colspan = 1 } = {}) =>
     new TableCell({
         children: Array.isArray(children) ? children : [
@@ -30,7 +40,7 @@ const cell = (children, { width = 50, fill = 'FFFFFF', bold = false, color = COL
                 spacing: { before: 60, after: 60 }
             })
         ],
-        width: { size: width, type: WidthType.PERCENTAGE },
+        width: { size: pct(width), type: WidthType.DXA },
         shading: { fill, type: ShadingType.SOLID, color: fill },
         verticalAlign: VerticalAlign.CENTER,
         columnSpan: colspan
@@ -48,8 +58,10 @@ const valueCell = (text, width = 65) =>
 const subHeaderCell = (text) =>
     cell(text, { width: 100, fill: COLOR_SUBHDR_BG, bold: true, color: COLOR_LABEL_TXT, colspan: 2 });
 
-const fullTable = (rows, { noExternalBorder = false } = {}) => new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
+const fullTable = (rows, colWidths = COL_2_STD) => new Table({
+    width: { size: PAGE_WIDTH_DXA, type: WidthType.DXA },
+    layout: TableLayoutType.FIXED,
+    columnWidths: colWidths,
     borders: {
         top:    { style: BorderStyle.SINGLE, size: 4, color: 'CBD5E1' },
         bottom: { style: BorderStyle.SINGLE, size: 4, color: 'CBD5E1' },
@@ -208,7 +220,7 @@ export const exportToDOCX = async (caseData, schoolData, documents = []) => {
                 labelCell('Protocolo', 25),
                 valueCell(caseData.protocol || '—', 25),
             ]})
-        ]));
+        ], COL_4_EQ));
         content.push(spacer());
 
         // ── 1. INFORMACIÓN DE LA EMPRESA ────────────────────────────
@@ -310,7 +322,7 @@ export const exportToDOCX = async (caseData, schoolData, documents = []) => {
         } else {
             rowsMedRes.push(new TableRow({ children: [ cell('Sin medidas de resguardo registradas.', { width: 100, colspan: 2, color: '94A3B8' }) ] }));
         }
-        content.push(fullTable(rowsMedRes));
+        content.push(fullTable(rowsMedRes, COL_2_WIDE));
         content.push(spacer());
 
         // ── 6. NOTIFICACIONES (CRONOLOGÍA) ───────────────────────────
@@ -332,7 +344,7 @@ export const exportToDOCX = async (caseData, schoolData, documents = []) => {
                 cell('Sin eventos registrados en la cronología.', { width: 100, colspan: 2, color: '94A3B8' })
             ]}));
         }
-        content.push(fullTable(rowsNotif));
+        content.push(fullTable(rowsNotif, COL_2_WIDE));
         content.push(spacer());
 
         // ── 7. ANTECEDENTES ──────────────────────────────────────────
@@ -353,11 +365,11 @@ export const exportToDOCX = async (caseData, schoolData, documents = []) => {
                     valueCell(s.notas || s.notes || '—', 40)
                 ]}));
             });
-            content.push(fullTable(rowsAnt));
+            content.push(fullTable(rowsAnt, COL_3_ANT));
         } else {
             content.push(fullTable([
                 new TableRow({ children: [
-                    cell('Sin antecedentes de etapas completadas.', { width: 100, color: '94A3B8' })
+                    cell('Sin antecedentes de etapas completadas.', { width: 100, colspan: 2, color: '94A3B8' })
                 ]})
             ]));
         }
@@ -390,8 +402,8 @@ export const exportToDOCX = async (caseData, schoolData, documents = []) => {
                                 alignment: AlignmentType.JUSTIFIED,
                                 spacing: { before: 60, after: 60 }
                             })],
-                            width: { size: 65, type: WidthType.PERCENTAGE },
-                            shading: { fill: 'FFFFFF', type: ShadingType.CLEAR, color: 'auto' }
+                            width: { size: pct(65), type: WidthType.DXA },
+                            shading: { fill: 'FFFFFF', type: ShadingType.SOLID, color: 'FFFFFF' }
                         })
                     ]}));
                 }
@@ -404,8 +416,8 @@ export const exportToDOCX = async (caseData, schoolData, documents = []) => {
                                 alignment: AlignmentType.JUSTIFIED,
                                 spacing: { before: 60, after: 60 }
                             })],
-                            width: { size: 65, type: WidthType.PERCENTAGE },
-                            shading: { fill: 'FFFFFF', type: ShadingType.CLEAR, color: 'auto' }
+                            width: { size: pct(65), type: WidthType.DXA },
+                            shading: { fill: 'FFFFFF', type: ShadingType.SOLID, color: 'FFFFFF' }
                         })
                     ]}));
                 }
@@ -444,7 +456,7 @@ export const exportToDOCX = async (caseData, schoolData, documents = []) => {
                 cell('Sin medidas correctivas registradas.', { width: 100, colspan: 2, color: '94A3B8' })
             ]}));
         }
-        content.push(fullTable(rowsMed));
+        content.push(fullTable(rowsMed, COL_2_WIDE));
 
         // ── FOOTER ───────────────────────────────────────────────────
 
