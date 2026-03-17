@@ -15,6 +15,9 @@ export const INITIAL_FORM_STATE = {
  * Los valores deben coincidir exactamente con el enum RoleName del backend
  */
 export const STAFF_ROLE_OPTIONS = [
+    { value: 'Gerente Relaciones Laborales', label: 'Gerente Relaciones Laborales' },
+    { value: 'Encargado de Relaciones Laborales', label: 'Encargado de Relaciones Laborales' },
+    { value: 'Investigador', label: 'Investigador' },
     { value: 'Encargado de Convivencia', label: 'Encargado de Convivencia' },
     { value: 'Directivo', label: 'Director' },
     { value: 'Trabajador', label: 'Trabajador' }

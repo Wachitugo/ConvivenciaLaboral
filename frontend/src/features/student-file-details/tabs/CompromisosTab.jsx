@@ -43,10 +43,10 @@ function CompromisosTab({ student, canEdit = true }) {
                 <div>
                     <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
                         <FileWarning size={18} className="text-blue-600 flex-shrink-0 sm:w-5 sm:h-5" />
-                        Compromisos
+                        Sanciones
                     </h3>
                     <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-                        Seguimiento de compromisos del trabajador
+                        Seguimiento de sanciones del colaborador
                     </p>
                 </div>
                 {canEdit && (
@@ -71,7 +71,7 @@ function CompromisosTab({ student, canEdit = true }) {
                         </div>
                         <div className="flex-1 min-w-0">
                             <p className="text-xs sm:text-sm font-semibold text-amber-800">
-                                {compromisosActivos.length} compromiso{compromisosActivos.length > 1 ? 's' : ''} activo{compromisosActivos.length > 1 ? 's' : ''}
+                                {compromisosActivos.length} sanción{compromisosActivos.length > 1 ? 'es' : ''} activa{compromisosActivos.length > 1 ? 's' : ''}
                             </p>
                             <p className="text-xs text-amber-600 truncate">Cualquier nueva falta puede significar incumplimiento</p>
                         </div>
@@ -190,14 +190,14 @@ function CompromisosTab({ student, canEdit = true }) {
                             <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
                                 <FileWarning size={16} className="text-gray-400" />
                             </div>
-                            <p className="text-sm text-gray-500">No hay compromisos registrados</p>
+                            <p className="text-sm text-gray-500">No hay sanciones registradas</p>
                             {canEdit && (
                                 <button
                                     onClick={() => setShowModal(true)}
                                     className="mt-3 inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
                                 >
                                     <Plus size={12} />
-                                    Agregar primer compromiso
+                                    Agregar primera sanción
                                 </button>
                             )}
                         </div>
@@ -210,7 +210,7 @@ function CompromisosTab({ student, canEdit = true }) {
                 <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">
                     <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 m-4 border border-gray-200">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-800">Nuevo Compromiso</h3>
+                            <h3 className="text-lg font-semibold text-gray-800">Nueva Sanción</h3>
                             <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
                                 <X size={20} />
                             </button>

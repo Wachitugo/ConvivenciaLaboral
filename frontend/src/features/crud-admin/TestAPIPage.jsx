@@ -13,6 +13,7 @@ export default function AdminPage() {
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingUsuarios, setLoadingUsuarios] = useState(false);
   const [activeTab, setActiveTab] = useState('usuarios');
   const [selectedSchoolForView, setSelectedSchoolForView] = useState(null);
 
@@ -79,14 +80,15 @@ export default function AdminPage() {
   };
 
   const listarUsuarios = async () => {
-    await handleRequest(
-      async () => {
-        const data = await usersService.getAll();
-        setUsuarios(data);
-        return data;
-      },
-      'Usuarios obtenidos'
-    );
+    setLoadingUsuarios(true);
+    try {
+      const data = await usersService.getAll();
+      setUsuarios(data);
+    } catch (err) {
+      setError(err.response?.data?.detail || err.message);
+    } finally {
+      setLoadingUsuarios(false);
+    }
   };
 
   const eliminarUsuario = async (userId) => {
@@ -244,6 +246,7 @@ export default function AdminPage() {
             <UsersSection
               usuarios={usuarios}
               colegios={colegios}
+              isLoading={loadingUsuarios}
               onRegistrarUsuario={registrarUsuario}
               onEliminarUsuario={eliminarUsuario}
               onEditarUsuario={editarUsuario}

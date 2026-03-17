@@ -120,8 +120,8 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
 
       {/* Menu de Navegación */}
       <nav className="flex-1 px-3 py- flex flex-col overflow-hidden">
-        {/* Roles con acceso completo */}
-        {usuario?.rol !== 'Trabajador' && (
+        {/* Roles con acceso al dashboard (no Trabajador ni Investigador) */}
+        {usuario?.rol !== 'Trabajador' && usuario?.rol !== 'Investigador' && (
           <>
             {/* Principal / Dashboard */}
             <button
@@ -155,8 +155,8 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
           </>
         )}
 
-        {/* Nueva Consulta / Chat - Visible para todos los roles */}
-        <button
+        {/* Nueva Consulta / Chat - Visible para todos excepto Investigador */}
+        {usuario?.rol !== 'Investigador' && <button
           onClick={() => {
             navigate(getPath('/chat-general'), {
               state: {
@@ -179,9 +179,9 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
             </svg>
           </span>
           {isOpen && <span className="whitespace-nowrap">Nueva Consulta</span>}
-        </button>
+        </button>}
 
-        {/* Secciones solo para roles con acceso completo */}
+        {/* Secciones para roles con acceso a casos (todos menos Trabajador) */}
         {usuario?.rol !== 'Trabajador' && (
           <>
             {/* Mis Casos */}
@@ -224,7 +224,7 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
               {isOpen && <span className="whitespace-nowrap">Entrevistas</span>}
             </button>
 
-            {/* Ficha de Trabajadores - Solo para roles con acceso completo */}
+            {/* Ficha Colaboradores */}
             <button
               onClick={() => {
                 navigate(getPath('/ficha-alumnos'));
@@ -234,14 +234,14 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
                 ? 'bg-blue-50 text-blue-700 shadow-sm'
                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
-              title={!isOpen ? "Ficha de Trabajadores" : ""}
+              title={!isOpen ? "Ficha Colaboradores" : ""}
             >
               <span className={`${isActive('/ficha-alumnos') ? 'text-blue-600' : 'text-gray-500'}`}>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 flex-shrink-0">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                 </svg>
               </span>
-              {isOpen && <span className="whitespace-nowrap">Ficha de Trabajadores</span>}
+              {isOpen && <span className="whitespace-nowrap">Ficha Colaboradores</span>}
             </button>
 
             {/* Separador - solo para roles con acceso completo */}
@@ -250,7 +250,7 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
         )}
 
         {/* Sección Recientes - solo mostrar si está abierto y no es Trabajador */}
-        <div className={`flex-1 flex flex-col overflow-hidden ${isOpen && usuario?.rol !== 'Trabajador' ? 'sidebar-fade-in' : 'hidden'}`}>
+        <div className={`flex-1 flex flex-col overflow-hidden ${isOpen && usuario?.rol !== 'Trabajador' && usuario?.rol !== 'Investigador' ? 'sidebar-fade-in' : 'hidden'}`}>
           <div className="px-2 mb-2 flex-shrink-0">
             <h3 className="text-[12px] font-bold text-gray-500 tracking-wide whitespace-nowrap">
               Recientes

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Save, User, CreditCard, GraduationCap, Mail, Cake, Phone } from 'lucide-react';
+import { X, Save, User, CreditCard, GraduationCap, Mail, Cake, Briefcase, CalendarDays } from 'lucide-react';
 import BirthDatePicker from '../../../components/BirthDatePicker';
 
 function EditStudentModal({ isOpen, onClose, onSave, student }) {
@@ -11,7 +11,10 @@ function EditStudentModal({ isOpen, onClose, onSave, student }) {
         curso: '',
         genero: '',
         email: '',
-        fecha_nacimiento: ''
+        fecha_nacimiento: '',
+        fecha_ingreso: '',
+        profesion: '',
+        cargo: ''
     });
 
     useEffect(() => {
@@ -35,7 +38,10 @@ function EditStudentModal({ isOpen, onClose, onSave, student }) {
                 // Safer to check both.
 
                 fecha_nacimiento: student.fechaNacimiento || student.fecha_nacimiento ?
-                    new Date(student.fechaNacimiento || student.fecha_nacimiento).toISOString().split('T')[0] : ''
+                    new Date(student.fechaNacimiento || student.fecha_nacimiento).toISOString().split('T')[0] : '',
+                fecha_ingreso: student.fecha_ingreso || '',
+                profesion: student.profesion || '',
+                cargo: student.cargo || ''
             });
         }
     }, [student, isOpen]);
@@ -53,7 +59,10 @@ function EditStudentModal({ isOpen, onClose, onSave, student }) {
             curso: formData.curso || null,
             genero: formData.genero || null,
             email: formData.email || null,
-            fecha_nacimiento: formData.fecha_nacimiento || null
+            fecha_nacimiento: formData.fecha_nacimiento || null,
+            fecha_ingreso: formData.fecha_ingreso || null,
+            profesion: formData.profesion || null,
+            cargo: formData.cargo || null
         });
         onClose();
     };
@@ -182,6 +191,45 @@ function EditStudentModal({ isOpen, onClose, onSave, student }) {
                                 <BirthDatePicker
                                     value={formData.fecha_nacimiento}
                                     onChange={(date) => setFormData({ ...formData, fecha_nacimiento: date })}
+                                />
+                            </div>
+
+                            {/* Fecha Ingreso */}
+                            <div>
+                                <label className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase mb-1">
+                                    <CalendarDays size={12} /> Fecha de Ingreso
+                                </label>
+                                <BirthDatePicker
+                                    value={formData.fecha_ingreso}
+                                    onChange={(date) => setFormData({ ...formData, fecha_ingreso: date })}
+                                />
+                            </div>
+
+                            {/* Profesión */}
+                            <div>
+                                <label className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase mb-1">
+                                    <Briefcase size={12} /> Profesión u Oficio
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.profesion}
+                                    onChange={(e) => setFormData({ ...formData, profesion: e.target.value })}
+                                    placeholder="Ej: Ingeniero, Técnico..."
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                />
+                            </div>
+
+                            {/* Cargo */}
+                            <div>
+                                <label className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase mb-1">
+                                    <Briefcase size={12} /> Cargo
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.cargo}
+                                    onChange={(e) => setFormData({ ...formData, cargo: e.target.value })}
+                                    placeholder="Ej: Jefe de Área, Analista..."
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                                 />
                             </div>
                         </div>

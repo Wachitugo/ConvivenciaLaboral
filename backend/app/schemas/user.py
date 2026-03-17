@@ -10,6 +10,9 @@ class RoleName(str, Enum):
     TRABAJADOR = "Trabajador"
     APODERADO = "Apoderado"
     DIRECTIVO = "Directivo"
+    GERENTE_RELACIONES_LABORALES = "Gerente Relaciones Laborales"
+    ENCARGADO_RELACIONES_LABORALES = "Encargado de Relaciones Laborales"
+    INVESTIGADOR = "Investigador"
 
 # ============ COLEGIO ============
 

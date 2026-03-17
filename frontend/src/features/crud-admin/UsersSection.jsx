@@ -6,6 +6,7 @@ import CreateUserModal from './CreateUserModal';
 export default function UsersSection({
   usuarios,
   colegios,
+  isLoading = false,
   onRegistrarUsuario,
   onEliminarUsuario,
   onEditarUsuario,
@@ -73,6 +74,7 @@ export default function UsersSection({
               </div>
               <input
                 type="text"
+                autoComplete="off"
                 className="block w-full pl-10 pr-3 py-2.5 border-none rounded-xl bg-gray-100 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:bg-white transition-all duration-200 text-sm font-medium"
                 placeholder="Buscar usuarios..."
                 value={searchTerm}
@@ -117,7 +119,12 @@ export default function UsersSection({
 
         {/* Content Area */}
         <div className="flex-1 bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-[0_2px_10px_-3px_rgba(0,0,0,0.05)] flex flex-col">
-          {filteredUsuarios.length === 0 ? (
+          {isLoading ? (
+            <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
+              <div className="w-10 h-10 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mb-4" />
+              <p className="text-sm font-medium text-gray-500">Cargando usuarios...</p>
+            </div>
+          ) : filteredUsuarios.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
               <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
                 <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

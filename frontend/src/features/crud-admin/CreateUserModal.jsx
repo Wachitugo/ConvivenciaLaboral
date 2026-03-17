@@ -36,6 +36,10 @@ export default function CreateUserModal({
   const validateForm = () => {
     const newErrors = {};
 
+    if (!selectedColegio) {
+      newErrors.colegio = 'Debes seleccionar una organización';
+    }
+
     if (!formData.nombre || formData.nombre.trim().length < 3) {
       newErrors.nombre = 'El nombre debe tener al menos 3 caracteres';
     }
@@ -80,7 +84,7 @@ export default function CreateUserModal({
           </button>
         </div>
 
-        <div className="p-5 md:p-8 space-y-8">
+        <form autoComplete="off" onSubmit={(e) => e.preventDefault()} className="p-5 md:p-8 space-y-8">
           {/* Información del Usuario */}
           <div className="space-y-6">
             <h4 className="font-semibold text-gray-900 text-sm uppercase tracking-wider border-b border-gray-100 pb-2">Información Básica</h4>
@@ -92,6 +96,7 @@ export default function CreateUserModal({
                 </label>
                 <input
                   type="text"
+                  autoComplete="off"
                   placeholder="Ej: Juan Pérez"
                   value={formData.nombre}
                   onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
@@ -108,7 +113,8 @@ export default function CreateUserModal({
                   Correo electrónico
                 </label>
                 <input
-                  type="email"
+                  type="text"
+                  autoComplete="off"
                   placeholder="ejemplo@correo.com"
                   value={formData.correo}
                   onChange={(e) => setFormData({ ...formData, correo: e.target.value })}
@@ -128,6 +134,7 @@ export default function CreateUserModal({
                 </label>
                 <input
                   type="password"
+                  autoComplete="new-password"
                   placeholder="Mínimo 6 caracteres"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -149,6 +156,9 @@ export default function CreateUserModal({
                     onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
                     className="block w-full px-4 py-3 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-200 text-sm appearance-none cursor-pointer"
                   >
+                    <option value="Gerente Relaciones Laborales">Gerente Relaciones Laborales</option>
+                    <option value="Encargado de Relaciones Laborales">Encargado de Relaciones Laborales</option>
+                    <option value="Investigador">Investigador</option>
                     <option value="Encargado de Convivencia">Encargado de Convivencia</option>
                     <option value="Directivo">Director</option>
                     <option value="Trabajador">Trabajador</option>
@@ -163,17 +173,22 @@ export default function CreateUserModal({
             </div>
           </div>
 
-          {/* Colegio Asignado */}
+          {/* Organización Asignada */}
           <div className="space-y-4">
             <h4 className="font-semibold text-gray-900 text-sm uppercase tracking-wider border-b border-gray-100 pb-2">Asignación</h4>
-            <ColegioSearchInput
-              colegios={colegios}
-              selectedColegioId={selectedColegio}
-              onSelect={setSelectedColegio}
-              label="Colegio (opcional)"
-            />
+            <div className="space-y-1">
+              <ColegioSearchInput
+                colegios={colegios}
+                selectedColegioId={selectedColegio}
+                onSelect={(val) => { setSelectedColegio(val); setErrors(prev => ({ ...prev, colegio: undefined })); }}
+                label="Organización"
+              />
+              {errors.colegio && (
+                <p className="text-xs text-red-500 font-medium">{errors.colegio}</p>
+              )}
+            </div>
           </div>
-        </div>
+        </form>
 
         {/* Footer */}
         <div className="sticky bottom-0 bg-white px-5 py-4 md:px-8 md:py-6 flex gap-4 justify-end border-t border-gray-100">

@@ -56,8 +56,9 @@ export default function TokensSection({ initialTab = 'dashboard' }) {
 
     if (loading) {
         return (
-            <div className="p-8 text-center text-gray-500">
-                Cargando dashboard de tokens...
+            <div className="flex flex-col items-center justify-center p-16 text-center">
+                <div className="w-10 h-10 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mb-4" />
+                <p className="text-sm font-medium text-gray-500">Cargando datos de tokens...</p>
             </div>
         );
     }

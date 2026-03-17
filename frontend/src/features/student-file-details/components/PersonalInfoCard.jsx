@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Mail, CreditCard, GraduationCap, Edit, Camera, Cake, Phone } from 'lucide-react';
+import { User, Mail, CreditCard, GraduationCap, Edit, Cake, Briefcase, CalendarDays } from 'lucide-react';
 import { calcularEdad, getInitials, parseLocalDate } from '../utils';
 import EditStudentModal from './EditStudentModal';
 
@@ -122,6 +122,44 @@ function PersonalInfoCard({ student, onUpdateStudent, canEdit = true }) {
                                 <p className="font-semibold text-gray-900">{edad} años</p>
                             ) : (
                                 <p className="font-medium text-gray-400 text-sm">-</p>
+                            )}
+                        </div>
+
+                        {/* Fecha Ingreso */}
+                        <div className="bg-gray-100 p-2.5 sm:p-3 rounded-lg">
+                            <p className="text-xs font-medium text-gray-500 uppercase mb-1 flex items-center gap-1">
+                                <CalendarDays size={10} className="text-blue-500" /> Fecha de Ingreso
+                            </p>
+                            {student.fecha_ingreso ? (
+                                <p className="font-medium text-gray-900 text-sm">
+                                    {parseLocalDate(student.fecha_ingreso)?.toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }) || student.fecha_ingreso}
+                                </p>
+                            ) : (
+                                <p className="font-medium text-gray-400 text-sm">No registrado</p>
+                            )}
+                        </div>
+
+                        {/* Profesión */}
+                        <div className="bg-gray-100 p-2.5 sm:p-3 rounded-lg">
+                            <p className="text-xs font-medium text-gray-500 uppercase mb-1 flex items-center gap-1">
+                                <Briefcase size={10} className="text-blue-500" /> Profesión u Oficio
+                            </p>
+                            {student.profesion ? (
+                                <p className="font-medium text-gray-900 text-sm">{student.profesion}</p>
+                            ) : (
+                                <p className="font-medium text-gray-400 text-sm">No registrado</p>
+                            )}
+                        </div>
+
+                        {/* Cargo */}
+                        <div className="bg-gray-100 p-2.5 sm:p-3 rounded-lg">
+                            <p className="text-xs font-medium text-gray-500 uppercase mb-1 flex items-center gap-1">
+                                <Briefcase size={10} className="text-blue-500" /> Cargo
+                            </p>
+                            {student.cargo ? (
+                                <p className="font-medium text-gray-900 text-sm">{student.cargo}</p>
+                            ) : (
+                                <p className="font-medium text-gray-400 text-sm">No registrado</p>
                             )}
                         </div>
 

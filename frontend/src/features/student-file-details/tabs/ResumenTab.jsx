@@ -78,7 +78,7 @@ function ResumenTab({ student }) {
                             <p className={`text-2xl font-bold ${resumenData.compromisosActivos > 0 ? 'text-amber-600' : 'text-gray-900'}`}>
                                 {resumenData.compromisosActivos}
                             </p>
-                            <p className="text-sm text-gray-500">Compromisos</p>
+                            <p className="text-sm text-gray-500">Sanciones</p>
                         </div>
                     </div>
                     <div className="mt-3 pt-3 border-t border-gray-100">

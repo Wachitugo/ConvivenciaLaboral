@@ -99,7 +99,7 @@ export default function EditUserModal({
           </button>
         </div>
 
-        <div className="p-5 md:p-8 space-y-8">
+        <form autoComplete="off" onSubmit={(e) => e.preventDefault()} className="p-5 md:p-8 space-y-8">
           {/* Información del Usuario */}
           <div className="space-y-6">
             <h4 className="font-semibold text-gray-900 text-sm uppercase tracking-wider border-b border-gray-100 pb-2">Información Básica</h4>
@@ -111,6 +111,7 @@ export default function EditUserModal({
                 </label>
                 <input
                   type="text"
+                  autoComplete="off"
                   value={formData.nombre}
                   onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                   className={`block w-full px-4 py-3 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-200 text-sm ${errors.nombre ? 'ring-2 ring-red-500/50 bg-red-50' : ''
@@ -126,7 +127,8 @@ export default function EditUserModal({
                   Correo electrónico
                 </label>
                 <input
-                  type="email"
+                  type="text"
+                  autoComplete="off"
                   value={formData.correo}
                   onChange={(e) => setFormData({ ...formData, correo: e.target.value })}
                   className={`block w-full px-4 py-3 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-200 text-sm ${errors.correo ? 'ring-2 ring-red-500/50 bg-red-50' : ''
@@ -145,6 +147,7 @@ export default function EditUserModal({
                 </label>
                 <input
                   type="password"
+                  autoComplete="new-password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="********"
@@ -166,6 +169,9 @@ export default function EditUserModal({
                     onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
                     className="block w-full px-4 py-3 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-200 text-sm appearance-none cursor-pointer"
                   >
+                    <option value="Gerente Relaciones Laborales">Gerente Relaciones Laborales</option>
+                    <option value="Encargado de Relaciones Laborales">Encargado de Relaciones Laborales</option>
+                    <option value="Investigador">Investigador</option>
                     <option value="Encargado de Convivencia">Encargado de Convivencia</option>
                     <option value="Directivo">Director</option>
                     <option value="Trabajador">Trabajador</option>
@@ -190,7 +196,7 @@ export default function EditUserModal({
               label="Colegio"
             />
           </div>
-        </div>
+        </form>
 
         {/* Footer */}
         <div className="sticky bottom-0 bg-white px-5 py-4 md:px-8 md:py-6 flex gap-4 justify-end border-t border-gray-100">
