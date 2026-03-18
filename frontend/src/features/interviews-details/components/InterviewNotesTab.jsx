@@ -75,27 +75,27 @@ function InterviewNotesTab({
     };
 
     return (
-        <div style={{ fontFamily: "'Poppins', sans-serif" }} className="relative h-full flex flex-col bg-white">
+        <div style={{ fontFamily: "'Poppins', sans-serif" }} className="relative h-full flex flex-col bg-transparent">
             {/* Header con estilo consistente */}
-            <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0 gap-2">
+            <div className="p-3 sm:p-4 border-b border-white/10 flex items-center justify-between flex-shrink-0 gap-2">
                 <div className="min-w-0 flex-1">
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#34B6D8] flex-shrink-0 drop-shadow-[0_0_8px_rgba(52,182,216,0.6)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                         <span className="truncate">Notas de la Entrevista</span>
                     </h3>
-                    <p className="text-xs sm:text-sm text-gray-500 mt-0.5 truncate">
+                    <p className="text-xs sm:text-sm text-white/60 mt-0.5 truncate">
                         <span className="hidden sm:inline">Grabaciones y transcripciones de la entrevista</span>
                         <span className="sm:hidden">Grabaciones y notas</span>
                     </p>
                 </div>
-                <div className="flex bg-gray-100 p-1 rounded-lg flex-shrink-0">
+                <div className="flex bg-[#0A3866]/50 border border-white/10 p-1 rounded-lg flex-shrink-0 shadow-inner">
                     <button
                         onClick={() => handleTypeChange('audio')}
-                        className={`px-2 sm:px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1 sm:gap-1.5 ${formData.type === 'audio'
-                            ? 'bg-white shadow-sm text-gray-900'
-                            : 'text-gray-500 hover:text-gray-700'
+                        className={`px-2 sm:px-3 py-1.5 text-xs font-bold rounded-md transition flex items-center gap-1 sm:gap-1.5 ${formData.type === 'audio'
+                            ? 'bg-[#1A71B8] shadow-md text-white border border-white/10'
+                            : 'text-white/60 hover:text-white hover:bg-white/5'
                             }`}
                     >
                         <Mic size={14} />
@@ -103,9 +103,9 @@ function InterviewNotesTab({
                     </button>
                     <button
                         onClick={() => handleTypeChange('written')}
-                        className={`px-2 sm:px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1 sm:gap-1.5 ${formData.type === 'written'
-                            ? 'bg-white shadow-sm text-gray-900'
-                            : 'text-gray-500 hover:text-gray-700'
+                        className={`px-2 sm:px-3 py-1.5 text-xs font-bold rounded-md transition flex items-center gap-1 sm:gap-1.5 ${formData.type === 'written'
+                            ? 'bg-[#1A71B8] shadow-md text-white border border-white/10'
+                            : 'text-white/60 hover:text-white hover:bg-white/5'
                             }`}
                     >
                         <Keyboard size={14} />

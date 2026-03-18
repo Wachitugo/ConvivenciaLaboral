@@ -16,7 +16,7 @@ const formatRut = (rut) => {
 const CourseBadge = ({ curso }) => {
   if (!curso) return null;
   return (
-    <span className="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-blue-50 text-blue-600 border border-blue-100 whitespace-nowrap">
+    <span className="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-[#1A71B8]/20 text-[#34B6D8] border border-[#1A71B8]/40 whitespace-nowrap">
       {curso}
     </span>
   );
@@ -27,8 +27,8 @@ function StudentCards({ students }) {
   const { schoolSlug } = useParams();
 
   return (
-    <div className="flex-1 overflow-auto custom-scrollbar bg-white rounded-lg">
-      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-2">
+    <div className="flex-1 overflow-y-auto custom-scrollbar">
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-3">
         {students.map((student) => {
           return (
             <div
@@ -37,18 +37,19 @@ function StudentCards({ students }) {
                 const basePath = schoolSlug ? `/${schoolSlug}` : '';
                 navigate(`${basePath}/ficha-alumnos/${student.id}`);
               }}
-              className="group bg-white rounded-lg  border-2 border-gray-300 rounded-lg p-4 hover:border-blue-400 transition-all duration-200 hover:shadow-md cursor-pointer px-3 py-2.5 flex items-center justify-between gap-2"
+              className="group bg-[#0A3866]/40 backdrop-blur-md border border-[#1A71B8]/30 px-3 py-2.5 rounded-2xl hover:bg-[#0A3866]/60 hover:border-[#34B6D8]/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(26,113,184,0.3)] cursor-pointer flex items-center justify-between gap-2"
+              style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
             >
               {/* Info Principal */}
               <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-medium text-gray-800 group-hover:text-blue-600 transition-colors truncate" title={`${student.nombres} ${student.apellidos}`}>
+                <h3 className="text-sm font-semibold text-white group-hover:text-[#34B6D8] transition-colors truncate" title={`${student.nombres} ${student.apellidos}`}>
                   {student.nombres} {student.apellidos}
                 </h3>
 
                 {/* RUT y Curso en la misma fila */}
                 <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                   {student.rut && (
-                    <span className="text-[11px] text-gray-400 font-mono">
+                    <span className="text-[11px] text-white/50 font-mono">
                       {formatRut(student.rut)}
                     </span>
                   )}
@@ -58,7 +59,7 @@ function StudentCards({ students }) {
 
               {/* Flecha */}
               <div className="flex items-center gap-1.5 flex-shrink-0">
-                <svg className="w-4 h-4 text-gray-300 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-white/30 group-hover:text-[#34B6D8] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>

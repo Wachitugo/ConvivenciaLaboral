@@ -48,12 +48,12 @@ function DocumentList({
     };
 
     return (
-        <div className="flex flex-col h-full border border-gray-200 rounded-xl overflow-hidden">
-            <div className="flex p-3 border-b border-gray-200 bg-white flex-shrink-0 items-center justify-between">
-                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wide">{title}</h4>
+        <div className="flex flex-col h-full border border-white/10 shadow-inner bg-white/5 rounded-xl overflow-hidden">
+            <div className="flex p-3 border-b border-white/10 bg-transparent flex-shrink-0 items-center justify-between">
+                <h4 className="text-xs font-bold text-white/50 uppercase tracking-wide">{title}</h4>
             </div>
 
-            <div className="flex-1 min-h-0 p-2 space-y-2 bg-gray-50 overflow-y-auto">
+            <div className="flex-1 min-h-0 p-2 space-y-2 bg-transparent overflow-y-auto">
                 {documents.length > 0 ? (
                     documents.map((doc) => (
                         <FileItem
@@ -72,7 +72,7 @@ function DocumentList({
                         />
                     ))
                 ) : (
-                    <div className="h-full flex items-center justify-center text-gray-400 text-xs italic py-8">
+                    <div className="h-full flex items-center justify-center text-white/40 text-xs italic py-8">
                         <p>{emptyMessage}</p>
                     </div>
                 )}
@@ -80,7 +80,7 @@ function DocumentList({
 
             {/* Botón de subida - Solo si showUploadButton es true */}
             {showUploadButton && (
-                <div className="flex justify-end p-2 border-t border-gray-200 bg-white flex-shrink-0">
+                <div className="flex justify-end p-2 border-t border-white/10 bg-transparent flex-shrink-0">
                     <input
                         ref={fileInputRef}
                         type="file"
@@ -91,7 +91,7 @@ function DocumentList({
                     />
                     <button
                         onClick={handleUploadClick}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
+                        className="flex items-center gap-1.5 px-4 py-2 bg-[#1A71B8] text-white rounded-xl text-sm font-bold hover:bg-[#1A71B8]/80 transition-colors shadow-md"
                     >
                         <Upload size={12} />
                         Adjuntar Archivo
