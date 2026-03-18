@@ -180,7 +180,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                     <div className="px-6 py-5 border-b border-white/10 bg-transparent flex justify-between items-center">
                         <div>
                             <h2 className="text-lg font-bold text-white">Nueva Entrevista</h2>
-                            <p className="text-xs text-white/60 mt-0.5">Complete la información del trabajador para registrar la entrevista</p>
+                            <p className="text-xs text-white/60 mt-0.5">Complete la información del colaborador para registrar la entrevista</p>
                         </div>
                         <button
                             onClick={onClose}
@@ -224,7 +224,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    {studentsInGrade.length} trabajadores en esta área
+                                    {studentsInGrade.length} colaboradores en esta área
                                 </p>
                             )}
                         </div>
@@ -233,7 +233,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                         <div className="space-y-2 relative">
                             <label className="text-xs font-bold text-white/50 uppercase tracking-widest flex items-center gap-2">
                                 <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${formData.grade ? 'bg-[#1A71B8]/40 border border-[#1A71B8] text-[#34B6D8] shadow-[0_0_8px_rgba(26,113,184,0.5)]' : 'bg-white/10 text-white/30 border border-white/10'}`}>2</span>
-                                Nombre del Trabajador
+                                Nombre del Colaborador
                             </label>
                             <div className="relative">
                                 <input
@@ -293,7 +293,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                             {/* Helper text */}
                             {formData.grade && (
                                 <p className="text-xs text-white/40">
-                                    Escribe al menos 2 caracteres para buscar entre los {studentsInGrade.length} trabajadores del área.
+                                    Escribe al menos 2 caracteres para buscar entre los {studentsInGrade.length} colaboradores del área.
                                 </p>
                             )}
                         </div>
@@ -301,7 +301,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                         <div className="space-y-2">
                             <label className="text-xs font-bold text-white/50 uppercase tracking-widest flex items-center gap-2">
                                 <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${selectedStudentId && formData.gender ? 'bg-[#1A71B8]/40 border border-[#1A71B8] text-[#34B6D8] shadow-[0_0_8px_rgba(26,113,184,0.5)]' : 'bg-white/10 text-white/30 border border-white/10'}`}>3</span>
-                                Género del Trabajador
+                                Género del Colaborador
                                 <span className="text-[10px] font-normal text-white/40 normal-case">(automático)</span>
                             </label>
                             <div className="relative">
@@ -309,7 +309,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                                     type="text"
                                     value={formData.gender || ''}
                                     disabled
-                                    placeholder={selectedStudentId ? 'No registrado' : 'Se completará al seleccionar trabajador'}
+                                    placeholder={selectedStudentId ? 'No registrado' : 'Se completará al seleccionar colaborador'}
                                     className="w-full px-4 py-3 rounded-xl border border-white/5 bg-white/5 text-sm font-medium text-white/50 cursor-not-allowed"
                                 />
                                 {selectedStudentId && formData.gender && (
@@ -321,7 +321,7 @@ function CreateInterviewModal({ isOpen, onClose }) {
                                 )}
                             </div>
                             <p className="text-xs text-white/40">
-                                Este dato se obtiene automáticamente del registro del trabajador.
+                                Este dato se obtiene automáticamente del registro del colaborador.
                             </p>
                         </div>
 
