@@ -1,8 +1,8 @@
 function EmptyInvolvedState() {
   return (
     <div className="text-center py-8 px-4">
-      <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-3">
-        <svg className="w-6 h-6 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-3 backdrop-blur-md">
+        <svg className="w-6 h-6 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -11,8 +11,8 @@ function EmptyInvolvedState() {
           />
         </svg>
       </div>
-      <p className="text-sm text-gray-500">Sin involucrados</p>
-      <p className="text-xs text-gray-400 mt-1">Agrega personas relacionadas al caso</p>
+      <p className="text-sm text-white/60">Sin involucrados</p>
+      <p className="text-[10px] text-white/40 mt-1 uppercase tracking-widest">Agrega personas relacionadas al caso</p>
     </div>
   );
 }

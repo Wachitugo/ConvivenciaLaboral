@@ -15,11 +15,11 @@ const getRoleConfig = (role) => {
 
 const getRoleBadgeClasses = (color) => {
   const colorMap = {
-    red: 'bg-red-50 text-red-700 border-red-100',
-    orange: 'bg-orange-50 text-orange-700 border-orange-100',
-    blue: 'bg-blue-50 text-blue-700 border-blue-100',
-    purple: 'bg-purple-50 text-purple-700 border-purple-100',
-    gray: 'bg-gray-100 text-gray-600 border-gray-200'
+    red: 'bg-red-900/40 text-red-300 border-red-800/50',
+    orange: 'bg-orange-900/40 text-orange-300 border-orange-800/50',
+    blue: 'bg-blue-900/40 text-blue-300 border-blue-800/50',
+    purple: 'bg-purple-900/40 text-purple-300 border-purple-800/50',
+    gray: 'bg-white/10 text-white/70 border-white/20'
   };
   return colorMap[color] || colorMap.gray;
 };
@@ -51,16 +51,16 @@ function InvolvedTable({ involved, onRemoveParticipants, onUpdateParticipant }) 
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-[0_2px_10px_-3px_rgba(0,0,0,0.05)]">
+    <div className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
       {involved.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-12 text-center">
-          <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-full flex items-center justify-center mb-4 backdrop-blur-md">
+            <svg className="w-8 h-8 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-1">No hay involucrados</h3>
-          <p className="text-gray-500 text-sm max-w-sm">
+          <h3 className="text-base font-bold text-white/60 mb-1">No hay involucrados</h3>
+          <p className="text-white/40 uppercase tracking-widest text-[10px] max-w-sm">
             Agrega personas involucradas en este caso.
           </p>
         </div>
@@ -69,45 +69,45 @@ function InvolvedTable({ involved, onRemoveParticipants, onUpdateParticipant }) 
           <div className="overflow-x-auto">
             <table className="w-full min-w-[500px]">
               <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50/50">Involucrado</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50/50">Rol</th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50/50">Acciones</th>
+                <tr className="border-b border-white/10">
+                  <th className="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-wider bg-black/20">Involucrado</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-wider bg-black/20">Rol</th>
+                  <th className="px-6 py-4 text-right text-[10px] font-bold text-white/50 uppercase tracking-wider bg-black/20">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-white/5">
                 {involved.map((person) => {
                   const roleConfig = getRoleConfig(person.role);
                   const isEditing = editingPerson === person.id;
                   const isDeleting = confirmDelete === person.id;
 
                   return (
-                    <tr key={person.id} className="group hover:bg-gray-50/50 transition-colors duration-150">
+                    <tr key={person.id} className="group hover:bg-white/5 transition-all duration-150">
                       {/* Involucrado */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         {isEditing ? (
                           <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-blue-600 font-bold text-sm border-2 border-white shadow-sm">
+                            <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-br from-[#1A71B8] to-[#34B6D8] text-white border-2 border-[#0A3866] flex items-center justify-center font-bold text-sm shadow-sm">
                               {(editForm.name || '?')[0]?.toUpperCase()}
                             </div>
                             <input
                               type="text"
                               value={editForm.name}
                               onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-                              className="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 text-sm"
+                              className="flex-1 px-3 py-1.5 border border-[#34B6D8]/50 bg-black/30 text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-[#34B6D8] text-sm"
                               placeholder="Nombre"
                               autoFocus
                             />
                           </div>
                         ) : (
                           <div className="flex items-center">
-                            <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-blue-600 font-bold text-sm border-2 border-white shadow-sm">
+                            <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-br from-[#1A71B8] to-[#34B6D8] text-white border-2 border-[#0A3866] flex items-center justify-center font-bold text-sm shadow-sm">
                               {(person.name || '?')[0]?.toUpperCase()}
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-bold text-gray-900">{person.name || 'Sin nombre'}</div>
+                              <div className="text-sm font-bold text-white">{person.name || 'Sin nombre'}</div>
                               {person.grade && (
-                                <div className="text-xs text-gray-500">{person.grade}</div>
+                                <div className="text-[10px] uppercase font-bold tracking-wider text-white/50">{person.grade}</div>
                               )}
                             </div>
                           </div>
@@ -120,7 +120,7 @@ function InvolvedTable({ involved, onRemoveParticipants, onUpdateParticipant }) 
                           <select
                             value={editForm.role}
                             onChange={(e) => setEditForm(prev => ({ ...prev, role: e.target.value }))}
-                            className="px-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 text-sm bg-white"
+                            className="px-3 py-1.5 border border-[#34B6D8]/50 bg-[#0A3866] text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-[#34B6D8] text-sm"
                           >
                             <option value="">Seleccionar rol...</option>
                             {ROLE_OPTIONS.map(role => (
@@ -128,7 +128,7 @@ function InvolvedTable({ involved, onRemoveParticipants, onUpdateParticipant }) 
                             ))}
                           </select>
                         ) : (
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getRoleBadgeClasses(roleConfig.color)}`}>
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${getRoleBadgeClasses(roleConfig.color)}`}>
                             {roleConfig.label}
                           </span>
                         )}
@@ -140,7 +140,7 @@ function InvolvedTable({ involved, onRemoveParticipants, onUpdateParticipant }) 
                           <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => handleSaveEdit(person.id)}
-                              className="p-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                              className="p-2 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-400/10 rounded-lg transition-colors"
                               title="Guardar"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -149,7 +149,7 @@ function InvolvedTable({ involved, onRemoveParticipants, onUpdateParticipant }) 
                             </button>
                             <button
                               onClick={handleCancelEdit}
-                              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                              className="p-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors"
                               title="Cancelar"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,10 +159,10 @@ function InvolvedTable({ involved, onRemoveParticipants, onUpdateParticipant }) 
                           </div>
                         ) : isDeleting ? (
                           <div className="flex items-center justify-end gap-2">
-                            <span className="text-xs text-gray-500 mr-2">¿Eliminar?</span>
+                            <span className="text-xs text-white/50 mr-2 uppercase tracking-widest font-bold">¿Eliminar?</span>
                             <button
                               onClick={() => handleDelete(person.id)}
-                              className="p-2 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                              className="p-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 border border-red-500/30 rounded-lg transition-colors"
                               title="Confirmar"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -171,7 +171,7 @@ function InvolvedTable({ involved, onRemoveParticipants, onUpdateParticipant }) 
                             </button>
                             <button
                               onClick={() => setConfirmDelete(null)}
-                              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                              className="p-2 text-white/50 hover:text-white/80 hover:bg-white/10 rounded-lg transition-colors"
                               title="Cancelar"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,7 +183,7 @@ function InvolvedTable({ involved, onRemoveParticipants, onUpdateParticipant }) 
                           <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => handleEdit(person)}
-                              className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              className="p-2 text-white/30 hover:text-amber-300 hover:bg-amber-400/10 rounded-lg transition-colors"
                               title="Editar"
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,7 +192,7 @@ function InvolvedTable({ involved, onRemoveParticipants, onUpdateParticipant }) 
                             </button>
                             <button
                               onClick={() => setConfirmDelete(person.id)}
-                              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              className="p-2 text-white/30 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
                               title="Eliminar"
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -210,9 +210,9 @@ function InvolvedTable({ involved, onRemoveParticipants, onUpdateParticipant }) 
           </div>
 
           {/* Footer con contador */}
-          <div className="px-6 py-3 border-t border-gray-100 bg-gray-50/30">
-            <p className="text-xs text-gray-500">
-              <span className="font-medium text-gray-900">{involved.length}</span> persona{involved.length !== 1 ? 's' : ''} involucrada{involved.length !== 1 ? 's' : ''}
+          <div className="px-6 py-3 border-t border-white/10 bg-black/20">
+            <p className="text-[10px] uppercase text-white/40 tracking-widest">
+              <span className="font-bold text-[#34B6D8]">{involved.length}</span> persona{involved.length !== 1 ? 's' : ''} involucrada{involved.length !== 1 ? 's' : ''}
             </p>
           </div>
         </>

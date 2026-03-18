@@ -101,28 +101,28 @@ function CaseDetailTabs({ caseData, onUpdateCase, onReloadDocuments, isLoading =
   ];
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-3xl shadow-sm border-2 border-gray-300 h-full ">
+    <div className="flex flex-col overflow-hidden rounded-3xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.4)] border border-[#1A71B8]/30 h-full bg-[#0A3866]/30 backdrop-blur-3xl">
       {/* Tabs Header */}
       {isLoadingHeader ? (
         <CaseDetailTabsHeaderSkeleton />
       ) : (
-        <div className="flex border-b border-gray-200 bg-white/90 backdrop-blur-xl border-b border-slate-200 px-2 sm:px-4 overflow-x-auto scrollbar-hide">
+        <div className="flex border-b border-[#1A71B8]/30 bg-black/10 px-2 sm:px-4 overflow-x-auto scrollbar-hide relative z-10">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition-all relative whitespace-nowrap ${activeTab === tab.id
-                ? 'text-blue-600 border-b-2 border-blue-600 -mb-px'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all relative whitespace-nowrap ${activeTab === tab.id
+                ? 'text-white border-b-2 border-[#34B6D8] -mb-px bg-white/5 drop-shadow-[0_0_8px_rgba(52,182,216,0.6)]'
+                : 'text-white/50 hover:text-white/80 hover:bg-white/5'
                 }`}
             >
-              <span className={`flex-shrink-0 ${activeTab === tab.id ? 'text-blue-500' : 'text-gray-400'}`}>
+              <span className={`flex-shrink-0 ${activeTab === tab.id ? 'text-[#34B6D8]' : 'text-white/40'}`}>
                 {tab.icon}
               </span>
               <span className="hidden xs:inline sm:inline">{tab.label}</span>
               <span className="xs:hidden sm:hidden">{tab.label.split(' ')[0]}</span>
               {tab.count > 0 && (
-                <span className={`ml-1 px-1.5 py-0.5 text-xs rounded-full ${activeTab === tab.id ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-500'}`}>
+                <span className={`ml-1 px-1.5 py-0.5 text-[10px] rounded-full font-bold ${activeTab === tab.id ? 'bg-[#34B6D8]/20 text-[#34B6D8] border border-[#34B6D8]/30' : 'bg-white/10 text-white/60'}`}>
                   {tab.count}
                 </span>
               )}
@@ -132,7 +132,7 @@ function CaseDetailTabs({ caseData, onUpdateCase, onReloadDocuments, isLoading =
       )}
 
       {/* Tab Content */}
-      <div className="flex-1 bg-white rounded-b-xl min-h-[500px] overflow-y-auto">
+      <div className="flex-1 bg-white/5 rounded-b-3xl min-h-[500px] overflow-y-auto relative z-10 backdrop-blur-md">
         {activeTab === 'resumen' && (
           <CaseAISummary caseData={caseData} isLoading={isLoadingSummary} onUpdateCase={onUpdateCase} />
         )}

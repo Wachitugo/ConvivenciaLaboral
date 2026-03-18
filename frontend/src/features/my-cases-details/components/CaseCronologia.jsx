@@ -46,38 +46,38 @@ const getEventColors = (type) => {
   switch (type) {
     case 'case_created':
       return {
-        bg: 'bg-emerald-100',
-        text: 'text-emerald-600',
-        border: 'border-emerald-200',
-        dot: 'bg-emerald-500'
+        bg: 'bg-emerald-500/20',
+        text: 'text-emerald-300',
+        border: 'border-emerald-500/30',
+        dot: 'bg-emerald-400'
       };
     case 'document':
       return {
-        bg: 'bg-blue-100',
-        text: 'text-blue-600',
-        border: 'border-blue-200',
-        dot: 'bg-blue-500'
+        bg: 'bg-blue-500/20',
+        text: 'text-blue-300',
+        border: 'border-blue-500/30',
+        dot: 'bg-blue-400'
       };
     case 'email':
       return {
-        bg: 'bg-green-100',
-        text: 'text-green-600',
-        border: 'border-green-200',
-        dot: 'bg-green-500'
+        bg: 'bg-yellow-500/20',
+        text: 'text-yellow-300',
+        border: 'border-yellow-500/30',
+        dot: 'bg-yellow-400'
       };
     case 'calendar':
       return {
-        bg: 'bg-purple-100',
-        text: 'text-purple-600',
-        border: 'border-purple-200',
-        dot: 'bg-purple-500'
+        bg: 'bg-purple-500/20',
+        text: 'text-purple-300',
+        border: 'border-purple-500/30',
+        dot: 'bg-purple-400'
       };
     default:
       return {
-        bg: 'bg-gray-100',
-        text: 'text-gray-600',
-        border: 'border-gray-200',
-        dot: 'bg-gray-500'
+        bg: 'bg-white/10',
+        text: 'text-white/70',
+        border: 'border-white/20',
+        dot: 'bg-white/50'
       };
   }
 };
@@ -339,20 +339,20 @@ function CaseCronologia({ caseId, isLoading = false }) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-white overflow-hidden" style={{ fontFamily: "'Poppins', sans-serif" }}>
+    <div className="flex flex-col h-full overflow-hidden text-white" style={{ fontFamily: "'Poppins', sans-serif" }}>
       {/* Header */}
-      <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0 gap-2">
+      <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2">
         <div className="min-w-0 flex-1">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
-            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#34B6D8] drop-shadow-[0_0_8px_rgba(52,182,216,0.6)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span className="truncate">Cronología</span>
             {events.length > 0 && (
-              <span className="text-xs sm:text-sm text-gray-500 font-normal">({events.length})</span>
+              <span className="text-xs sm:text-sm text-white/50 font-normal">({events.length})</span>
             )}
           </h3>
-          <p className="text-xs sm:text-sm text-gray-500 mt-0.5 truncate">
+          <p className="text-xs sm:text-sm text-white/50 mt-0.5 truncate">
             <span className="hidden sm:inline">Historial de actividades del caso</span>
             <span className="sm:hidden">Actividades del caso</span>
           </p>
@@ -361,33 +361,33 @@ function CaseCronologia({ caseId, isLoading = false }) {
 
       {/* Contenido */}
       {error ? (
-        <div className="flex-1 flex items-center justify-center p-8 bg-gray-50 min-h-0">
+        <div className="flex-1 flex items-center justify-center p-8 min-h-0">
           <div className="text-center">
-            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 rounded-full bg-red-900/30 border border-red-500/50 flex items-center justify-center mx-auto mb-4 backdrop-blur-md">
               <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p className="text-sm text-red-600">{error}</p>
+            <p className="text-sm text-red-200">{error}</p>
           </div>
         </div>
       ) : events.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center p-8 bg-gray-50 min-h-0">
+        <div className="flex-1 flex items-center justify-center p-8 min-h-0">
           <div className="text-center">
-            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 backdrop-blur-md">
+              <svg className="w-8 h-8 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p className="text-sm text-gray-500">No hay actividades registradas</p>
-            <p className="text-xs text-gray-400 mt-1">Los documentos, correos y agendamientos aparecerán aquí</p>
+            <p className="text-base font-bold text-white mb-1">No hay actividades registradas</p>
+            <p className="text-xs text-white/60 mt-1 uppercase tracking-widest leading-relaxed">Los documentos, correos y agendamientos aparecerán aquí</p>
           </div>
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-4 min-h-0">
           <div className="relative">
             {/* Línea vertical del timeline */}
-            <div className="absolute left-[18px] top-3 bottom-3 w-0.5 bg-gray-200"></div>
+            <div className="absolute left-[18px] top-3 bottom-3 w-0.5 bg-white/10"></div>
 
             <div className="space-y-4">
               {events.map((event, index) => {
@@ -399,13 +399,13 @@ function CaseCronologia({ caseId, isLoading = false }) {
                 return (
                   <div key={index} className="relative pl-10">
                     {/* Círculo indicador en la línea */}
-                    <div className={`absolute left-2.5 top-4 w-3 h-3 rounded-full ${colors.dot} ring-4 ring-white`}></div>
+                    <div className={`absolute left-2.5 top-4 w-3 h-3 rounded-full ${colors.dot} ring-4 ring-[#0A3866]/80 shadow-[0_0_8px_currentColor]`}></div>
 
                     {/* Card del evento */}
                     <div
-                      className={`p-3 border ${colors.border} rounded-xl bg-white transition-all ${isClickable
-                        ? 'cursor-pointer hover:shadow-md hover:scale-[1.01] active:scale-[0.99]'
-                        : 'hover:shadow-sm'
+                      className={`p-3 border ${colors.border} rounded-xl bg-white/5 backdrop-blur-md transition-all ${isClickable
+                        ? 'cursor-pointer hover:bg-white/10 hover:scale-[1.01] active:scale-[0.99] hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)]'
+                        : ''
                         }`}
                       onClick={() => handleEventClick(event)}
                     >
@@ -417,47 +417,47 @@ function CaseCronologia({ caseId, isLoading = false }) {
 
                         {/* Información del evento */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${colors.bg} ${colors.text}`}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className={`text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-white/10 shadow-sm ${colors.bg} ${colors.text}`}>
                               {label}
                             </span>
                             {isClickable && (
-                              <span className="text-xs text-gray-400">
-                                Click para ver detalle
+                              <span className="text-xs text-white/50 uppercase tracking-widest ml-1 bg-white/5 px-2 py-0.5 rounded-full border border-white/5">
+                                Ver detalle
                               </span>
                             )}
                           </div>
-                          <p className="text-sm font-medium text-gray-900 truncate" title={event.title}>
+                          <p className="text-base font-bold text-white truncate tracking-wide" title={event.title}>
                             {event.title}
                           </p>
                           {event.description && (
-                            <p className="text-xs text-gray-500 mt-0.5 truncate" title={event.description}>
+                            <p className="text-sm text-white/80 mt-1 truncate leading-relaxed" title={event.description}>
                               {event.description}
                             </p>
                           )}
 
                           {/* Metadata específica según tipo */}
                           {event.type === 'email' && event.metadata?.to && (
-                            <p className="text-xs text-gray-400 mt-1">
-                              Para: {event.metadata.to}
+                            <p className="text-xs text-white/70 mt-1.5 font-bold">
+                              Para: <span className="font-normal">{event.metadata.to}</span>
                             </p>
                           )}
                           {event.type === 'calendar' && event.metadata?.start_time && (
-                            <p className="text-xs text-gray-400 mt-1">
-                              Fecha: {formatDateTime(event.metadata.start_time).date} {formatDateTime(event.metadata.start_time).time}
+                            <p className="text-xs text-white/70 mt-1.5 font-bold">
+                              Fecha: <span className="font-normal">{formatDateTime(event.metadata.start_time).date} {formatDateTime(event.metadata.start_time).time}</span>
                             </p>
                           )}
 
                           {/* Fecha y hora del evento */}
-                          <div className="flex items-center gap-2 mt-2 text-xs text-gray-400">
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="flex items-center gap-2 mt-3 text-xs text-white/60 tracking-wider font-mono font-bold bg-black/20 w-fit px-2 py-1 rounded-md border border-white/5">
+                            <svg className="w-4 h-4 text-[#34B6D8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             <span>{date}</span>
                             {time && (
                               <>
-                                <span className="text-gray-300">|</span>
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <span className="text-white/20 px-1">|</span>
+                                <svg className="w-4 h-4 text-[#34B6D8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 <span>{time}</span>
