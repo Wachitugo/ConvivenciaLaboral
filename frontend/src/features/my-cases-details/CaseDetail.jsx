@@ -1,13 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
-import CaseHeader from './components/CaseHeader';
-import Breadcrumb from '../../components/Breadcrumb';
 import CaseGeneralInfo from './components/CaseGeneralInfo';
-
 import CaseDetailTabs from './components/CaseDetailTabs';
-import ChatButton from './components/ChatButton';
-import ChatHistoryDropdown from './components/ChatHistoryDropdown';
-import ExportButton from './components/ExportButton';
-import { casesService, schoolsService } from '../../services/api';
+import { casesService } from '../../services/api';
 import { createLogger } from '../../utils/logger';
 
 const logger = createLogger('CaseDetail');
@@ -52,28 +46,6 @@ function CaseDetail({ caseData, onBack, onUpdateCase, isLoading = false }) {
       clearTimeout(infoTimer);
     };
   }, [caseData.id]);
-
-  // Obtener datos del colegio
-  const [schoolData, setSchoolData] = useState(null);
-
-  useEffect(() => {
-    const fetchSchoolData = async () => {
-      logger.debug(' CaseDetail: caseData:', caseData);
-      if (caseData?.colegio_id) {
-        try {
-          logger.debug(' CaseDetail: Fetching school for ID:', caseData.colegio_id);
-          const school = await schoolsService.getById(caseData.colegio_id);
-          logger.info('✅ CaseDetail: School data fetched:', school);
-          setSchoolData(school);
-        } catch (error) {
-          logger.error('❌ CaseDetail: Error fetching school data:', error);
-        }
-      } else {
-        logger.warn('⚠️ CaseDetail: No colegio_id in caseData');
-      }
-    };
-    fetchSchoolData();
-  }, [caseData?.colegio_id]);
 
   // Manejar eliminación de caso
   const handleDeleteCase = async (caseId) => {
@@ -163,28 +135,19 @@ function CaseDetail({ caseData, onBack, onUpdateCase, isLoading = false }) {
       style={{ fontFamily: "'Poppins', sans-serif" }}
     >
       <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <CaseHeader
-          caseData={caseData}
-          onBack={onBack}
-          onDeleteCase={handleDeleteCase}
-        />
-
         {/* Contenido del Detalle */}
-        <div className="p-4 flex flex-col gap-2 flex-1">
-          {/* Breadcrumb y Botones */}
-          <div className="flex items-center justify-between gap-4 flex-shrink-0">
-            <Breadcrumb caseName={caseData.title} />
-            <div className="flex items-center gap-2">
-              <ChatHistoryDropdown caseData={caseData} documents={allFiles} />
-              <ExportButton caseData={caseData} schoolData={schoolData} documents={documents} />
-            </div>
-          </div>
-
+        <div className="flex flex-col gap-2 flex-1">
           {/* Layout vertical: Info arriba, Tabs abajo */}
           <div className="flex flex-col gap-4 flex-1 min-h-0">
             {/* Información General - Ancho completo */}
-            <CaseGeneralInfo caseData={caseData} onUpdateCase={onUpdateCase} isLoading={isLoadingInfo} />
+            <CaseGeneralInfo
+              caseData={caseData}
+              onUpdateCase={onUpdateCase}
+              isLoading={isLoadingInfo}
+              onDeleteCase={handleDeleteCase}
+              isDeleting={isDeleting}
+              documents={allFiles}
+            />
 
             {/* Sistema de tabs - Ocupa el resto del espacio */}
             <div className="flex-1 min-h-0 overflow-hidden">
@@ -199,6 +162,7 @@ function CaseDetail({ caseData, onBack, onUpdateCase, isLoading = false }) {
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );

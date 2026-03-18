@@ -1,5 +1,3 @@
-import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../../../contexts/ThemeContext';
 import HeaderButtons from './HeaderButtons';
 
 function ChatHeader({
@@ -19,16 +17,14 @@ function ChatHeader({
   messagesCount,
   isGeneratingCase
 }) {
-  const { current } = useTheme();
-  const navigate = useNavigate();
 
   return (
-    <div className={`px-6 py-3 grid grid-cols-3 border-b border-gray-200 items-center flex-shrink-0`}>
-      {/* Botón toggle sidebar */}
-      <div className="flex justify-start">
+    <div className="px-4 py-3 grid grid-cols-3 items-center flex-shrink-0">
+      {/* Botón toggle sidebar — solo móvil (en desktop está en el sidebar) */}
+      <div className="flex justify-start lg:hidden">
         <button
           onClick={toggleSidebar}
-          className={`p-2 rounded-lg ${current.textSecondary} hover:${current.textPrimary} hover:bg-opacity-10 hover:bg-gray-500 transition-all`}
+          className="p-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/10 transition-all"
           title={isSidebarOpen ? "Cerrar sidebar" : "Abrir sidebar"}
         >
           {isSidebarOpen ? (
@@ -43,13 +39,23 @@ function ChatHeader({
           )}
         </button>
       </div>
+      {/* Espacio vacío en desktop para mantener el grid */}
+      <div className="hidden lg:block" />
 
-      {/* Título centrado */}
-      <div className="flex flex-col items-center gap-1">
-        <h1 className={`text-lg font-semibold ${current.textPrimary} truncate max-w-md`} title={chatTitle}>
-          {chatTitle}
-        </h1>
-
+      {/* Título centrado — oculto cuando no hay mensajes */}
+      <div className="flex flex-col items-center gap-0.5">
+        {messagesCount > 0 && (
+          <>
+            <span className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#34B6D8]">Consulta activa</span>
+            <h1
+              className="text-[0.9rem] font-bold text-white truncate max-w-md tracking-tight leading-tight"
+              style={{ fontFamily: "'Poppins', sans-serif" }}
+              title={chatTitle}
+            >
+              {chatTitle}
+            </h1>
+          </>
+        )}
       </div>
 
       {/* Botones de acción */}

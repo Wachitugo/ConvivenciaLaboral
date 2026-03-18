@@ -1,16 +1,37 @@
 import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { formatDateToSpanish } from '../utils/dateFormatter';
 import { CASE_STATUS, STATUS_CONFIGS, DEFAULT_CASE_STATUS } from '../constants/caseStatus';
 import CaseGeneralInfoSkeleton from '../skeletons/CaseGeneralInfoSkeleton';
+import ChatHistoryDropdown from './ChatHistoryDropdown';
+import { ConfirmModal } from '../../../components/modals';
 import { casesService } from '../../../services/api';
 import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('CaseGeneralInfo');
 
-function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false }) {
+function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false, onDeleteCase, isDeleting = false, documents = [] }) {
+  const navigate = useNavigate();
+  const { schoolSlug } = useParams();
   const [isEditing, setIsEditing] = useState(false);
+
+  const handleOpenChat = () => {
+    const basePath = schoolSlug ? `/${schoolSlug}` : '';
+    navigate(`${basePath}/chat-general`, {
+      state: {
+        relatedCase: {
+          id: caseData.id,
+          title: caseData.title,
+          caseType: caseData.caseType,
+          description: caseData.description,
+          documents
+        }
+      }
+    });
+  };
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editedData, setEditedData] = useState({
     title: caseData.title || '',
     status: caseData.status || DEFAULT_CASE_STATUS
@@ -77,7 +98,7 @@ function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false }) {
   }
 
   return (
-    <div className="flex flex-col bg-white overflow-hidden rounded-xl border-2 border-gray-300 shadow-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>
+    <div className="flex flex-col bg-white/90 backdrop-blur-xl border-b border-slate-200  overflow-hidden rounded-3xl border-2 border-gray-300 shadow-sm" style={{ fontFamily: "'Poppins', sans-serif" }}>
       {/* Header */}
       <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0 gap-2">
         <div className="min-w-0 flex-1">
@@ -100,15 +121,28 @@ function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false }) {
           </p>
         </div>
         {!isEditing ? (
-          <button
-            onClick={() => setIsEditing(true)}
-            className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm flex-shrink-0"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            <span className="hidden sm:inline">Editar</span>
-          </button>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <ChatHistoryDropdown caseData={caseData} documents={documents} />
+            <button
+              onClick={() => setIsDeleteModalOpen(true)}
+              disabled={isDeleting}
+              className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span className="hidden sm:inline">{isDeleting ? 'Eliminando...' : 'Eliminar'}</span>
+            </button>
+            <button
+              onClick={() => setIsEditing(true)}
+              className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              <span className="hidden sm:inline">Editar</span>
+            </button>
+          </div>
         ) : (
           <div className="flex items-center gap-2">
             <button
@@ -231,6 +265,18 @@ function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false }) {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => onDeleteCase?.(caseData.id)}
+        title="¿Eliminar caso?"
+        message={`¿Estás seguro de que deseas eliminar el caso "${caseData.title}"? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        icon="danger"
+        confirmButtonClass="bg-red-600 hover:bg-red-700"
+      />
     </div>
   );
 }

@@ -3,7 +3,7 @@ import CaseCard from "./CaseCard";
 function CasesGrid({ cases, onSelectCase, onEditCase, onShareCase }) {
   if (cases.length === 0) {
     return (
-      <div className="flex-1 overflow-y-auto px-6 pt-4 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto pt-4 custom-scrollbar">
         <div className="flex flex-col items-center justify-center h-full text-center">
           <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
             <svg
@@ -32,8 +32,8 @@ function CasesGrid({ cases, onSelectCase, onEditCase, onShareCase }) {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto px-6 pt-4 custom-scrollbar ">
-      <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-2    gap-3">
+    <div className="flex-1 overflow-y-auto px-4 pb-4 custom-scrollbar">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
         {cases.map((caseItem) => (
           <CaseCard
             key={caseItem.id}

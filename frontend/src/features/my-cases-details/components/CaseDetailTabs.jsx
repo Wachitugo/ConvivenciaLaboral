@@ -101,12 +101,12 @@ function CaseDetailTabs({ caseData, onUpdateCase, onReloadDocuments, isLoading =
   ];
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-xl shadow-sm border-2 border-gray-300 h-full bg-white">
+    <div className="flex flex-col overflow-hidden rounded-3xl shadow-sm border-2 border-gray-300 h-full ">
       {/* Tabs Header */}
       {isLoadingHeader ? (
         <CaseDetailTabsHeaderSkeleton />
       ) : (
-        <div className="flex border-b border-gray-200 bg-white px-2 sm:px-4 overflow-x-auto scrollbar-hide">
+        <div className="flex border-b border-gray-200 bg-white/90 backdrop-blur-xl border-b border-slate-200 px-2 sm:px-4 overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
             <button
               key={tab.id}
