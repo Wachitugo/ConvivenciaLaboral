@@ -71,19 +71,19 @@ function CaseInvolved({ caseData, onUpdateCase, isLoading = false }) {
   }
 
   return (
-    <div style={{ fontFamily: "'Poppins', sans-serif" }} className="h-full flex flex-col">
-      <div className="bg-white h-full flex flex-col">
+    <div style={{ fontFamily: "'Poppins', sans-serif" }} className="h-full flex flex-col text-white">
+      <div className="h-full flex flex-col">
         {/* Header con estilo consistente */}
-        <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0 gap-2">
+        <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2">
           <div className="min-w-0 flex-1">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
-              <Users size={18} className="text-blue-600 flex-shrink-0 sm:w-5 sm:h-5" />
+            <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+              <Users size={18} className="text-[#34B6D8] drop-shadow-[0_0_8px_rgba(52,182,216,0.6)] flex-shrink-0 sm:w-5 sm:h-5" />
               <span className="truncate">Personas Involucradas</span>
               {involved.length > 0 && (
-                <span className="text-xs sm:text-sm text-gray-500 font-normal">({involved.length})</span>
+                <span className="text-xs sm:text-sm text-white/50 font-normal">({involved.length})</span>
               )}
             </h3>
-            <p className="text-xs sm:text-sm text-gray-500 mt-0.5 truncate">
+            <p className="text-xs sm:text-sm text-white/50 mt-0.5 truncate">
               <span className="hidden sm:inline">Trabajadores y personas relacionadas al caso</span>
               <span className="sm:hidden">Relacionados al caso</span>
             </p>
@@ -93,9 +93,9 @@ function CaseInvolved({ caseData, onUpdateCase, isLoading = false }) {
             <button
               ref={buttonRef}
               onClick={toggleForm}
-              className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-medium rounded-lg transition-colors shadow-sm ${isFormOpen
-                  ? 'text-gray-600 bg-gray-200 hover:bg-gray-300'
-                  : 'text-white bg-blue-600 hover:bg-blue-700'
+              className={`inline-flex items-center gap-1 sm:gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all shadow-sm ${isFormOpen
+                  ? 'text-white/70 bg-white/10 hover:bg-white/20 hover:text-white backdrop-blur-sm border border-white/10'
+                  : 'text-white bg-gradient-to-r from-[#1A71B8] to-[#34B6D8] hover:from-[#34B6D8] hover:to-[#1A71B8] shadow-[0_4px_16px_rgba(26,113,184,0.4)]'
                 }`}
             >
               <Plus size={14} className={isFormOpen ? 'rotate-45 transition-transform' : 'transition-transform'} />
@@ -106,14 +106,14 @@ function CaseInvolved({ caseData, onUpdateCase, isLoading = false }) {
             {isFormOpen && (
               <div
                 ref={formPopupRef}
-                className="absolute top-full right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl border border-gray-200 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                className="absolute top-full right-0 mt-2 w-80 sm:w-96 bg-[#0A3866]/95 border border-[#1A71B8]/40 shadow-[0_8px_32px_rgba(0,0,0,0.6)] rounded-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-3xl"
               >
                 {/* Flecha del popup */}
-                <div className="absolute -top-2 right-4 w-4 h-4 bg-white border-l border-t border-gray-200 transform rotate-45"></div>
+                <div className="absolute -top-2 right-4 w-4 h-4 bg-[#0A3866] border-l border-t border-[#1A71B8]/40 transform rotate-45"></div>
 
-                <div className="p-4">
-                  <h4 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                    <Users size={16} className="text-blue-600" />
+                <div className="p-4 relative z-10">
+                  <h4 className="text-[10px] font-bold text-[#34B6D8] mb-4 flex items-center gap-2 uppercase tracking-widest">
+                    <Users size={16} />
                     Agregar Involucrado
                   </h4>
                   <InvolvedForm

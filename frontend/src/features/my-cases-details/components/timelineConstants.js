@@ -14,11 +14,11 @@ export const PROTOCOLOS_PREDEFINIDOS = {
 export const getEstadoColor = (estado) => {
   switch (estado) {
     case 'completado':
-      return 'bg-green-500';
+      return 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] border-transparent text-white';
     case 'en_progreso':
-      return 'bg-yellow-500';
+      return 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)] border-transparent text-white';
     default:
-      return 'bg-stone-300';
+      return 'bg-black/40 border-[#1A71B8]/40 shadow-inner text-white/50';
   }
 };
 

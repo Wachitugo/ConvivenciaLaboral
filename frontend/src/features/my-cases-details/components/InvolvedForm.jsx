@@ -137,11 +137,11 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
   const isFormValid = formData.studentName && formData.role;
 
   return (
-    <div className="p-3 rounded-lg space-y-4 animate-fade-in">
+    <div className="p-3 space-y-4 animate-fade-in text-white">
       {/* Step 1: Curso */}
       <div className="space-y-1.5">
-        <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-2">
-          <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center">1</span>
+        <label className="text-[10px] font-bold text-white/50 uppercase tracking-widest flex items-center gap-2">
+          <span className="w-5 h-5 rounded-full bg-[#1A71B8] text-white shadow-[0_0_8px_rgba(26,113,184,0.6)] text-xs flex items-center justify-center">1</span>
           Área de trabajo
         </label>
         <select
@@ -149,15 +149,15 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
           value={formData.grade}
           onChange={handleGradeChange}
           autoFocus
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white"
+          className="w-full px-3 py-2 border border-white/20 bg-white/5 text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-[#34B6D8] focus:border-[#34B6D8] focus:bg-[#0A3866]/80 text-sm transition-all"
         >
-          <option value="">Seleccione un área de trabajo...</option>
+          <option value="" className="text-gray-400">Seleccione un área de trabajo...</option>
           {GRADE_OPTIONS.map((grade) => (
-            <option key={grade} value={grade}>{grade}</option>
+            <option key={grade} value={grade} className="text-gray-800">{grade}</option>
           ))}
         </select>
         {formData.grade && (
-          <p className="text-xs text-green-600 flex items-center gap-1">
+          <p className="text-xs text-[#34B6D8] flex items-center gap-1">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
@@ -168,8 +168,8 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
 
       {/* Step 2: Estudiante con autocomplete */}
       <div className="space-y-1.5 relative">
-        <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-2">
-          <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${formData.grade ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-500'}`}>2</span>
+        <label className="text-[10px] font-bold text-white/50 uppercase tracking-widest flex items-center gap-2">
+          <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${formData.grade ? 'bg-[#1A71B8] text-white shadow-[0_0_8px_rgba(26,113,184,0.6)]' : 'bg-white/5 text-white/30'}`}>2</span>
           Trabajador
         </label>
         <div className="relative">
@@ -183,13 +183,13 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
             placeholder={formData.grade ? "Click o escribe para buscar..." : "Primero selecciona un área"}
             disabled={!formData.grade}
             autoComplete="off"
-            className={`w-full px-3 py-2 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm transition-all ${formData.grade
-              ? 'border-gray-200 bg-white text-gray-800'
-              : 'border-gray-100 bg-gray-100 text-gray-400 cursor-not-allowed'
+            className={`w-full px-3 py-2 rounded-lg border focus:ring-1 focus:ring-[#34B6D8] focus:border-[#34B6D8] outline-none text-sm transition-all ${formData.grade
+              ? 'border-white/20 bg-white/5 text-white placeholder-white/40 focus:bg-[#0A3866]/80'
+              : 'border-transparent bg-white/5 text-white/30 cursor-not-allowed placeholder-white/20'
               }`}
           />
           {selectedStudentId && (
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500">
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#34B6D8]">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
@@ -201,23 +201,23 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
         {showSuggestions && filteredStudents.length > 0 && (
           <div
             ref={suggestionsRef}
-            className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto"
+            className="absolute z-50 w-full mt-1 bg-[#0A3866]/95 border border-[#1A71B8]/40 rounded-lg shadow-[0_8px_32px_rgba(0,0,0,0.6)] max-h-48 overflow-y-auto backdrop-blur-3xl"
           >
             {filteredStudents.map((student) => (
               <button
                 key={student.id}
                 type="button"
                 onClick={() => handleSelectStudent(student)}
-                className="w-full px-3 py-2 text-left hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0 flex items-center gap-2"
+                className="w-full px-3 py-2 text-left hover:bg-white/10 transition-colors border-b border-white/10 last:border-b-0 flex items-center gap-2"
               >
-                <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                <div className="w-7 h-7 rounded-full bg-[#1A71B8]/30 border border-[#34B6D8]/30 text-[#34B6D8] flex items-center justify-center text-xs font-bold flex-shrink-0">
                   {(student.nombres || '?')[0]?.toUpperCase()}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-gray-800 truncate">
+                  <p className="text-sm font-bold text-white truncate">
                     {student.nombres} {student.apellidos}
                   </p>
-                  <p className="text-xs text-gray-500">RUT: {student.rut || 'N/A'}</p>
+                  <p className="text-[10px] text-white/50 font-mono tracking-wider">RUT: {student.rut || 'N/A'}</p>
                 </div>
               </button>
             ))}
@@ -226,7 +226,7 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
 
         {/* Auto-filled info */}
         {selectedStudentId && formData.rut && (
-          <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+          <div className="flex items-center gap-3 text-[10px] text-[#34B6D8] mt-1 font-mono tracking-wider">
             <span>RUT: {formData.rut}</span>
             {formData.gender && <span>• {formData.gender}</span>}
           </div>
@@ -235,8 +235,8 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
 
       {/* Step 3: Rol */}
       <div className="space-y-1.5">
-        <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-2">
-          <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${selectedStudentId ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-500'}`}>3</span>
+        <label className="text-[10px] font-bold text-white/50 uppercase tracking-widest flex items-center gap-2">
+          <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${selectedStudentId ? 'bg-[#1A71B8] text-white shadow-[0_0_8px_rgba(26,113,184,0.6)]' : 'bg-white/5 text-white/30'}`}>3</span>
           Rol en el Caso
         </label>
         <select
@@ -244,14 +244,14 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
           value={formData.role}
           onChange={handleInputChange}
           disabled={!selectedStudentId}
-          className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${selectedStudentId
-            ? 'border-gray-200 bg-white text-gray-800'
-            : 'border-gray-100 bg-gray-100 text-gray-400 cursor-not-allowed'
+          className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-1 focus:ring-[#34B6D8] focus:border-[#34B6D8] text-sm transition-all ${selectedStudentId
+            ? 'border-white/20 bg-[#0A3866]/80 text-white'
+            : 'border-transparent bg-white/5 text-white/30 cursor-not-allowed'
             }`}
         >
-          <option value="">Seleccione un rol...</option>
+          <option value="" className="text-gray-400">Seleccione un rol...</option>
           {ROLE_OPTIONS.map((role) => (
-            <option key={role.value} value={role.value}>{role.label}</option>
+            <option key={role.value} value={role.value} className="text-gray-800">{role.label}</option>
           ))}
         </select>
       </div>
@@ -260,14 +260,14 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
       <div className="flex items-center gap-2 pt-2">
         <button
           onClick={onCancel}
-          className="px-3 py-1.5 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-sm"
+          className="px-3 py-1.5 text-red-400 bg-transparent hover:bg-red-400/10 border border-transparent hover:border-red-400/30 rounded-lg font-bold transition-colors text-sm"
         >
           Cancelar
         </button>
         <button
           onClick={handleSubmit}
           disabled={!isFormValid}
-          className="flex-1 px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 px-4 py-1.5 bg-gradient-to-r from-[#1A71B8] to-[#34B6D8] hover:from-[#34B6D8] hover:to-[#1A71B8] text-white shadow-[0_4px_16px_rgba(26,113,184,0.4)] rounded-lg transition-all text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Agregar involucrado
         </button>

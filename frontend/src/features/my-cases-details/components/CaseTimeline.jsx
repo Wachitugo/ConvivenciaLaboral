@@ -4,7 +4,6 @@ import { chatService } from '../../../services/api';
 import ProtocolStep from './ProtocolStep';
 import CaseCreatedMilestone from './CaseCreatedMilestone';
 import { PROTOCOLOS_PREDEFINIDOS } from './timelineConstants';
-import CaseTimelineSkeleton from '../skeletons/CaseTimelineSkeleton';
 import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('CaseTimeline');
@@ -207,26 +206,21 @@ function CaseTimeline({ caseData, onUpdateCase, isLoading = false }) {
     onUpdateCase({ ...caseData, caseCreationFiles: updatedFiles });
   };
 
-  // Mostrar skeleton mientras carga
-  if (isLoading) {
-    return <CaseTimelineSkeleton />;
-  }
-
   return (
-    <div style={{ fontFamily: "'Poppins', sans-serif" }} className="flex flex-col h-full bg-white overflow-hidden">
+    <div style={{ fontFamily: "'Poppins', sans-serif" }} className="flex flex-col h-full overflow-hidden text-white">
       {/* Header del protocolo */}
-      <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0 gap-2">
+      <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2">
         <div className="min-w-0 flex-1">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
-            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#34B6D8] drop-shadow-[0_0_8px_rgba(52,182,216,0.6)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
             </svg>
             <span className="truncate">Protocolo</span>
             {pasosProtocolo.length > 0 && (
-              <span className="text-xs sm:text-sm text-gray-500 font-normal">({pasosProtocolo.filter(p => p.estado === 'completado').length}/{pasosProtocolo.length})</span>
+              <span className="text-xs sm:text-sm text-white/50 font-normal">({pasosProtocolo.filter(p => p.estado === 'completado').length}/{pasosProtocolo.length})</span>
             )}
           </h3>
-          <p className="text-xs sm:text-sm text-gray-500 mt-0.5 truncate">
+          <p className="text-xs sm:text-sm text-white/50 mt-0.5 truncate">
             <span className="hidden sm:inline">Pasos y seguimiento del protocolo</span>
             <span className="sm:hidden">Pasos del protocolo</span>
           </p>
@@ -236,16 +230,16 @@ function CaseTimeline({ caseData, onUpdateCase, isLoading = false }) {
       <div className="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-4">
 
         {(!protocoloAsignado || pasosProtocolo.length === 0) && (
-          <div className="flex flex-col items-center justify-center py-10 px-4 bg-gray-50 rounded-lg border border-dashed border-gray-300 text-center">
-            <div className="w-12 h-12 mb-3 text-blue-500">
+          <div className="flex flex-col items-center justify-center py-10 px-4 bg-white/5 rounded-2xl border border-dashed border-white/20 text-center backdrop-blur-md">
+            <div className="w-12 h-12 mb-3 text-[#34B6D8] drop-shadow-[0_0_8px_rgba(52,182,216,0.6)]">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
               </svg>
             </div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-1">
+            <h3 className="text-base sm:text-lg font-bold text-white mb-2">
               {protocoloAsignado ? "Protocolo sin iniciar" : "No hay protocolo asignado"}
             </h3>
-            <p className="text-xs text-gray-500 mb-4 max-w-sm">
+            <p className="text-xs uppercase text-white/60 tracking-wider mb-5 max-w-md leading-relaxed">
               {protocoloAsignado
                 ? "Este caso tiene un protocolo asignado pero no se han generado los pasos. Inicia el protocolo para comenzar."
                 : "Genera un protocolo inteligente basado en los documentos del caso o selecciona uno manualmente."
@@ -254,16 +248,16 @@ function CaseTimeline({ caseData, onUpdateCase, isLoading = false }) {
             <button
               onClick={handleGenerateProtocol}
               disabled={isGenerating}
-              className={`inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${isGenerating ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+              className={`inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold text-white transition-all rounded-lg focus:outline-none shadow-[0_4px_16px_rgba(26,113,184,0.4)] ${isGenerating ? 'bg-[#1A71B8]/50 cursor-not-allowed' : 'bg-gradient-to-r from-[#1A71B8] to-[#34B6D8] hover:from-[#34B6D8] hover:to-[#1A71B8]'}`}
             >
               {isGenerating ? (
                 <>
-                  <svg className="w-4 h-4 mr-2 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 mr-3 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   <span>{generatingMessage}</span>
-                  <span className="text-blue-200 text-xs">({generatingSeconds}s)</span>
+                  <span className="text-[#34B6D8] ml-2 text-xs">({generatingSeconds}s)</span>
                 </>
               ) : (
                 <>
@@ -275,9 +269,9 @@ function CaseTimeline({ caseData, onUpdateCase, isLoading = false }) {
         )}
 
         {protocoloAsignado && pasosProtocolo.length > 0 && (
-          <div className="relative space-y-6 bg-gray-50 pl-3 pr-3 pb-3 rounded-md border border-gray-200">
+          <div className="relative space-y-6 bg-white/5 pl-3 pr-3 pb-3 rounded-2xl border border-white/10 backdrop-blur-sm pt-4">
             {/* Línea vertical continua */}
-            <div className="absolute left-[27px] top-9 bottom-3 w-px bg-stone-300"></div>
+            <div className="absolute left-[27px] top-9 bottom-3 w-0.5 bg-white/10"></div>
             {pasosProtocolo.map((paso, index) => (
               <ProtocolStep
                 key={paso.id}

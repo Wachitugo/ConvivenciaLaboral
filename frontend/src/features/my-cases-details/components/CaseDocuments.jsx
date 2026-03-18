@@ -272,25 +272,25 @@ function CaseDocuments({ allFiles, isLoading = false, caseId, onRefresh }) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-white overflow-hidden" style={{ fontFamily: "'Poppins', sans-serif" }}>
+    <div className="flex flex-col h-full overflow-hidden text-white" style={{ fontFamily: "'Poppins', sans-serif" }}>
       {/* Header de documentos */}
-      <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0 gap-2">
+      <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2">
         <div className="min-w-0 flex-1">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
-            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#34B6D8] drop-shadow-[0_0_8px_rgba(52,182,216,0.6)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
             </svg>
             <span className="truncate">Documentos</span>
             {filteredFiles.length > 0 && (
-              <span className="text-xs sm:text-sm text-gray-500 font-normal">({filteredFiles.length})</span>
+              <span className="text-xs sm:text-sm text-white/50 font-normal">({filteredFiles.length})</span>
             )}
           </h3>
-          <p className="text-xs sm:text-sm text-gray-500 mt-0.5 truncate">
+          <p className="text-xs sm:text-sm text-white/50 mt-0.5 truncate">
             <span className="hidden sm:inline">Archivos adjuntos y evidencias del caso</span>
             <span className="sm:hidden">Archivos del caso</span>
           </p>
         </div>
-        <label className={`cursor-pointer inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm flex-shrink-0 ${isUploading ? 'opacity-50 cursor-wait' : ''}`}>
+        <label className={`cursor-pointer inline-flex items-center gap-1 sm:gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#1A71B8] to-[#34B6D8] hover:from-[#34B6D8] hover:to-[#1A71B8] rounded-lg transition-all shadow-[0_4px_16px_rgba(26,113,184,0.4)] flex-shrink-0 ${isUploading ? 'opacity-50 cursor-wait' : ''}`}>
           <input
             type="file"
             multiple
@@ -314,15 +314,15 @@ function CaseDocuments({ allFiles, isLoading = false, caseId, onRefresh }) {
 
       {/* Lista de documentos o estado vacío */}
       {filteredFiles.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center p-8 bg-gray-50 min-h-0">
+        <div className="flex-1 flex items-center justify-center p-8 min-h-0">
           <div className="text-center">
-            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 backdrop-blur-md">
+              <svg className="w-8 h-8 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <p className="text-sm text-gray-500">No hay documentos</p>
-            <p className="text-xs text-gray-400 mt-1">Sube archivos para agregarlos al caso</p>
+            <p className="text-sm text-white/60">No hay documentos</p>
+            <p className="text-[10px] text-white/40 mt-1 uppercase tracking-widest">Sube archivos para agregarlos al caso</p>
           </div>
         </div>
       ) : (
@@ -331,11 +331,11 @@ function CaseDocuments({ allFiles, isLoading = false, caseId, onRefresh }) {
             {filteredFiles.map((file) => (
               <div
                 key={file.id}
-                className="group p-3 border border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-sm transition-all bg-gray-50/50 hover:bg-white"
+                className="group p-4 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-md hover:bg-white/10 hover:border-[#34B6D8]/30 transition-all hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)]"
               >
                 <div className="flex items-start gap-3">
                   {/* Icono del archivo */}
-                  <div className={`p-2 rounded-lg ${getFileColor(file.content_type)} flex-shrink-0`}>
+                  <div className={`p-2 rounded-xl bg-black/20 ${getFileColor(file.content_type).split(' ')[1]} flex-shrink-0 shadow-inner`}>
                     {getFileIcon(file.content_type)}
                   </div>
 
@@ -347,30 +347,30 @@ function CaseDocuments({ allFiles, isLoading = false, caseId, onRefresh }) {
                           type="text"
                           value={newName}
                           onChange={(e) => setNewName(e.target.value)}
-                          className="flex-1 text-sm border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:border-blue-500"
+                          className="flex-1 text-sm border border-[#34B6D8]/50 bg-black/30 text-white rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-[#34B6D8]"
                           autoFocus
                           onClick={(e) => e.stopPropagation()}
                         />
-                        <button type="submit" className="text-green-600 hover:text-green-700" onClick={(e) => e.stopPropagation()}>
+                        <button type="submit" className="text-emerald-400 hover:text-emerald-300" onClick={(e) => e.stopPropagation()}>
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                         </button>
-                        <button type="button" onClick={(e) => { e.stopPropagation(); handleCancelRename(); }} className="text-red-600 hover:text-red-700">
+                        <button type="button" onClick={(e) => { e.stopPropagation(); handleCancelRename(); }} className="text-red-400 hover:text-red-300">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
                       </form>
                     ) : (
-                      <p className="text-sm font-medium text-gray-900 truncate mb-1" title={file.name}>
+                      <p className="text-sm font-bold text-white truncate mb-1" title={file.name}>
                         {file.name}
                       </p>
                     )}
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs text-gray-500">{file.size}</span>
-                      <span className="text-xs text-gray-300">•</span>
-                      <span className="text-xs font-medium text-gray-400 uppercase">
+                      <span className="text-[10px] text-white/50">{file.size}</span>
+                      <span className="text-[10px] text-white/20">•</span>
+                      <span className="text-[10px] font-bold text-[#34B6D8] uppercase tracking-wider">
                         {getFileLabel(file.content_type, file.name)}
                       </span>
-                      <span className="text-xs text-gray-300">•</span>
-                      <span className="text-xs text-gray-400">{file.eventDate}</span>
+                      <span className="text-[10px] text-white/20">•</span>
+                      <span className="text-[10px] text-white/40 font-mono tracking-wide">{file.eventDate}</span>
                     </div>
                   </div>
 
@@ -381,7 +381,7 @@ function CaseDocuments({ allFiles, isLoading = false, caseId, onRefresh }) {
                       {canPreview(file.content_type) && (
                         <button
                           onClick={(e) => { e.stopPropagation(); handlePreview(file); }}
-                          className="p-2 rounded-lg hover:bg-indigo-50 text-indigo-600 transition-colors"
+                          className="p-2 rounded-lg hover:bg-white/10 text-white/50 hover:text-indigo-300 transition-colors"
                           title="Vista previa"
                           disabled={isActionLoading || isPreviewLoading}
                         >
@@ -393,7 +393,7 @@ function CaseDocuments({ allFiles, isLoading = false, caseId, onRefresh }) {
                       )}
                       <button
                         onClick={(e) => { e.stopPropagation(); handleAction('rename', file); }}
-                        className="p-2 rounded-lg hover:bg-amber-50 text-amber-600 transition-colors"
+                        className="p-2 rounded-lg hover:bg-white/10 text-white/50 hover:text-amber-300 transition-colors"
                         title="Renombrar"
                         disabled={isActionLoading}
                       >
@@ -405,7 +405,7 @@ function CaseDocuments({ allFiles, isLoading = false, caseId, onRefresh }) {
                       {!((file.name || '').toLowerCase().endsWith('.webm') && (file.source === 'entrevista' || file.eventTitle?.toLowerCase().includes('entrevista'))) && (
                         <button
                           onClick={(e) => { e.stopPropagation(); handleAction('download', file); }}
-                          className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
+                          className="p-2 rounded-lg hover:bg-white/10 text-white/50 hover:text-[#34B6D8] transition-colors"
                           title="Descargar"
                           disabled={isActionLoading}
                         >
@@ -416,7 +416,7 @@ function CaseDocuments({ allFiles, isLoading = false, caseId, onRefresh }) {
                       )}
                       <button
                         onClick={(e) => { e.stopPropagation(); handleAction('delete', file); }}
-                        className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
+                        className="p-2 rounded-lg hover:bg-white/10 text-white/50 hover:text-red-400 transition-colors"
                         title="Eliminar"
                         disabled={isActionLoading}
                       >

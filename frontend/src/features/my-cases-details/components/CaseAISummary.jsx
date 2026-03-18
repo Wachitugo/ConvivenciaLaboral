@@ -113,15 +113,15 @@ function CaseAISummary({ caseData, isLoading = false, onUpdateCase }) {
 
   return (
     <div style={{ fontFamily: "'Poppins', sans-serif" }} className="h-full flex flex-col">
-      <div className="bg-white h-full flex flex-col">
+      <div className="h-full flex flex-col text-white">
         {/* Header con estilo de PersonalInfoCard */}
-        <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0 gap-2">
+        <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2">
           <div className="min-w-0 flex-1">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
-              <FileText size={18} className="text-blue-600 flex-shrink-0 sm:w-5 sm:h-5" />
+            <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-3">
+              <FileText size={20} className="text-[#34B6D8] drop-shadow-[0_0_8px_rgba(52,182,216,0.6)] flex-shrink-0" />
               <span className="truncate">Resumen Inteligente</span>
             </h3>
-            <p className="text-xs sm:text-sm text-gray-500 mt-0.5 truncate">
+            <p className="text-sm text-white/60 mt-1 truncate">
               <span className="hidden sm:inline">Análisis automático del caso con IA</span>
               <span className="sm:hidden">Análisis con IA</span>
             </p>
@@ -129,7 +129,7 @@ function CaseAISummary({ caseData, isLoading = false, onUpdateCase }) {
           <button
             onClick={handleGenerateSummary}
             disabled={isGenerating}
-            className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm flex-shrink-0 disabled:opacity-70"
+            className="inline-flex items-center gap-1 sm:gap-1.5 px-4 py-2 text-sm font-bold text-white bg-gradient-to-r from-[#1A71B8] to-[#34B6D8] hover:from-[#34B6D8] hover:to-[#1A71B8] rounded-lg transition-all shadow-[0_4px_16px_rgba(26,113,184,0.4)] disabled:opacity-50 flex-shrink-0"
           >
             {isGenerating ? (
               <>
@@ -148,19 +148,20 @@ function CaseAISummary({ caseData, isLoading = false, onUpdateCase }) {
 
         <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4 custom-scrollbar">
           {/* Puntos Clave */}
-          <div className="bg-gray-50 border border-gray-200 p-3 rounded-md">
-            <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide mb-2 flex items-center gap-1.5">
-              <FileText size={16} className="text-slate-500" />
+          <div className="bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md">
+            <h3 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-4 flex items-center gap-2">
+              <FileText size={18} className="text-[#34B6D8]" />
               Puntos Clave
             </h3>
-            <ul className="space-y-2">
+            <ul className="space-y-4">
               {displaySummary.mainPoints.map((point, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0"></div>
+                <li key={index} className="flex items-start gap-4">
+                  <div className="w-2 h-2 rounded-full bg-[#34B6D8] mt-[6px] flex-shrink-0 shadow-[0_0_8px_rgba(52,182,216,0.8)]"></div>
                   {/* Usando ReactMarkdown para renderizar negritas correctamente */}
-                  <div className="prose prose-sm prose-stone max-w-none text-gray-700">
+                  <div className="prose prose-base prose-invert max-w-none text-white leading-relaxed">
                     <ReactMarkdown components={{
-                      p: ({ node, ...props }) => <span {...props} />
+                      p: ({ node, ...props }) => <span {...props} />,
+                      strong: ({ node, ...props }) => <strong className="text-white font-bold" {...props} />
                     }}>
                       {point}
                     </ReactMarkdown>
@@ -169,8 +170,6 @@ function CaseAISummary({ caseData, isLoading = false, onUpdateCase }) {
               ))}
             </ul>
           </div>
-
-
         </div>
       </div>
     </div>
