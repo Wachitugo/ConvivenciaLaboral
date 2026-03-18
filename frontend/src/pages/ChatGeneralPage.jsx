@@ -56,6 +56,8 @@ function ChatGeneralPage() {
   const [isChatLoading, setIsChatLoading] = useState(true);
   const [isGeneratingCase, setIsGeneratingCase] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [caseError, setCaseError] = useState(null);
+  const [caseSuccess, setCaseSuccess] = useState(null);
 
   // Simular carga del chat cuando se navega a la página o cambia la sesión
   useEffect(() => {
@@ -324,17 +326,23 @@ function ChatGeneralPage() {
       colegio = colegios && colegios.length > 0 ? colegios[0] : null;
 
       if (!usuario || !colegio) {
-        logger.error("Usuario o colegio no disponible");
-        alert("Error: Usuario o colegio no disponible para generar el caso");
+        setCaseError({
+          message: 'No se pudo identificar tu organización.',
+          hint: 'Cierra sesión e inicia nuevamente para continuar.'
+        });
         return;
       }
     } catch (error) {
       logger.error("Error obteniendo datos del usuario:", error);
-      alert("Error al obtener información del usuario");
+      setCaseError({
+        message: 'Error al obtener información del usuario.',
+        hint: 'Recarga la página e intenta nuevamente.'
+      });
       return;
     }
 
     try {
+      setCaseError(null);
       setIsGeneratingCase(true);
       setLoadingProgress(0);
 
@@ -372,11 +380,24 @@ function ChatGeneralPage() {
         ownerName: newCase.owner_name
       });
 
+      setCaseSuccess(newCase.title);
+      setTimeout(() => setCaseSuccess(null), 5000);
       logger.info("Caso generado exitosamente:", newCase.id);
 
     } catch (error) {
       logger.error("Error generando caso:", error);
-      alert("Error al generar el caso. Por favor intenta nuevamente.");
+      const status = error?.response?.status;
+      if (status === 400 || status === 404 || status === 422) {
+        setCaseError({
+          message: 'No hay suficiente información en la conversación para generar un caso.',
+          hint: 'Cuéntame más sobre el incidente: ¿quiénes son los involucrados?, ¿qué ocurrió?, ¿cuándo? Luego intenta nuevamente.'
+        });
+      } else {
+        setCaseError({
+          message: 'Ocurrió un error al generar el caso.',
+          hint: 'Por favor intenta nuevamente en unos momentos.'
+        });
+      }
       setLoadingProgress(0);
     } finally {
       setIsGeneratingCase(false);
@@ -451,6 +472,56 @@ function ChatGeneralPage() {
 
   return (
     <ErrorBoundary>
+      {/* Toast de éxito al generar caso */}
+      {caseSuccess && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4 animate-fade-in-down">
+          <div className="bg-white border border-green-100 rounded-2xl shadow-xl p-4 flex gap-3">
+            <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center">
+              <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-900">¡Caso creado exitosamente!</p>
+              <p className="text-xs text-gray-500 mt-0.5 truncate">{caseSuccess}</p>
+            </div>
+            <button
+              onClick={() => setCaseSuccess(null)}
+              className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Toast de error al generar caso */}
+      {caseError && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4 animate-fade-in-down">
+          <div className="bg-white border border-red-100 rounded-2xl shadow-xl p-4 flex gap-3">
+            <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center">
+              <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-900">{caseError.message}</p>
+              <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{caseError.hint}</p>
+            </div>
+            <button
+              onClick={() => setCaseError(null)}
+              className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Wrapper flex para asegurar layout horizontal */}
       <div className="flex w-full h-full overflow-hidden">
         {/* Mostrar skeleton mientras carga el chat */}

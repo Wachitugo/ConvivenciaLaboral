@@ -242,7 +242,10 @@ function MyCases() {
       };
 
       logger.info("📝 Creando caso rápido...");
-      const createdCase = await casesService.createCase(caseData);
+      const timeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Tiempo de espera agotado. Verifica tu conexión e intenta nuevamente.')), 30000)
+      );
+      const createdCase = await Promise.race([casesService.createCase(caseData), timeout]);
       logger.info(`✅ Caso creado con ID: ${createdCase.id}`);
 
       const isOwner = createdCase.owner_id === usuario.id;

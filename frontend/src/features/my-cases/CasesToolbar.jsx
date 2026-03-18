@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Breadcrumb from '../../components/Breadcrumb';
 import FilterDropdown from './FilterDropdown';
 
@@ -15,6 +15,16 @@ function CasesToolbar({
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [showNewCasePopover, setShowNewCasePopover] = useState(false);
   const [newCaseTitle, setNewCaseTitle] = useState('');
+  const wasSaving = useRef(false);
+
+  // Cerrar el popover automáticamente cuando termina la creación
+  useEffect(() => {
+    if (wasSaving.current && !isSaving) {
+      setShowNewCasePopover(false);
+      setNewCaseTitle('');
+    }
+    wasSaving.current = isSaving;
+  }, [isSaving]);
 
   const monthOptions = [
     { value: 'all', label: 'Mes' },
@@ -50,7 +60,7 @@ function CasesToolbar({
 
   return (
     <div className="p-3 pb-4 mb-2 border-b border-black/5 relative z-[100]" style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" }}>
-   
+
 
       <div className="relative flex flex-col gap-3 p">
         <div className="flex items-center justify-between gap-4">
@@ -117,7 +127,7 @@ function CasesToolbar({
               Nuevo Caso
             </button>
 
-            {/* Popover Invertido (Azul Oscuro) */}
+            {/* Popover Azul Oscuro */}
             {showNewCasePopover && (
               <div className="absolute top-full right-0 z-40 mt-3 p-5 bg-[#0A3866] rounded-2xl shadow-[0_20px_40px_rgba(10,56,102,0.4)] border border-[#1A71B8]/50 animate-fade-in-down w-80">
                 <div className="flex flex-col gap-4">
@@ -133,8 +143,6 @@ function CasesToolbar({
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && newCaseTitle.trim() && !isSaving) {
                           onQuickCreate(newCaseTitle.trim());
-                          setNewCaseTitle('');
-                          setShowNewCasePopover(false);
                         }
                       }}
                       className="w-full px-3 py-2.5 bg-[#1A71B8]/30 border border-[#1A71B8]/50 text-sm rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-white/60 focus:ring-4 focus:ring-white/10 transition-all"
@@ -142,13 +150,26 @@ function CasesToolbar({
                     />
                   </div>
 
-                  <div className="flex justify-end gap-2 mt-2">
+                  {isSaving && (
+                    <p className="text-xs text-white/70 flex items-center gap-1.5">
+                      <svg className="w-3 h-3 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                      </svg>
+                      Estamos creando tu caso, un momento...
+                    </p>
+                  )}
+
+                  <div className="flex justify-end gap-2">
                     <button
                       onClick={() => {
-                        setShowNewCasePopover(false);
-                        setNewCaseTitle('');
+                        if (!isSaving) {
+                          setShowNewCasePopover(false);
+                          setNewCaseTitle('');
+                        }
                       }}
-                      className="px-4 py-2 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-xl font-medium transition-all"
+                      disabled={isSaving}
+                      className="px-4 py-2 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-xl font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       Cancelar
                     </button>
@@ -156,13 +177,17 @@ function CasesToolbar({
                       onClick={() => {
                         if (newCaseTitle.trim() && !isSaving) {
                           onQuickCreate(newCaseTitle.trim());
-                          setNewCaseTitle('');
-                          setShowNewCasePopover(false);
                         }
                       }}
                       disabled={!newCaseTitle.trim() || isSaving}
-                      className="px-5 py-2 bg-white text-[#0A3866] hover:bg-gray-100 disabled:bg-white/20 disabled:text-white/40 disabled:shadow-none disabled:active:scale-100 text-sm rounded-xl font-bold transition-all shadow-lg shadow-black/10 active:scale-[0.98]"
+                      className="px-5 py-2 bg-white text-[#0A3866] hover:bg-gray-100 disabled:bg-white/20 disabled:text-white/40 disabled:shadow-none disabled:active:scale-100 text-sm rounded-xl font-bold transition-all shadow-lg shadow-black/10 active:scale-[0.98] flex items-center gap-2"
                     >
+                      {isSaving && (
+                        <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        </svg>
+                      )}
                       {isSaving ? 'Creando...' : 'Crear caso'}
                     </button>
                   </div>
