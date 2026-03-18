@@ -298,6 +298,46 @@ Responde SOLO con la query reformulada, sin explicaciones."""
         
         return search_school_documents
 
+    def list_indexed_documents(self, data_store_id: str) -> list:
+        """
+        Lista los documentos indexados en el Discovery Engine para un data store dado.
+        Retorna una lista de dicts con 'title' y 'uri'.
+        """
+        locations_to_try = [self.location]
+        if self.location != "global":
+            locations_to_try.append("global")
+
+        for loc in locations_to_try:
+            try:
+                client_options = (
+                    ClientOptions(api_endpoint=f"{loc}-discoveryengine.googleapis.com")
+                    if loc != "global"
+                    else None
+                )
+                client = DocumentServiceClient(client_options=client_options)
+                parent = client.branch_path(
+                    project=self.project_id,
+                    location=loc,
+                    data_store=data_store_id,
+                    branch="default_branch",
+                )
+                response = client.list_documents(request={"parent": parent, "page_size": 100})
+                docs = []
+                for doc in response:
+                    struct_data = doc.derived_struct_data or {}
+                    title = struct_data.get("title", "")
+                    uri = ""
+                    if doc.content and doc.content.uri:
+                        uri = doc.content.uri
+                    if not title:
+                        title = uri.split("/")[-1] if uri else doc.name.split("/")[-1]
+                    docs.append({"title": title, "uri": uri})
+                return docs
+            except Exception as e:
+                logger.warning(f"No se pudo listar en {loc}: {e}")
+
+        return []
+
     # Methods moved to DiscoveryService
     # delete_document and index_document removed.
 

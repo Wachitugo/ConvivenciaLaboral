@@ -632,8 +632,9 @@ REGLAS CRÍTICAS:
                 "titulo": step.title,
                 "descripcion": step.description,
                 "estado": step.status if step.status else "pending",
-                "status": step.status if step.status else "pending", 
-                "estimated_time": step.estimated_time
+                "status": step.status if step.status else "pending",
+                "estimated_time": step.estimated_time,
+                "deadline": step.deadline  # necesario para mostrar plazos correctos en el frontend
             })
             
         update_data = {

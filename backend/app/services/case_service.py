@@ -141,15 +141,13 @@ class CaseService:
         {conversation}
 
         Instrucciones:
-        1.  **Título**: Crea un título profesional y descriptivo (ej: "Denuncia por acoso laboral - Área Bodega").
-        2.  **Descripción**: Redacta un resumen cronológico y objetivo de los hechos mencionados. Incluye qué pasó, dónde, cuándo y quiénes participaron.
+        1.  **Título**: Crea un título profesional y descriptivo (ej: "Denuncia por acoso laboral - Área Bodega"). No incluyas nombres de personas.
+        2.  **Descripción**: Redacta un resumen cronológico y objetivo de los hechos mencionados. Incluye qué pasó, dónde, cuándo y los roles de quienes participaron (ej: "trabajador del área de finanzas", "jefatura directa"), pero NO nombres propios.
         3.  **Tipo de Caso**: Clasifícalo en una de estas categorías: "Acoso laboral", "Acoso sexual", "Violencia en el trabajo", "Discriminación", "Maltrato laboral", "Conflicto entre trabajadores". Si no estás seguro, usa "Otro".
-        4.  **Involucrados**: Identifica a TODAS las personas mencionadas (trabajadores, jefaturas, testigos).
-            -   Para cada persona, intenta inferir su Rol (Denunciante, Denunciado, Testigo, Supervisor, Gerente).
-            -   Si no se menciona el nombre, usa una descripción (ej: "Supervisor de Bodega").
-        5.  **Protocolo**: Si en la conversación se mencionó o sugirió un protocolo específico (ej: "Protocolo de Maltrato", "Protocolo de Retención"), indícalo. Si no, pon "Por definir".
+        4.  **Protocolo**: Si en la conversación se mencionó o sugirió un protocolo específico (ej: "Protocolo de Maltrato", "Protocolo de Retención"), indícalo. Si no, pon "Por definir".
 
         IMPORTANTE: No inventes información. Si algo no se menciona, usa "No especificado" o déjalo vacío.
+        PRIVACIDAD: No extraigas ni menciones nombres propios de personas en ningún campo.
         """)
 
         # Usar with_structured_output temporal sin owner_id y colegio_id
@@ -161,7 +159,6 @@ class CaseService:
             description: str
             case_type: str
             status: str = "active"
-            involved: List[InvolvedPerson] = []
             protocol: Optional[str] = None
 
         structured_llm = self.llm.with_structured_output(TempCaseExtract)
@@ -179,7 +176,7 @@ class CaseService:
             description=extracted_data.description,
             case_type=extracted_data.case_type,
             status=extracted_data.status,
-            involved=extracted_data.involved,
+            involved=[],  # No se extraen involucrados por privacidad
             protocol=extracted_data.protocol,
             owner_id=owner_id,
             colegio_id=colegio_id,
@@ -571,18 +568,17 @@ TU TAREA:
 5. NO menciones el estado del caso ("pendiente", etc.) ni su clasificación/tipo ("Vulneración", etc.) en los puntos clave.
 
 GENERA UN JSON CON:
-1. mainPoints: Lista de 5-7 puntos clave que resuman cronológicamente los hechos y hallazgos de los documentos.
-   - Sé detallado y preciso.
-   - Redacta de forma narrativa y profesional.
+1. description: Descripción narrativa del caso en texto plano (sin markdown, sin asteriscos, sin guiones).
+   - Redacta en párrafos separados por \\n\\n cuando corresponda.
+   - Cronológica, objetiva y profesional.
+   - Integra los hechos y hallazgos de los documentos de forma fluida.
+   - No uses viñetas, listas ni caracteres especiales de formato.
 
 2. riskLevel: Nivel de riesgo ("Bajo", "Medio", "Alto") justificado por los hechos.
 
 RESPONDE SOLO CON JSON VÁLIDO:
 {{
-  "mainPoints": [
-    "Punto 1 detallado...",
-    "Punto 2 detallado..."
-  ],
+  "description": "Párrafo 1 del resumen...\\n\\nPárrafo 2 si aplica...",
   "riskLevel": "Alto - Justificación..."
 }}"""
 
@@ -659,52 +655,31 @@ RESPONDE SOLO CON JSON VÁLIDO:
             parsed_data = json.loads(json_str)
 
             # 7. Validar estructura
-            required_fields = ["mainPoints", "riskLevel"]
-            for field in required_fields:
-                if field not in parsed_data:
-                    # Intentar corregir si falta algo
-                    if field == "mainPoints": parsed_data["mainPoints"] = ["No se pudieron extraer puntos clave."]
-                    if field == "riskLevel": parsed_data["riskLevel"] = "Por definir"
-            
-            # Limpiar campos no deseados
-            if "recommendations" in parsed_data:
-                del parsed_data["recommendations"]
-            if "nextSteps" in parsed_data:
-                del parsed_data["nextSteps"]
+            if "description" not in parsed_data:
+                parsed_data["description"] = "No se pudo generar una descripción del caso."
+            if "riskLevel" not in parsed_data:
+                parsed_data["riskLevel"] = "Por definir"
+
+            # Compatibilidad hacia atrás: limpiar campos de versión anterior
+            parsed_data.pop("mainPoints", None)
+            parsed_data.pop("recommendations", None)
+            parsed_data.pop("nextSteps", None)
 
             logger.info("Summary generated successfully with documents")
-            
+
             # Persistir en Firestore
             try:
-                # Generar texto para la descripción
-                summary_text = ". ".join(parsed_data.get("mainPoints", []))
-                if not summary_text.endswith("."):
-                    summary_text += "."
-
                 update_data = {
                     "ai_summary": parsed_data,
-                    "description": summary_text,
+                    "description": parsed_data["description"],
                     "updated_at": datetime.utcnow()
                 }
 
                 logger.info(f"💾 Attempting to persist summary for case {case_id}")
-                logger.debug(f"Payload: {str(update_data)}")
-                
                 self.db.collection(self.collection_name).document(case_id).set(update_data, merge=True)
                 logger.info(f"✅ Summary persisted successfully for case {case_id}")
-                
-                # Verificación inmediata
-                verify_doc = self.db.collection(self.collection_name).document(case_id).get()
-                if verify_doc.exists:
-                    verify_data = verify_doc.to_dict()
-                    logger.info(f"🔍 Verification read: ai_summary present? {'ai_summary' in verify_data}")
-                    if 'ai_summary' in verify_data:
-                        logger.debug(f"🔍 Verification content (mainPoints len): {len(verify_data['ai_summary'].get('mainPoints', []))}")
-                else:
-                    logger.error("❌ Verification failed: Document not found after write!")
             except Exception as e:
                 logger.error(f"❌ Error persisting summary: {e}")
-                # Log traceback for deeper analysis
                 import traceback
                 logger.error(traceback.format_exc())
 

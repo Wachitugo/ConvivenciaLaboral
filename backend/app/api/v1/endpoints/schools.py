@@ -298,6 +298,29 @@ async def upload_school_document(
         raise HTTPException(status_code=500, detail=f"Error subiendo documento: {str(e)}")
 
 
+@router.get("/{colegio_id}/indexed-documents")
+async def list_indexed_documents(colegio_id: str):
+    """Lista los documentos indexados en el Discovery Engine (RAG) del colegio"""
+    try:
+        colegio = school_service.get_colegio_by_id(colegio_id)
+        if not colegio:
+            raise HTTPException(status_code=404, detail="Colegio no encontrado")
+
+        data_store_id = getattr(colegio, "data_store_id", None)
+        if not data_store_id:
+            return {"documents": [], "message": "Este colegio no tiene Data Store configurado"}
+
+        from app.services.chat.search_service import search_service
+        docs = search_service.list_indexed_documents(data_store_id)
+        return {"data_store_id": data_store_id, "total": len(docs), "documents": docs}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Error listing indexed documents")
+        raise HTTPException(status_code=500, detail=f"Error listando documentos indexados: {str(e)}")
+
+
 @router.get("/{colegio_id}/documents")
 async def list_school_documents(colegio_id: str):
     """Lista los documentos del colegio"""
