@@ -106,9 +106,9 @@ function CasesToolbar({
             {/* Nuevo Caso - El botón base */}
             <button
               onClick={() => setShowNewCasePopover(!showNewCasePopover)}
-              className={` px-6 py-2.5 shadow-xl rounded-full font-bold text-sm flex items-center gap-2 transition-all active:scale-[0.98] whitespace-nowrap z-50 ${showNewCasePopover
+              className={` px-6 py-2.5 shadow-md rounded-full font-bold text-sm flex items-center gap-2 transition-all active:scale-[0.98] whitespace-nowrap z-50 ${showNewCasePopover
                 ? 'bg-white text-[#0A3866] text-lg shadow-[0_0_30px_rgba(255,255,255,0.3)] ring-4 ring-white/20'
-                : 'bg-gradient-to-r from-[#1A71B8] to-[#34B6D8] hover:from-[#34B6D8] hover:to-[#1A71B8] text-white shadow-[#1A71B8]/40 border border-white/20'
+                : 'bg-[#1A71B8] hover:bg-[#1A71B8]/80 text-white shadow-[#1A71B8]/40 border border-white/20'
                 }`}
             >
               <svg className={`w-5 h-5 transition-transform duration-300 ${showNewCasePopover ? 'rotate-45' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">

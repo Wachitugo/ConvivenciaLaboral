@@ -99,19 +99,19 @@ function InterviewList({ interviews, onOpenModal }) {
 
     if (!interviews || interviews.length === 0) {
         return (
-            <div className="h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl bg-white p-12 text-center">
-                <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mb-4">
+            <div className="h-full flex flex-col items-center justify-center border border-dashed border-white/20 rounded-2xl bg-white/5 p-12 text-center backdrop-blur-md">
+                <div className="w-16 h-16 bg-[#1A71B8]/20 text-[#34B6D8] rounded-2xl flex items-center justify-center mb-4 shadow-[0_0_12px_rgba(52,182,216,0.3)]">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                     </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">No hay entrevistas</h3>
-                <p className="text-gray-500 max-w-sm mx-auto mb-6">
+                <h3 className="text-lg font-bold text-white mb-1">No hay entrevistas</h3>
+                <p className="text-white/60 max-w-sm mx-auto mb-6 text-sm">
                     Comienza creando una nueva entrevista para registrar el seguimiento de los trabajadores.
                 </p>
                 <button
                     onClick={onOpenModal}
-                    className="text-blue-600 font-medium hover:text-blue-700 hover:underline"
+                    className="text-[#34B6D8] font-bold hover:text-white transition-colors"
                 >
                     Comenzar una nueva entrevista
                 </button>
@@ -170,7 +170,7 @@ function InterviewList({ interviews, onOpenModal }) {
                 loadingText="Eliminando..."
             />
 
-            <div className="flex-1 flex flex-col bg-white rounded-lg shadow-md border-2 border-gray-300 overflow-hidden backdrop-blur-sm relative">
+            <div className="flex-1 flex flex-col bg-white/5 rounded-2xl border border-white/10 overflow-hidden backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.2)] relative">
                 {/* Loading overlay during deletion */}
                 {isDeleting && (
                     <div className="absolute inset-0 z-20 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center">
@@ -190,38 +190,38 @@ function InterviewList({ interviews, onOpenModal }) {
                 <div className="overflow-auto flex-1 custom-scrollbar">
                     <table className="min-w-full">
                         <thead className="sticky top-0 z-10">
-                            <tr className="bg-gradient-to-r from-gray-50 via-gray-100/80 to-gray-50 border-b border-gray-200">
+                            <tr className="bg-white/5 border-b border-white/10">
                                 {/* Checkbox */}
                                 <th scope="col" className="px-3 py-4 w-10">
                                     <input
                                         type="checkbox"
                                         checked={allSelected}
                                         onChange={handleSelectAll}
-                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
+                                        className="w-4 h-4 text-[#34B6D8] bg-white/10 border-white/20 rounded focus:ring-[#34B6D8] focus:ring-2 cursor-pointer"
                                     />
                                 </th>
                                 {/* Alumno */}
-                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider w-1/4">
+                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest w-1/4">
                                     <div className="flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
                                         Trabajador
                                     </div>
                                 </th>
                                 {/* Género */}
-                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest">
                                     <div className="flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                                         </svg>
                                         Género
                                     </div>
                                 </th>
                                 {/* Curso */}
-                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest">
                                     <div className="flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                         </svg>
                                         Área de trabajo
@@ -229,9 +229,9 @@ function InterviewList({ interviews, onOpenModal }) {
                                 </th>
 
                                 {/* Fecha */}
-                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest">
                                     <div className="flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
                                         Fecha
@@ -239,9 +239,9 @@ function InterviewList({ interviews, onOpenModal }) {
                                 </th>
 
                                 {/* Entrevistador */}
-                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest">
                                     <div className="flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                         </svg>
                                         Entrevistador
@@ -249,9 +249,9 @@ function InterviewList({ interviews, onOpenModal }) {
                                 </th>
 
                                 {/* Estado */}
-                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest">
                                     <div className="flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
                                         Estado
@@ -264,7 +264,7 @@ function InterviewList({ interviews, onOpenModal }) {
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-100">
+                        <tbody className="divide-y divide-white/5">
                             {interviews.map((interview) => (
                                 <InterviewRow
                                     key={interview.id}
