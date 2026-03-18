@@ -49,14 +49,13 @@ function CasesToolbar({
   ];
 
   return (
-    <div className="p-3 pb-3 border-t border-l border-r border-white/20 rounded-t-3xl relative z-[100]" style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" }}>
+    <div className="p-3 pb-4 mb-2 border-b border-black/5 relative z-[100]" style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" }}>
    
 
       <div className="relative flex flex-col gap-3 p">
         <div className="flex items-center justify-between gap-4">
           {/* Fila Principal: Search + Filtros Principales + Botón Más Filtros + Acciones */}
           <div className="flex items-center gap-2 flex-1 flex-wrap">
-            {/* Search */}
             <div className="relative max-w-xs min-w-[200px]">
               <input
                 type="text"
@@ -64,7 +63,7 @@ function CasesToolbar({
                 name="searchTerm"
                 value={filters.searchTerm}
                 onChange={onFilterChange}
-                className="w-full px-3 py-1.5 pl-4 bg-[#f8fafc] border border-[#e2e8f0] text-sm rounded-3xl text-[#0f172a] placeholder-[#94a3b8] focus:outline-none shadow-sm focus:border-[#1A71B8]/40 focus:ring-4 focus:ring-[#1A71B8]/8 transition-all"
+                className="w-full px-4 py-2 bg-white/10 border border-white/20 text-sm rounded-full text-white placeholder-white/50 focus:outline-none focus:bg-white/20 focus:border-white/40 focus:ring-4 focus:ring-white/10 backdrop-blur-md transition-all shadow-inner"
               />
             </div>
 
@@ -73,28 +72,27 @@ function CasesToolbar({
             <FilterDropdown name="status" value={filters.status} onChange={onFilterChange} options={statusOptions} />
             <FilterDropdown name="sharedStatus" value={filters.sharedStatus} onChange={onFilterChange} options={sharedOptions} />
 
-            {/* Botón Toggle Más Filtros con Dropdown anclado */}
             <div className="relative">
               <button
                 onClick={() => setShowMoreFilters(!showMoreFilters)}
-                className={`px-3 py-1.5 border rounded-xl text-sm flex items-center gap-2 transition-all shadow-sm ${showMoreFilters || filters.year !== 'all' || filters.month !== 'all'
-                  ? 'bg-[#1A71B8]/10 text-[#1A71B8] border-[#1A71B8]/20'
-                  : 'bg-[#f8fafc] text-[#475569] border-[#e2e8f0] hover:bg-[#f0f4f8] hover:text-[#0A3866]'
+                className={`px-4 py-2 border rounded-full text-sm font-medium flex items-center gap-2 transition-all shadow-sm ${showMoreFilters || filters.year !== 'all' || filters.month !== 'all'
+                  ? 'bg-white/20 text-white border-white/40 backdrop-blur-md'
+                  : 'bg-white/5 text-white/80 border-white/10 hover:bg-white/10 hover:text-white backdrop-blur-md'
                   }`}
               >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                 </svg>
                 <span>{showMoreFilters ? 'Cerrar' : 'Más filtros'}</span>
                 {(filters.year !== 'all' || filters.month !== 'all') && (
-                  <span className="w-2 h-2 rounded-full bg-[#1A71B8] ml-1"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#34B6D8] ml-1 shadow-[0_0_8px_rgba(52,182,216,0.6)]"></span>
                 )}
               </button>
 
               {/* Dropdown Flotante Anclado al Botón */}
               {showMoreFilters && (
-                <div className="absolute top-full left-0 z-50 mt-2 p-3 bg-white/85 backdrop-blur-xl rounded-2xl border border-white/60 shadow-[0_8px_32px_rgba(10,56,102,0.16),0_2px_8px_rgba(26,113,184,0.10),0_0_0_1px_rgba(226,232,240,0.8)] flex items-center gap-2 animate-fade-in-down w-max min-w-[300px]">
-                  <span className="text-xs font-black text-[#94a3b8] uppercase tracking-widest mr-2 whitespace-nowrap">Filtrar por fecha:</span>
+                <div className="absolute top-full left-0 z-50 mt-2 p-3 bg-[#0A3866]/90 backdrop-blur-2xl rounded-2xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex items-center gap-2 animate-fade-in-down w-max min-w-[300px]">
+                  <span className="text-xs font-black text-white/50 uppercase tracking-widest mr-2 whitespace-nowrap">Filtrar por fecha:</span>
                   <div className="flex items-center gap-2">
                     <FilterDropdown name="year" value={filters.year} onChange={onFilterChange} options={yearOptions} />
                     <FilterDropdown name="month" value={filters.month} onChange={onFilterChange} options={monthOptions} />
@@ -108,13 +106,13 @@ function CasesToolbar({
             {/* Nuevo Caso - El botón base */}
             <button
               onClick={() => setShowNewCasePopover(!showNewCasePopover)}
-              className={` px-6 py-2 text-[18px]  shadow-xl rounded-[28px] font-bold text-sm flex items-center gap-2 transition-all  active:scale-[0.98] whitespace-nowrap z-50 ${showNewCasePopover
-                ? 'bg-[#0A3866] text-white text-lg shadow-xl ring-4 ring-[#0A3866]/20'
-                : 'bg-[#0A3866] hover:bg-[#1A71B8] text-white shadow-[#1A71B8]/20'
+              className={` px-6 py-2.5 shadow-xl rounded-full font-bold text-sm flex items-center gap-2 transition-all active:scale-[0.98] whitespace-nowrap z-50 ${showNewCasePopover
+                ? 'bg-white text-[#0A3866] text-lg shadow-[0_0_30px_rgba(255,255,255,0.3)] ring-4 ring-white/20'
+                : 'bg-gradient-to-r from-[#1A71B8] to-[#34B6D8] hover:from-[#34B6D8] hover:to-[#1A71B8] text-white shadow-[#1A71B8]/40 border border-white/20'
                 }`}
             >
               <svg className={`w-5 h-5 transition-transform duration-300 ${showNewCasePopover ? 'rotate-45' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
               Nuevo Caso
             </button>
