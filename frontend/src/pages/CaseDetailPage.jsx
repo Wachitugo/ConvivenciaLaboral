@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation, useOutletContext } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { CaseDetail } from '../features/my-cases';
+import { CaseDetailPageSkeleton } from '../features/my-cases-details/skeletons';
 import { casesService, chatService } from '../services/api';
 import { createLogger } from '../utils/logger';
 
@@ -141,7 +142,11 @@ function CaseDetailPage() {
     }
   };
 
-  if (!caseData) return null;
+  if (isLoading || !caseData) return (
+    <div className="flex-1 flex flex-col rounded-3xl shadow-md transition-all duration-300 overflow-y-auto scrollbar-hide">
+      <CaseDetailPageSkeleton />
+    </div>
+  );
 
   return (
     <div

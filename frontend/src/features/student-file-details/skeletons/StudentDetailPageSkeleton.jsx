@@ -5,21 +5,16 @@ import TabContentSkeleton from './TabContentSkeleton';
 
 function StudentDetailPageSkeleton() {
     return (
-        <div className="space-y-4 animate-pulse">
-            {/* Breadcrumb Skeleton */}
-            <div className="flex items-center gap-2">
-                <div className="h-4 w-24 bg-gray-200 rounded"></div>
-                <div className="h-4 w-4 bg-gray-100 rounded"></div>
-                <div className="h-4 w-32 bg-gray-200 rounded"></div>
-            </div>
-
+        <div className="space-y-4">
             {/* PersonalInfoCard Skeleton */}
             <PersonalInfoCardSkeleton />
 
             {/* Tabs Container Skeleton */}
-            <div className="bg-white rounded-xl border-2 border-gray-300 shadow-md overflow-hidden">
+            <div className="flex flex-col rounded-3xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.4)] border border-[#1A71B8]/30 bg-[#0A3866]/30 backdrop-blur-3xl overflow-hidden">
                 <StudentTabsSkeleton />
-                <TabContentSkeleton />
+                <div className="bg-white/5 rounded-b-3xl">
+                    <TabContentSkeleton />
+                </div>
             </div>
         </div>
     );

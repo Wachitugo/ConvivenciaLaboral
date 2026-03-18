@@ -15,10 +15,10 @@ import EmptyChartState from './EmptyChartState';
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-white px-3 py-2 border border-gray-200 rounded text-xs shadow-md">
-                <p className="font-bold text-gray-900 mb-1">{`Día ${label}`}</p>
+            <div className="bg-[#0A3866]/90 px-3 py-2 border border-[#1A71B8]/30 rounded-xl text-xs shadow-xl backdrop-blur-md">
+                <p className="font-bold text-white mb-1">{`Día ${label}`}</p>
                 {payload.map((entry, index) => (
-                    <p key={index} className="text-gray-700" style={{ color: entry.color }}>
+                    <p key={index} className="text-white/80" style={{ color: entry.color }}>
                         {`${entry.name}: ${entry.value}`}
                     </p>
                 ))}
@@ -54,7 +54,7 @@ export default function DailyActivityChart({ data, selectedMonth, selectedYear }
 
     if (!data || data.length === 0) {
         return (
-            <div className="bg-white p-4 rounded-lg border border-stone-200 shadow-sm h-full flex flex-col items-center justify-center">
+            <div className="bg-[#0A3866]/40 p-4 rounded-xl border border-[#1A71B8]/30 shadow-sm h-full flex flex-col items-center justify-center backdrop-blur-md">
                 <EmptyChartState
                     title="Actividad Diaria"
                     message="No hay actividad registrada."
@@ -82,30 +82,24 @@ export default function DailyActivityChart({ data, selectedMonth, selectedYear }
     const viewModeLabel = isRollingWindow ? 'Últimos 30 días' : 'Todo el mes';
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 h-full flex flex-col transition-all hover:shadow-md">
-            <div className="flex flex-row justify-between items-center mb-6">
+        <div className="bg-[#0A3866]/40 backdrop-blur-xl border border-[#1A71B8]/30 p-6 rounded-3xl h-full flex flex-col transition-all duration-500 hover:shadow-[0_0_40px_rgba(52,182,216,0.2)] hover:bg-[#0A3866]/60 hover:border-[#34B6D8]/60 group relative overflow-hidden">
+            <div className="absolute -top-32 -right-32 w-64 h-64 bg-fuchsia-500/10 rounded-full blur-[80px] pointer-events-none group-hover:bg-fuchsia-500/20 transition-all duration-700"></div>
+            
+            <div className="flex flex-row justify-between items-center mb-8 relative z-10">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-50 rounded-lg">
-                        <Activity className="w-5 h-5 text-indigo-600" />
+                    <div className="p-2 bg-indigo-500/20 rounded-xl backdrop-blur-sm">
+                        <Activity className="w-5 h-5 text-indigo-400" />
                     </div>
                     <div>
-                        <h4 className="text-base font-bold text-gray-800 leading-tight">
+                        <h4 className="text-base font-bold text-white leading-tight">
                             Actividad Diaria
                         </h4>
-                        <span className="text-xs text-gray-500 font-medium">
+                        <span className="text-xs text-white/60 font-medium">
                             Consultas vs Casos
                         </span>
                     </div>
 
                 </div>
-                <select
-                    value={viewMode}
-                    onChange={(e) => setViewMode(e.target.value)}
-                    className="text-xs font-medium text-gray-600 bg-gray-50 border-gray-200 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 py-1.5 px-3 outline-none transition-colors"
-                >
-                    <option value="month">{viewModeLabel}</option>
-                    <option value="5days">Últimos 5 días</option>
-                </select>
             </div>
 
             <div className="flex-1 w-full min-h-0">
@@ -118,45 +112,56 @@ export default function DailyActivityChart({ data, selectedMonth, selectedYear }
                         <CartesianGrid
                             strokeDasharray="3 3"
                             vertical={false}
-                            stroke="#f1f5f9"
+                            stroke="rgba(255,255,255,0.05)"
                         />
                         <XAxis
                             dataKey="day"
-                            tick={{ fill: '#64748b', fontSize: 10, fontWeight: 500 }}
+                            tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: 500 }}
                             tickLine={false}
-                            axisLine={{ stroke: '#e2e8f0' }}
+                            axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
                             dy={10}
                             interval={0}
                             tickFormatter={(value) => value}
                         />
                         <YAxis
-                            tick={{ fill: '#64748b', fontSize: 11, fontWeight: 500 }}
+                            tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: 500 }}
                             allowDecimals={false}
                             tickLine={false}
-                            axisLine={{ stroke: '#e2e8f0' }}
+                            axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
                         />
                         <Tooltip
                             content={<CustomTooltip />}
-                            cursor={{ fill: '#f8fafc' }}
+                            cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                         />
                         <Legend
                             wrapperStyle={{ paddingTop: '20px', fontSize: '12px' }}
                             iconType="circle"
                             iconSize={8}
+                            formatter={(value) => <span className="text-white/70 font-medium">{value}</span>}
                         />
 
+                        <defs>
+                            <linearGradient id="colorConsultas" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#d946ef" stopOpacity={1}/>
+                                <stop offset="95%" stopColor="#c026d3" stopOpacity={0.8}/>
+                            </linearGradient>
+                            <linearGradient id="colorCasos" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#06b6d4" stopOpacity={1}/>
+                                <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0.8}/>
+                            </linearGradient>
+                        </defs>
                         <Bar
                             dataKey="consultations"
                             name="Consultas"
-                            fill="#6366f1" // Indigo 500
-                            radius={[4, 4, 4, 4]}
+                            fill="url(#colorConsultas)" 
+                            radius={[6, 6, 6, 6]}
                             maxBarSize={40}
                         />
                         <Bar
                             dataKey="cases"
                             name="Casos Creados"
-                            fill="#f43f5e" // Rose 500
-                            radius={[4, 4, 4, 4]}
+                            fill="url(#colorCasos)" 
+                            radius={[6, 6, 6, 6]}
                             maxBarSize={40}
                         />
                     </BarChart>

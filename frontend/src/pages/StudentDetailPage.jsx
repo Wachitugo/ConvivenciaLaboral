@@ -110,9 +110,9 @@ function StudentDetailPage() {
   const studentName = student ? `${student.nombres} ${student.apellidos}` : '';
 
   return (
-    <div className={`flex-1 flex flex-col rounded-lg shadow-sm shadow-cyan-600/20    transition-all duration-300 overflow-hidden`}>
+    <div className={`flex-1 flex flex-col    transition-all duration-300 overflow-hidden`}>
  
-      <div className="flex-1 overflow-y-auto custom-scrollbar  sm:pl-4">
+      <div className="flex-1 overflow-y-auto custom-scrollbar  ">
         <div className="mx-auto space-y-3 sm:space-y-4">
           {isLoading || !student ? (
             <StudentDetailPageSkeleton />
@@ -124,9 +124,9 @@ function StudentDetailPage() {
               <PersonalInfoCard student={student} onUpdateStudent={handleUpdateStudent} canEdit={true} />
 
               {/* Tabs Container - Estilo CaseDetailTabs */}
-              <div className="flex flex-col rounded-3xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.4)] border border-[#1A71B8]/30 bg-[#0A3866]/30 backdrop-blur-3xl overflow-hidden">
+              <div className="flex flex-col rounded-3xl border border-[#1A71B8]/30 bg-[#0A3866]/30 backdrop-blur-3xl overflow-hidden">
                 <StudentTabs activeTab={activeTab} setActiveTab={setActiveTab} canViewConvivencia={canEdit} />
-                <div className="bg-white/5 rounded-b-3xl relative z-10 backdrop-blur-md">
+                <div className="bg-white/5 rounded-b-3xl relative z-10 backdrop-blur-md min-h-[55vh]">
                   {renderTabContent()}
                 </div>
               </div>

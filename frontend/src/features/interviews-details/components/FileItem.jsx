@@ -60,11 +60,11 @@ function FileItem({
     return (
         <>
             <div className={`border rounded-lg p-2 flex items-center gap-3 transition-colors group ${isSelected
-                ? 'bg-blue-50 border-blue-300 ring-1 ring-blue-300'
-                : 'bg-white border-gray-200 hover:bg-gray-50'
+                ? 'bg-[#1A71B8]/20 border-[#1A71B8]/50 ring-1 ring-[#1A71B8]/30'
+                : 'bg-white/5 border-white/10 hover:bg-white/10'
                 }`}>
                 {/* File Icon */}
-                <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
                     <Icon size={16} className={className} />
                 </div>
 
@@ -80,19 +80,19 @@ function FileItem({
                                 value={editingName}
                                 onChange={(e) => onEditNameChange(e.target.value)}
                                 onKeyDown={handleKeyDown}
-                                className="flex-1 px-2 py-1 text-sm border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="flex-1 px-2 py-1 text-sm bg-white/10 text-white border border-[#1A71B8]/50 rounded focus:outline-none focus:ring-2 focus:ring-[#1A71B8]/50 placeholder-white/30"
                                 autoFocus
                             />
                             <button
                                 onClick={() => onSaveRename(doc.id)}
-                                className="p-1 rounded hover:bg-green-50 text-green-600 transition-colors"
+                                className="p-1 rounded hover:bg-green-500/20 text-green-400 transition-colors"
                                 title="Guardar"
                             >
                                 <Check size={16} />
                             </button>
                             <button
                                 onClick={onCancelRename}
-                                className="p-1 rounded hover:bg-gray-100 text-gray-600 transition-colors"
+                                className="p-1 rounded hover:bg-white/10 text-white/60 transition-colors"
                                 title="Cancelar"
                             >
                                 <X size={16} />
@@ -100,8 +100,8 @@ function FileItem({
                         </div>
                     ) : (
                         <>
-                            <p className="text-sm font-medium text-gray-800 truncate">{doc.name}</p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-sm font-medium text-white truncate">{doc.name}</p>
+                            <p className="text-xs text-white/50">
                                 {formatFileSize(doc.size)} • {formatDate(doc.uploadedAt)}
                             </p>
                         </>
@@ -116,7 +116,7 @@ function FileItem({
                             {isAudio && (
                                 <button
                                     onClick={handlePlay}
-                                    className={`p-2 rounded-lg hover:bg-gray-200 transition-colors ${isPlaying ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}
+                                    className={`p-2 rounded-lg hover:bg-white/10 transition-colors ${isPlaying ? 'text-blue-400 bg-blue-400/20' : 'text-white/80'}`}
                                     title={isPlaying ? "Pausar" : "Reproducir"}
                                 >
                                     {isPlaying ? <BoxStopIcon /> : <BoxPlayIcon />}
@@ -125,21 +125,21 @@ function FileItem({
 
                             <button
                                 onClick={() => onStartRename(doc)}
-                                className="p-2 rounded-lg hover:bg-amber-50 text-amber-600 transition-colors"
+                                className="p-2 rounded-lg hover:bg-amber-500/20 text-amber-400 transition-colors"
                                 title="Renombrar"
                             >
                                 <Edit2 size={16} />
                             </button>
                             <button
                                 onClick={() => onDownload(doc)}
-                                className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
+                                className="p-2 rounded-lg hover:bg-blue-400/20 text-blue-400 transition-colors"
                                 title="Descargar"
                             >
                                 <Download size={16} />
                             </button>
                             <button
                                 onClick={handleDeleteClick}
-                                className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
+                                className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors"
                                 title="Eliminar"
                             >
                                 <Trash2 size={16} />

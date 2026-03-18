@@ -46,7 +46,7 @@ function ChatHistoryDropdown({ caseData, documents = [] }) {
       {/* Botón de Historial */}
       <button
         onClick={() => setShowChatHistory(!showChatHistory)}
-        className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#1A71B8] to-[#34B6D8] hover:from-[#34B6D8] hover:to-[#1A71B8] rounded-lg transition-all shadow-[0_4px_16px_rgba(26,113,184,0.4)] hover:shadow-[0_6px_20px_rgba(52,182,216,0.6)]"
+        className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-bold text-white bg-[#1A71B8] hover:bg-[#1A71B8]/80 rounded-lg transition-all shadow-md border border-white/20"
         title="Ver historial de conversaciones"
       >
         <div className="relative flex items-center gap-2">

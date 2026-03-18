@@ -2,13 +2,13 @@ import { Image, FileType, FileText, File } from 'lucide-react';
 
 export const getFileIcon = (type) => {
     if (type.startsWith('image/')) {
-        return { Icon: Image, className: 'text-purple-600' };
+        return { Icon: Image, className: 'text-purple-400' };
     }
     if (type.includes('pdf')) {
-        return { Icon: FileType, className: 'text-red-600' };
+        return { Icon: FileType, className: 'text-red-400' };
     }
     if (type.includes('word')) {
-        return { Icon: FileText, className: 'text-blue-600' };
+        return { Icon: FileText, className: 'text-blue-400' };
     }
     if (type.startsWith('audio/')) {
         return {
@@ -19,10 +19,10 @@ export const getFileIcon = (type) => {
                     <circle cx="18" cy="16" r="3"></circle>
                 </svg>
             ),
-            className: 'text-green-600'
+            className: 'text-green-400'
         };
     }
-    return { Icon: File, className: 'text-gray-600' };
+    return { Icon: File, className: 'text-white/60' };
 };
 
 export const formatFileSize = (bytes) => {

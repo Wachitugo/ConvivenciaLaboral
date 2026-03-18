@@ -2,135 +2,62 @@ import React from 'react';
 
 function InterviewDetailSkeleton() {
     return (
-        <div style={{ fontFamily: "'Poppins', sans-serif" }} className="flex-1 flex flex-col rounded-lg shadow-md bg-white border border-gray-300 transition-all duration-300 overflow-hidden">
-            {/* Header Skeleton */}
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gray-200 rounded-lg relative overflow-hidden">
-                        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                    </div>
-                    <div className="h-6 w-48 bg-gray-200 rounded relative overflow-hidden">
-                        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                    </div>
-                </div>
-                <div className="flex gap-2">
-                    <div className="h-9 w-24 bg-gray-200 rounded-lg relative overflow-hidden">
-                        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                    </div>
-                    <div className="h-9 w-24 bg-gray-200 rounded-lg relative overflow-hidden">
-                        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                    </div>
-                </div>
-            </div>
+        <div style={{ fontFamily: "'Poppins', sans-serif" }} className="flex-1 flex flex-col shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all duration-300 overflow-auto animate-pulse">
+            <div className="flex flex-col gap-3 flex-1 min-h-0">
+                <div className="flex flex-col gap-4 flex-1 min-h-0">
 
-            {/* Content Skeleton */}
-            <div className="flex flex-col p-4 gap-3 flex-1 overflow-hidden">
-
-                {/* Breadcrumb & Asociar Caso Button Skeleton */}
-                <div className="w-full mb-1 mt-2 flex-shrink-0 flex items-center justify-between gap-4">
-                    <div className="h-4 w-48 bg-gray-200 rounded relative overflow-hidden">
-                        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                    </div>
-                    <div className="h-8 w-32 bg-gray-200 rounded-lg relative overflow-hidden">
-                        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                    </div>
-                </div>
-
-                {/* Layout Vertical: Info General arriba, Tabs abajo */}
-                <div className="flex flex-col gap-4 flex-1 overflow-hidden">
-
-                    {/* TOP: General Info Card Skeleton */}
-                    <div className="flex-shrink-0 p-5 rounded-xl border-2 border-gray-300 shadow-md">
-                        {/* Header con título */}
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="h-5 w-40 bg-gray-200 rounded relative overflow-hidden">
-                                <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
+                    {/* TOP: General Info Skeleton */}
+                    <div className="flex-shrink-0 bg-[#0A3866]/30 backdrop-blur-3xl rounded-3xl border border-[#1A71B8]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.4)]">
+                        {/* Header */}
+                        <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                                <div className="w-5 h-5 bg-white/10 rounded flex-shrink-0"></div>
+                                <div className="h-5 bg-white/10 rounded-lg w-40"></div>
                             </div>
-                            <div className="h-4 w-16 bg-gray-200 rounded relative overflow-hidden">
-                                <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
+                            <div className="flex items-center gap-2">
+                                <div className="h-7 w-24 bg-white/10 rounded-lg"></div>
+                                <div className="h-7 w-20 bg-white/10 rounded-lg"></div>
+                                <div className="h-7 w-16 bg-[#ef4444]/20 rounded-lg"></div>
                             </div>
                         </div>
 
-                        {/* Grid de 5 columnas */}
-                        <div className="grid grid-cols-5 gap-4">
-                            {/* Nombre */}
-                            <div className="col-span-2 sm:col-span-1">
-                                <div className="h-3 w-20 bg-gray-200 rounded mb-2 relative overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                                </div>
-                                <div className="h-4 w-32 bg-gray-200 rounded relative overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                                </div>
-                            </div>
-
-                            {/* Estado */}
-                            <div className="col-span-2 sm:col-span-1 justify-self-center">
-                                <div className="h-3 w-12 bg-gray-200 rounded mb-2 relative overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                                </div>
-                                <div className="h-6 w-24 bg-gray-200 rounded-full relative overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                                </div>
-                            </div>
-
-                            {/* Curso */}
-                            <div className="col-span-2 sm:col-span-1 justify-self-center">
-                                <div className="h-3 w-12 bg-gray-200 rounded mb-2 relative overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                                </div>
-                                <div className="h-4 w-20 bg-gray-200 rounded relative overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                                </div>
-                            </div>
-
-                            {/* Género */}
-                            <div className="col-span-2 sm:col-span-1 justify-self-center">
-                                <div className="h-3 w-12 bg-gray-200 rounded mb-2 relative overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                                </div>
-                                <div className="h-4 w-20 bg-gray-200 rounded relative overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                                </div>
-                            </div>
-
-                            {/* Fecha */}
-                            <div className="col-span-2 sm:col-span-1 justify-self-end">
-                                <div className="h-3 w-24 bg-gray-200 rounded mb-2 relative overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                                </div>
-                                <div className="h-4 w-20 bg-gray-200 rounded relative overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                                </div>
+                        {/* Grid de campos */}
+                        <div className="p-3 sm:p-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                                {[1, 2, 3, 4, 5].map((i) => (
+                                    <div key={i} className="bg-white/5 border border-white/10 p-3 rounded-2xl">
+                                        <div className="h-3 bg-white/10 rounded w-16 mb-2"></div>
+                                        <div className="h-4 bg-white/10 rounded-lg w-24"></div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
 
-                    {/* BOTTOM: Tabs & Content */}
-                    <div className="flex-1 flex flex-col overflow-hidden rounded-xl border-2 border-gray-300">
+                    {/* BOTTOM: Tabs Skeleton */}
+                    <div className="flex-1 min-h-0">
+                        <div className="flex flex-col rounded-3xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.4)] border border-[#1A71B8]/30 h-full bg-[#0A3866]/30 backdrop-blur-3xl">
 
-                        {/* Tabs Skeleton - Grid de 3 columnas */}
-                        <div className="grid grid-cols-3 gap-2 rounded-t-xl p-1 bg-gray-50 border-b border-gray-300 flex-shrink-0">
-                            {[1, 2, 3].map((item) => (
-                                <div key={item} className="h-9 bg-gray-200 rounded-xl relative overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                                </div>
-                            ))}
-                        </div>
+                            {/* Tabs header - 3 tabs */}
+                            <div className="flex border-b border-[#1A71B8]/30 bg-black/10 px-2 sm:px-4">
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} className="flex items-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3">
+                                        <div className="w-4 h-4 bg-white/10 rounded flex-shrink-0"></div>
+                                        <div className="h-3 bg-white/10 rounded w-16 sm:w-20"></div>
+                                    </div>
+                                ))}
+                            </div>
 
-                        {/* Tab Content Skeleton */}
-                        <div className="flex-1 bg-white rounded-b-xl p-6 overflow-hidden">
-                            <div className="space-y-3">
-                                <div className="h-4 w-3/4 bg-gray-200 rounded relative overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
+                            {/* Tab content */}
+                            <div className="flex-1 bg-white/5 rounded-b-3xl min-h-[500px] p-4 space-y-4">
+                                <div className="bg-white/5 border border-white/10 p-4 rounded-2xl space-y-3">
+                                    <div className="h-4 bg-white/10 rounded-lg w-1/3"></div>
+                                    <div className="h-4 bg-white/10 rounded-lg w-full"></div>
+                                    <div className="h-4 bg-white/10 rounded-lg w-5/6"></div>
+                                    <div className="h-4 bg-white/10 rounded-lg w-4/6"></div>
                                 </div>
-                                <div className="h-4 w-full bg-gray-200 rounded relative overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                                </div>
-                                <div className="h-4 w-5/6 bg-gray-200 rounded relative overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-                                </div>
-                                <div className="h-32 w-full bg-gray-200 rounded-lg mt-4 relative overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
+                                <div className="bg-white/5 border border-white/10 p-4 rounded-2xl">
+                                    <div className="h-28 bg-white/10 rounded-xl w-full"></div>
                                 </div>
                             </div>
                         </div>
