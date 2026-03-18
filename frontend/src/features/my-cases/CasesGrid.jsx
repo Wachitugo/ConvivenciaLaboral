@@ -33,7 +33,7 @@ function CasesGrid({ cases, onSelectCase, onEditCase, onShareCase }) {
 
   return (
     <div className="flex-1 overflow-y-auto custom-scrollbar">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 rounded-b-28px] overflow-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3  overflow-hidden">
         {cases.map((caseItem) => (
           <CaseCard
             key={caseItem.id}

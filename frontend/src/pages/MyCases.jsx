@@ -465,7 +465,7 @@ function MyCases() {
         <>
           {/* Contenedor principal */}
           <div
-            className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden `}
+            className={`flex-1 flex flex-col     bg-white/90 backdrop-blur-xl border-b border-slate-200  rounded-3xl transition-all duration-300 overflow-hidden `}
           >
       
             <CasesToolbar

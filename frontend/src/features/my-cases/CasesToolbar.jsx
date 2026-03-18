@@ -49,7 +49,7 @@ function CasesToolbar({
   ];
 
   return (
-    <div className=" bg-white/90 p-3 pb-3 backdrop-blur-xl border-t border-l border-r border-white/20 rounded-t-3xl relative z-[100]" style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" }}>
+    <div className="p-3 pb-3 border-t border-l border-r border-white/20 rounded-t-3xl relative z-[100]" style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" }}>
    
 
       <div className="relative flex flex-col gap-3 p">

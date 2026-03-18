@@ -72,7 +72,7 @@ function MainLayout() {
   };
 
   return (
-    <div className={`h-screen bg-gray-700 w-full overflow-hidden relative`}>
+    <div className={`h-screen bg-gray-900 w-full overflow-hidden relative`}>
 
       {/* Escena decorativa de escritorio — fondo de página */}
       <div className="absolute inset-0 pointer-events-none select-none overflow-hidden z-0">

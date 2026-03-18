@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation, useOutletContext } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { CaseDetail } from '../features/my-cases';
-import { CaseDetailPageSkeleton } from '../features/my-cases-details/skeletons';
 import { casesService, chatService } from '../services/api';
 import { createLogger } from '../utils/logger';
 
@@ -16,7 +15,7 @@ function CaseDetailPage() {
   const { isSidebarOpen, toggleSidebar } = useOutletContext();
 
   const [caseData, setCaseData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Helper para formatear y mapear datos del caso
   const formatCaseData = (data, protocolData = null) => {
@@ -142,20 +141,11 @@ function CaseDetailPage() {
     }
   };
 
-  // Mostrar skeleton mientras carga inicialmente
-  if (isLoading || !caseData) {
-    return (
-      <div
-        className={`flex-1 flex flex-col rounded-lg shadow-md bg-white border border-gray-300 transition-all duration-300 overflow-y-auto scrollbar-hide`}
-      >
-        <CaseDetailPageSkeleton />
-      </div>
-    );
-  }
+  if (!caseData) return null;
 
   return (
     <div
-      className={`flex-1 flex flex-col rounded-lg shadow-md bg-white border border-gray-300 transition-all duration-300 overflow-y-auto scrollbar-hide`}
+      className={`flex-1 flex flex-col rounded-3xl shadow-md transition-all duration-300 overflow-y-auto scrollbar-hide`}
     >
       <CaseDetail
         caseData={caseData}

@@ -73,7 +73,7 @@ function CaseCard({ student: caseItem, onSelect, onEdit, onShare }) {
           onClick={() => onSelect(caseItem)}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          className="bg-white/90 border-b border-r border-[#e2e8f0] p-4 hover:bg-[#f8fafc] hover:border-[#1A71B8]/20 transition-all duration-150 group flex flex-col relative cursor-pointer h-full"
+          className=" border border-[#e2e8f0] p-4 hover:bg-[#f8fafc] hover:border-[#1A71B8]/20 transition-all duration-150 group flex flex-col relative cursor-pointer h-full"
           style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
         >
           {/* Semáforo de plazos Protocolo */}
