@@ -1,4 +1,4 @@
-import { useState } from 'react'; // Import useState
+import { useState, useEffect, useRef } from 'react';
 import Breadcrumb from '../../components/Breadcrumb';
 import FilterDropdown from './FilterDropdown';
 
@@ -15,6 +15,16 @@ function CasesToolbar({
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [showNewCasePopover, setShowNewCasePopover] = useState(false);
   const [newCaseTitle, setNewCaseTitle] = useState('');
+  const wasSaving = useRef(false);
+
+  // Cerrar el popover automáticamente cuando termina la creación
+  useEffect(() => {
+    if (wasSaving.current && !isSaving) {
+      setShowNewCasePopover(false);
+      setNewCaseTitle('');
+    }
+    wasSaving.current = isSaving;
+  }, [isSaving]);
 
   const monthOptions = [
     { value: 'all', label: 'Mes' },
@@ -134,20 +144,30 @@ function CasesToolbar({
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && newCaseTitle.trim() && !isSaving) {
                         onQuickCreate(newCaseTitle.trim());
-                        setNewCaseTitle('');
-                        setShowNewCasePopover(false);
                       }
                     }}
                     className="w-full px-3 py-2 bg-gray-50 border-2 border-gray-200 text-sm rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 transition-all"
                     autoFocus
                   />
+                  {isSaving && (
+                    <p className="text-xs text-blue-600 flex items-center gap-1.5">
+                      <svg className="w-3 h-3 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                      </svg>
+                      Estamos creando tu caso, un momento...
+                    </p>
+                  )}
                   <div className="flex justify-end gap-2">
                     <button
                       onClick={() => {
-                        setShowNewCasePopover(false);
-                        setNewCaseTitle('');
+                        if (!isSaving) {
+                          setShowNewCasePopover(false);
+                          setNewCaseTitle('');
+                        }
                       }}
-                      className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                      disabled={isSaving}
+                      className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       Cancelar
                     </button>
@@ -155,14 +175,18 @@ function CasesToolbar({
                       onClick={() => {
                         if (newCaseTitle.trim() && !isSaving) {
                           onQuickCreate(newCaseTitle.trim());
-                          setNewCaseTitle('');
-                          setShowNewCasePopover(false);
                         }
                       }}
                       disabled={!newCaseTitle.trim() || isSaving}
-                      className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white text-sm rounded-lg font-medium transition-colors"
+                      className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-70 disabled:cursor-not-allowed text-white text-sm rounded-lg font-medium transition-all flex items-center gap-2"
                     >
-                      {isSaving ? 'Creando...' : 'Crear'}
+                      {isSaving && (
+                        <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        </svg>
+                      )}
+                      {isSaving ? 'Creando caso...' : 'Crear'}
                     </button>
                   </div>
                 </div>
