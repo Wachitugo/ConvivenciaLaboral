@@ -81,4 +81,4 @@ jobs:
             --project ${{ env.PROJECT_ID }} \
             --allow-unauthenticated \
             --port 80 \
-            --set-env-vars "VITE_API_URL=${{ secrets.VITE_API_URL }}"
+            --set-env-vars "VITE_API_URL=${{ secrets.VITE_API_URL }},BACKEND_URL=${{ secrets.BACKEND_URL }},BACKEND_HOST=${{ secrets.BACKEND_HOST }}"
