@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import CaseGeneralInfo from './components/CaseGeneralInfo';
 import CaseDetailTabs from './components/CaseDetailTabs';
-import { casesService } from '../../services/api';
+import { casesService, schoolsService } from '../../services/api';
 import { createLogger } from '../../utils/logger';
 
 const logger = createLogger('CaseDetail');
@@ -46,6 +46,23 @@ function CaseDetail({ caseData, onBack, onUpdateCase, isLoading = false }) {
       clearTimeout(infoTimer);
     };
   }, [caseData.id]);
+
+  // Obtener datos del colegio para exportación
+  const [schoolData, setSchoolData] = useState(null);
+
+  useEffect(() => {
+    const fetchSchoolData = async () => {
+      if (caseData?.colegio_id) {
+        try {
+          const school = await schoolsService.getById(caseData.colegio_id);
+          setSchoolData(school);
+        } catch (error) {
+          logger.error('❌ CaseDetail: Error fetching school data:', error);
+        }
+      }
+    };
+    fetchSchoolData();
+  }, [caseData?.colegio_id]);
 
   // Manejar eliminación de caso
   const handleDeleteCase = async (caseId) => {
@@ -147,6 +164,7 @@ function CaseDetail({ caseData, onBack, onUpdateCase, isLoading = false }) {
               onDeleteCase={handleDeleteCase}
               isDeleting={isDeleting}
               documents={allFiles}
+              schoolData={schoolData}
             />
 
             {/* Sistema de tabs - Ocupa el resto del espacio */}

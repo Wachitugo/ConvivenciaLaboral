@@ -4,13 +4,14 @@ import { formatDateToSpanish } from '../utils/dateFormatter';
 import { CASE_STATUS, STATUS_CONFIGS, DEFAULT_CASE_STATUS } from '../constants/caseStatus';
 import CaseGeneralInfoSkeleton from '../skeletons/CaseGeneralInfoSkeleton';
 import ChatHistoryDropdown from './ChatHistoryDropdown';
+import ExportButton from './ExportButton';
 import { ConfirmModal } from '../../../components/modals';
 import { casesService } from '../../../services/api';
 import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('CaseGeneralInfo');
 
-function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false, onDeleteCase, isDeleting = false, documents = [] }) {
+function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false, onDeleteCase, isDeleting = false, documents = [], schoolData = null }) {
   const navigate = useNavigate();
   const { schoolSlug } = useParams();
   const [isEditing, setIsEditing] = useState(false);
@@ -98,7 +99,7 @@ function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false, onDeleteCa
   }
 
   return (
-    <div className="flex flex-col bg-[#0A3866]/30 backdrop-blur-3xl border-b border-[#1A71B8]/30 overflow-hidden rounded-3xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.4)] relative" style={{ fontFamily: "'Poppins', sans-serif" }}>
+    <div className="flex flex-col bg-[#0A3866]/30 backdrop-blur-3xl border-b border-[#1A71B8]/30 rounded-3xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.4)] relative" style={{ fontFamily: "'Poppins', sans-serif" }}>
       {/* Header */}
       <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2 relative z-10">
         <div className="min-w-0 flex-1">
@@ -123,6 +124,7 @@ function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false, onDeleteCa
         {!isEditing ? (
           <div className="flex items-center gap-2 flex-shrink-0">
             <ChatHistoryDropdown caseData={caseData} documents={documents} />
+            <ExportButton caseData={caseData} schoolData={schoolData} documents={documents} />
             <button
               onClick={() => setIsDeleteModalOpen(true)}
               disabled={isDeleting}
