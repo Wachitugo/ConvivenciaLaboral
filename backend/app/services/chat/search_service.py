@@ -85,10 +85,6 @@ Responde SOLO con la query reformulada, sin explicaciones."""
 
     def create_search_tool(self):
         """Crea una herramienta de búsqueda usando directamente el cliente de Discovery Engine"""
-        
-        if not self.data_store_id or self.data_store_id == "tu-datastore-id":
-            logger.warning(f" Data Store ID no configurado")
-            return None
 
         def _search_sync(query: str):
             try:
@@ -344,12 +340,6 @@ Responde SOLO con la query reformulada, sin explicaciones."""
 
     def create_list_documents_tool(self):
         """Crea una herramienta para listar todos los documentos disponibles"""
-        
-        # Verificar si hay un data_store_id estático o de contexto disponible
-        # En Cloud Run no hay DATA_STORE_ID en env, pero sí en current_data_store_id (desde Firestore)
-        context_data_store = current_data_store_id.get()
-        if (not self.data_store_id or self.data_store_id == "tu-datastore-id") and not context_data_store:
-            return None
 
         def _list_documents_sync():
             def try_list_docs(location_to_try):
