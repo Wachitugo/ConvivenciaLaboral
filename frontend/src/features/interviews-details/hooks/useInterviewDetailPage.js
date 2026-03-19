@@ -236,7 +236,7 @@ export const useInterviewDetailPage = () => {
             const url = getSignatureUrl(updated, type);
             if (type === 'student') setStudentSignaturePreview(url);
             else setGuardianSignaturePreview(url);
-            showNotification(`Firma de ${type === 'student' ? 'estudiante' : 'apoderado'} guardada`);
+            showNotification(`Firma de ${type === 'student' ? 'colaborador' : 'apoderado'} guardada`);
         } catch (error) {
             console.error('Error uploading signature:', error);
             showNotification('Error al guardar la firma', 'error');
@@ -254,7 +254,7 @@ export const useInterviewDetailPage = () => {
                 setGuardianSignaturePreview(null);
                 setFormData(prev => ({ ...prev, guardianSignature: null }));
             }
-            showNotification(`Firma de ${type === 'student' ? 'estudiante' : 'apoderado'} eliminada`);
+            showNotification(`Firma de ${type === 'student' ? 'colaborador' : 'apoderado'} eliminada`);
         } catch (error) {
             console.error('Error deleting signature:', error);
             showNotification('Error al eliminar la firma', 'error');
