@@ -3,7 +3,7 @@ import { BarChart3, School, Users, FileText } from 'lucide-react';
 
 const TOKEN_TABS = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-    { id: 'schools', label: 'Colegios', icon: School },
+    { id: 'schools', label: 'Organizaciones', icon: School },
     { id: 'users', label: 'Usuarios', icon: Users },
     { id: 'logs', label: 'Historial', icon: FileText },
 ];

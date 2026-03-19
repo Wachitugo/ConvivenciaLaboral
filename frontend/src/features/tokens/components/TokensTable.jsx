@@ -172,7 +172,7 @@ const TokensTable = ({
                 <thead>
                     <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
                         <th className="pb-3 pl-4 pr-6">Nombre</th>
-                        {activeTab === 'users' && <th className="pb-3 px-4">Colegio</th>}
+                        {activeTab === 'users' && <th className="pb-3 px-4">Organización</th>}
                         <th className="pb-3 px-6 cursor-pointer hover:text-gray-700 text-right group" onClick={() => onSort('input_tokens')}>
                             <div className="flex items-center justify-end gap-1">
                                 Input

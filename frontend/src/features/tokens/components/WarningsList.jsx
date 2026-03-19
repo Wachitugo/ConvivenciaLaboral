@@ -81,7 +81,7 @@ const WarningsList = ({ schools, users }) => {
                             </h4>
                             <div className="flex items-center gap-2">
                                 <span className="flex-shrink-0 px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 uppercase tracking-wider border border-gray-200">
-                                    {w.type === 'Usuario' ? w.id.substring(0, 6) : 'Colegio'}
+                                    {w.type === 'Usuario' ? w.id.substring(0, 6) : 'Organización'}
                                 </span>
                                 <span className="text-xs text-gray-400">
                                     {w.limitType === 'Input' ? 'In' : 'Out'}

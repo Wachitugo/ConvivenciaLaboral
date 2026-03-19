@@ -201,14 +201,14 @@ export default function BulkUploadSection({ colegios, onRegistrarUsuario }) {
                     {activeSubTab === 'personal' && (
                         <div className="space-y-2">
                             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                                Colegio (opcional)
+                                Organización (opcional)
                             </label>
                             <select
                                 value={selectedColegio}
                                 onChange={(e) => setSelectedColegio(e.target.value)}
                                 className="block w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all duration-200 text-sm"
                             >
-                                <option value="">Sin asignar colegio</option>
+                                <option value="">Sin asignar organización</option>
                                 {colegios.map((c) => (
                                     <option key={c.id} value={c.id}>{c.nombre}</option>
                                 ))}

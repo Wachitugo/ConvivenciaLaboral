@@ -35,7 +35,7 @@ const TokensFilters = ({
                 onChange={(e) => setSelectedSchoolId(e.target.value)}
                 className="text-sm border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 max-w-xs"
             >
-                <option value="">Todos los Colegios</option>
+                <option value="">Todas las Organizaciones</option>
                 {schools.map(s => (
                     <option key={s.id} value={s.id}>{s.nombre}</option>
                 ))}

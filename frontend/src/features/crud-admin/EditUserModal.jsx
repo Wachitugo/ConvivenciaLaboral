@@ -190,7 +190,7 @@ export default function EditUserModal({
               colegios={colegios}
               selectedColegioId={selectedColegio}
               onSelect={setSelectedColegio}
-              label="Colegio"
+              label="Organización"
             />
           </div>
         </form>

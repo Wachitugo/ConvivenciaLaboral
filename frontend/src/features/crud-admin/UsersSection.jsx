@@ -92,8 +92,8 @@ export default function UsersSection({
                 onChange={(e) => setSelectedColegioFilter(e.target.value)}
                 className="block w-full pl-3 pr-10 py-2.5 border-none rounded-xl bg-gray-100 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:bg-white transition-all duration-200 text-sm font-medium appearance-none cursor-pointer"
               >
-                <option value="">Todos los colegios</option>
-                <option value="sin-colegio">Sin colegio asignado</option>
+                <option value="">Todas las organizaciones</option>
+                <option value="sin-colegio">Sin organización asignada</option>
                 {colegios.map((c) => (
                   <option key={c.id} value={c.id}>{c.nombre}</option>
                 ))}

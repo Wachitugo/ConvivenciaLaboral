@@ -98,7 +98,7 @@ export default function SchoolDocumentsModal({ isOpen, onClose, school }) {
                 {/* Header */}
                 <div className="px-5 py-4 md:px-8 md:py-6 border-b border-gray-100 flex items-center justify-between bg-white z-10">
                     <div>
-                        <h3 className="text-xl font-bold text-gray-900">Documentos del Colegio</h3>
+                        <h3 className="text-xl font-bold text-gray-900">Documentos de la Organización</h3>
                         <p className="text-sm text-gray-500 mt-1">Gestiona los archivos asociados a <span className="font-medium text-gray-900">{school?.nombre}</span></p>
                     </div>
                     <button
@@ -164,7 +164,7 @@ export default function SchoolDocumentsModal({ isOpen, onClose, school }) {
                             </div>
                         ) : documents.length === 0 ? (
                             <div className="text-center py-10 px-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                                <p className="text-gray-500 text-sm">No hay documentos cargados en este colegio.</p>
+                                <p className="text-gray-500 text-sm">No hay documentos cargados en esta organización.</p>
                             </div>
                         ) : (
                             <ul className="space-y-3">

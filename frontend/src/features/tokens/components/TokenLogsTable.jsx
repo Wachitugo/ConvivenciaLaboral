@@ -16,7 +16,7 @@ const TokenLogsTable = ({ logs, schools, loading = false }) => {
                         <tr>
                             <th className="px-6 py-3">Fecha</th>
                             <th className="px-6 py-3">Usuario</th>
-                            <th className="px-6 py-3">Colegio</th>
+                            <th className="px-6 py-3">Organización</th>
                             <th className="px-6 py-3">Modelo</th>
                             <th className="px-6 py-3 text-right">Input</th>
                             <th className="px-6 py-3 text-right">Output</th>
