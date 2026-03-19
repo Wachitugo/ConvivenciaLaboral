@@ -626,22 +626,6 @@ function ChatInterfaceGeneral({ onSendMessage, relatedCase, isThinking, isStream
                 <span>Voz</span>
               </button>
 
-              {/* Divisor */}
-              <div className="w-px h-4 bg-slate-200 mx-2" />
-
-              {/* Tags de sugerencia rápida */}
-              <div className="hidden sm:flex gap-2">
-                {['Conflicto laboral', 'Protocolo', 'Ley 21.643'].map(tag => (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => setInput(prev => prev ? `${prev} ${tag}` : tag)}
-                    className="px-3 py-1 bg-slate-50 hover:bg-[#1A71B8]/5 rounded-lg text-[10px] font-black uppercase tracking-wider text-[#64748b] hover:text-[#1A71B8] transition-all"
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* Botón enviar / stop */}
