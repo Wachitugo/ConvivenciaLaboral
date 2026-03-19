@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
  * Selector de fecha con 3 dropdowns (día, mes, año)
  * Ideal para fechas de nacimiento donde hay que navegar muchos años
  */
-export default function BirthDatePicker({ value, onChange, disabled = false, className = '' }) {
+export default function BirthDatePicker({ value, onChange, disabled = false, className = '', maxYear = null, minYear = null }) {
     const [day, setDay] = useState('');
     const [month, setMonth] = useState('');
     const [year, setYear] = useState('');
@@ -24,10 +24,12 @@ export default function BirthDatePicker({ value, onChange, disabled = false, cla
         }
     }, [value]);
 
-    // Generar opciones de años (desde hace 25 años hasta hace 4 años - rango típico estudiantes)
+    // Generar opciones de años según rango proporcionado o rango por defecto
     const currentYear = new Date().getFullYear();
+    const yearMax = maxYear !== null ? maxYear : currentYear - 4;
+    const yearMin = minYear !== null ? minYear : currentYear - 25;
     const years = [];
-    for (let y = currentYear - 4; y >= currentYear - 25; y--) {
+    for (let y = yearMax; y >= yearMin; y--) {
         years.push(y);
     }
 

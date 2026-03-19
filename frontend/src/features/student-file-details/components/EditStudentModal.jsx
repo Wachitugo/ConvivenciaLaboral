@@ -202,6 +202,8 @@ function EditStudentModal({ isOpen, onClose, onSave, student }) {
                                 <BirthDatePicker
                                     value={formData.fecha_ingreso}
                                     onChange={(date) => setFormData({ ...formData, fecha_ingreso: date })}
+                                    maxYear={new Date().getFullYear()}
+                                    minYear={new Date().getFullYear() - 50}
                                 />
                             </div>
 

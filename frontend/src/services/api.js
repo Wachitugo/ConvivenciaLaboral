@@ -1393,6 +1393,16 @@ export const interviewsService = {
 };
 
 export const studentsService = {
+  createStudent: async (studentData) => {
+    try {
+      const response = await axios.post(`${API_URL}/students/batch`, [studentData]);
+      return response.data;
+    } catch (error) {
+      logger.error('Error creating student:', error);
+      throw error;
+    }
+  },
+
   uploadStudents: async (students) => {
     try {
       const response = await axios.post(`${API_URL}/students/batch`, students);
