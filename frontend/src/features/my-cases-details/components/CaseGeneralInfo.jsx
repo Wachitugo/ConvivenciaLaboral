@@ -122,7 +122,7 @@ function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false, onDeleteCa
           </p>
         </div>
         {!isEditing ? (
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0" data-tour="case-actions">
             <ChatHistoryDropdown caseData={caseData} documents={documents} />
             <ExportButton caseData={caseData} schoolData={schoolData} documents={documents} />
             <button
@@ -215,7 +215,7 @@ function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false, onDeleteCa
           </div>
         ) : (
           // Modo visualización
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" data-tour="general-info">
             {/* Nombre del Caso - ocupa 2 columnas */}
             <div className="col-span-1 sm:col-span-2 bg-white/5 border border-white/10 p-3.5 sm:p-4 rounded-2xl backdrop-blur-md">
               <p className="text-[10px] font-bold text-white/50 tracking-widest uppercase mb-1.5 flex items-center gap-1.5">

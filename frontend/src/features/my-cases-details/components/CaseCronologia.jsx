@@ -341,7 +341,7 @@ function CaseCronologia({ caseId, isLoading = false }) {
   return (
     <div className="flex flex-col h-full overflow-hidden text-white" style={{ fontFamily: "'Poppins', sans-serif" }}>
       {/* Header */}
-      <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2">
+      <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2" data-tour="cronologia-header">
         <div className="min-w-0 flex-1">
           <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
             <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#34B6D8] drop-shadow-[0_0_8px_rgba(52,182,216,0.6)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -384,7 +384,7 @@ function CaseCronologia({ caseId, isLoading = false }) {
           </div>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-4 min-h-0">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-4 min-h-0" data-tour="cronologia-events-list">
           <div className="relative">
             {/* Línea vertical del timeline */}
             <div className="absolute left-[18px] top-3 bottom-3 w-0.5 bg-white/10"></div>

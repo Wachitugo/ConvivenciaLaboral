@@ -33,15 +33,17 @@ function CasesGrid({ cases, onSelectCase, onEditCase, onShareCase }) {
 
   return (
     <div className="flex-1 overflow-y-auto px-4 pb-4 custom-scrollbar">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-        {cases.map((caseItem) => (
-          <CaseCard
-            key={caseItem.id}
-            student={caseItem} // El prop se llama 'student' pero le pasamos un 'caseItem'
-            onSelect={onSelectCase}
-            onEdit={onEditCase}
-            onShare={onShareCase}
-          />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4" data-tour="cases-grid">
+        {cases.map((caseItem, index) => (
+          <div key={caseItem.id} data-tour={index === 0 ? 'case-card-first' : undefined}>
+            <CaseCard
+              student={caseItem}
+              onSelect={onSelectCase}
+              onEdit={onEditCase}
+              onShare={onShareCase}
+              isFirstCard={index === 0}
+            />
+          </div>
         ))}
       </div>
     </div>

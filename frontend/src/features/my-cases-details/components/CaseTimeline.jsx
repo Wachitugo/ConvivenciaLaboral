@@ -201,7 +201,7 @@ function CaseTimeline({ caseData, onUpdateCase, isLoading = false }) {
   return (
     <div style={{ fontFamily: "'Poppins', sans-serif" }} className="flex flex-col h-full overflow-hidden text-white">
       {/* Header del protocolo */}
-      <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2">
+      <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2" data-tour="protocolo-header">
         <div className="min-w-0 flex-1">
           <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
             <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#34B6D8] drop-shadow-[0_0_8px_rgba(52,182,216,0.6)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,6 +221,7 @@ function CaseTimeline({ caseData, onUpdateCase, isLoading = false }) {
           onClick={handleGenerateProtocol}
           disabled={isGenerating}
           title="Regenerar protocolo"
+          data-tour="protocolo-regenerar-btn"
           className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all flex-shrink-0 ${
             isGenerating
               ? 'border-white/10 text-white/30 cursor-not-allowed'
@@ -280,7 +281,7 @@ function CaseTimeline({ caseData, onUpdateCase, isLoading = false }) {
         )}
 
         {protocoloAsignado && pasosProtocolo.length > 0 && (
-          <div className="relative space-y-6 bg-white/5 pl-3 pr-3 pb-3 rounded-2xl border border-white/10 backdrop-blur-sm pt-4">
+          <div className="relative space-y-6 bg-white/5 pl-3 pr-3 pb-3 rounded-2xl border border-white/10 backdrop-blur-sm pt-4" data-tour="protocolo-steps">
             {/* Línea vertical continua */}
             <div className="absolute left-[27px] top-9 bottom-3 w-0.5 bg-white/10"></div>
             {pasosProtocolo.map((paso, index) => (

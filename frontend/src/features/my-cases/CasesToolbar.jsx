@@ -66,7 +66,7 @@ function CasesToolbar({
         <div className="flex items-center justify-between gap-4">
           {/* Fila Principal: Search + Filtros Principales + Botón Más Filtros + Acciones */}
           <div className="flex items-center gap-2 flex-1 flex-wrap">
-            <div className="relative max-w-xs min-w-[200px]">
+            <div className="relative max-w-xs min-w-[200px]" data-tour="search-input">
               <input
                 type="text"
                 placeholder="Buscar casos..."
@@ -78,13 +78,16 @@ function CasesToolbar({
             </div>
 
             {/* Filtros Principales (Siempre visibles) */}
-            <FilterDropdown name="sortBy" value={filters.sortBy} onChange={onFilterChange} options={sortOptions} />
-            <FilterDropdown name="status" value={filters.status} onChange={onFilterChange} options={statusOptions} />
-            <FilterDropdown name="sharedStatus" value={filters.sharedStatus} onChange={onFilterChange} options={sharedOptions} />
+            <div className="flex items-center gap-2" data-tour="filters-group">
+              <FilterDropdown name="sortBy" value={filters.sortBy} onChange={onFilterChange} options={sortOptions} />
+              <FilterDropdown name="status" value={filters.status} onChange={onFilterChange} options={statusOptions} />
+              <FilterDropdown name="sharedStatus" value={filters.sharedStatus} onChange={onFilterChange} options={sharedOptions} />
+            </div>
 
             <div className="relative">
               <button
                 onClick={() => setShowMoreFilters(!showMoreFilters)}
+                data-tour="more-filters-btn"
                 className={`px-4 py-2 border rounded-full text-sm font-medium flex items-center gap-2 transition-all shadow-sm ${showMoreFilters || filters.year !== 'all' || filters.month !== 'all'
                   ? 'bg-white/20 text-white border-white/40 backdrop-blur-md'
                   : 'bg-white/5 text-white/80 border-white/10 hover:bg-white/10 hover:text-white backdrop-blur-md'
@@ -116,6 +119,7 @@ function CasesToolbar({
             {/* Nuevo Caso - El botón base */}
             <button
               onClick={() => setShowNewCasePopover(!showNewCasePopover)}
+              data-tour="new-case-btn"
               className={` px-6 py-2.5 shadow-md rounded-full font-bold text-sm flex items-center gap-2 transition-all active:scale-[0.98] whitespace-nowrap z-50 ${showNewCasePopover
                 ? 'bg-white text-[#0A3866] text-lg shadow-[0_0_30px_rgba(255,255,255,0.3)] ring-4 ring-white/20'
                 : 'bg-[#1A71B8] hover:bg-[#1A71B8]/80 text-white shadow-[#1A71B8]/40 border border-white/20'

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation, useOutletContext } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { CaseDetail } from '../features/my-cases';
+import CaseDetailTour from '../features/my-cases-details/CaseDetailTour';
 import { CaseDetailPageSkeleton } from '../features/my-cases-details/skeletons';
 import { casesService, chatService } from '../services/api';
 import { createLogger } from '../utils/logger';
@@ -158,6 +159,7 @@ function CaseDetailPage() {
         onUpdateCase={handleUpdateCase}
         isLoading={isLoading}
       />
+      <CaseDetailTour />
     </div>
   );
 }

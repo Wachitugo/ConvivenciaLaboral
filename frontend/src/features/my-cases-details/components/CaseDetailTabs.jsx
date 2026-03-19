@@ -106,10 +106,11 @@ function CaseDetailTabs({ caseData, onUpdateCase, onReloadDocuments, isLoading =
       {isLoadingHeader ? (
         <CaseDetailTabsHeaderSkeleton />
       ) : (
-        <div className="flex border-b border-[#1A71B8]/30 bg-black/10 px-2 sm:px-4 overflow-x-auto scrollbar-hide relative z-10">
+        <div className="flex border-b border-[#1A71B8]/30 bg-black/10 px-2 sm:px-4 overflow-x-auto scrollbar-hide relative z-10" data-tour="tabs-header">
           {tabs.map((tab) => (
             <button
               key={tab.id}
+              data-tour={`tab-${tab.id}`}
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all relative whitespace-nowrap ${activeTab === tab.id
                 ? 'text-white border-b-2 border-[#34B6D8] -mb-px bg-white/5 drop-shadow-[0_0_8px_rgba(52,182,216,0.6)]'
@@ -132,7 +133,7 @@ function CaseDetailTabs({ caseData, onUpdateCase, onReloadDocuments, isLoading =
       )}
 
       {/* Tab Content */}
-      <div className="flex-1 bg-white/5 rounded-b-3xl min-h-[500px] overflow-y-auto relative z-10 backdrop-blur-md">
+      <div className="flex-1 bg-white/5 rounded-b-3xl min-h-[500px] overflow-y-auto relative z-10 backdrop-blur-md" data-tour={`content-${activeTab}`}>
         {activeTab === 'resumen' && (
           <CaseAISummary caseData={caseData} isLoading={isLoadingSummary} onUpdateCase={onUpdateCase} />
         )}
