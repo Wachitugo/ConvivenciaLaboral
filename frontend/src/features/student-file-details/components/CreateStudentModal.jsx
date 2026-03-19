@@ -260,7 +260,7 @@ function CreateStudentModal({ isOpen, onClose, onSave, isSaving = false }) {
                                         value={formData.fecha_nacimiento}
                                         onChange={(date) => field('fecha_nacimiento', date)}
                                         maxYear={new Date().getFullYear() - 18}
-                                        minYear={new Date().getFullYear() - 80}
+                                        minYear={1950}
                                     />
                                 </div>
                             </div>
