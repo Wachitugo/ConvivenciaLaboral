@@ -186,7 +186,7 @@ Indica claramente en "source_document" que la fuente es "Ley Karin 21.643 - Cód
 Plazos legales obligatorios que DEBES asignar correctamente a cada paso según su función:
 - Recepción / acuse de recibo de la denuncia → "24 horas hábiles"
 - Adopción de medidas de protección para la víctima → "48 horas hábiles"
-- Notificación a la Inspección del Trabajo (solo acoso sexual) → "3 días hábiles"
+- Notificación a la Inspección del Trabajo (en caso de acoso sexual, solo si aplica) → "3 días hábiles" — este paso es CONDICIONAL: inclúyelo SOLO si el caso es de acoso sexual; en su descripción indica que aplica únicamente cuando corresponda
 - Investigación de los hechos → "30 días corridos"
 - Elaboración del informe final → "Al término de la investigación"
 - Comunicación de resultados y sanciones → "3 días hábiles"
@@ -230,6 +230,7 @@ REGLAS:
 - Incluye todos los pasos que indica el documento para este tipo de caso
 - Siempre incluye el plazo en estimated_time cuando la ley o documento lo especifique
 - No inventes pasos, títulos ni plazos que no estén en el documento o en la ley
+- El paso de "Notificación a la Inspección del Trabajo" es CONDICIONAL: solo aplica en casos de acoso sexual. Si lo incluyes, su título debe indicar "(En caso de acoso sexual)" y su descripción debe aclarar que aplica únicamente cuando el caso lo requiera
 - En "deadline_from" indica desde cuándo se cuenta el plazo de ese paso:
   * "case_creation" → el plazo corre desde la recepción de la denuncia (ej: medidas de protección, investigación)
   * "previous_step" → el plazo corre desde que termina el paso anterior (ej: comunicación de resultados después del informe)
