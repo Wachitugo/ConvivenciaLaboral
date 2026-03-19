@@ -71,7 +71,7 @@ function CaseAISummary({ caseData, isLoading = false, onUpdateCase }) {
     <div style={{ fontFamily: "'Poppins', sans-serif" }} className="h-full flex flex-col">
       <div className="h-full flex flex-col text-white">
         {/* Header con estilo de PersonalInfoCard */}
-        <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2">
+        <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2" data-tour="resumen-header">
           <div className="min-w-0 flex-1">
             <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-3">
               <FileText size={20} className="text-[#34B6D8] drop-shadow-[0_0_8px_rgba(52,182,216,0.6)] flex-shrink-0" />
@@ -85,6 +85,7 @@ function CaseAISummary({ caseData, isLoading = false, onUpdateCase }) {
           <button
             onClick={handleGenerateSummary}
             disabled={isGenerating}
+            data-tour="resumen-generate-btn"
             className="inline-flex items-center gap-1 sm:gap-1.5 px-4 py-2 text-sm font-bold text-white bg-gradient-to-r from-[#1A71B8] to-[#34B6D8] hover:from-[#34B6D8] hover:to-[#1A71B8] rounded-lg transition-all shadow-[0_4px_16px_rgba(26,113,184,0.4)] disabled:opacity-50 flex-shrink-0"
           >
             {isGenerating ? (
@@ -104,7 +105,7 @@ function CaseAISummary({ caseData, isLoading = false, onUpdateCase }) {
 
         <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4 custom-scrollbar">
           {/* Descripción del caso */}
-          <div className="bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md">
+          <div className="bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md" data-tour="resumen-description">
             <h3 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-4 flex items-center gap-2">
               <FileText size={18} className="text-[#34B6D8]" />
               Descripción

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import ShareCaseModal from './ShareCaseModal';
 import GlowEffect from '../../components/GlowEffect';
 
-function CaseCard({ student: caseItem, onSelect }) {
+function CaseCard({ student: caseItem, onSelect, isFirstCard = false }) {
   const [isHoveringShared, setIsHoveringShared] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -82,6 +82,7 @@ function CaseCard({ student: caseItem, onSelect }) {
               className="flex max-w-full items-center justify-between gap-2 rounded-full mb-1 transition-all duration-200"
               style={{ color: deadlineColor }}
               title={caseItem.deadlineText || "Estado de plazos del protocolo"}
+              {...(isFirstCard ? { 'data-tour': 'case-card-deadline' } : {})}
             >
               <div className="flex items-center gap-1.5">
                 {caseItem.deadlineStatus === 'red' && caseItem.deadlineText?.includes('Venció') && (
@@ -134,6 +135,7 @@ function CaseCard({ student: caseItem, onSelect }) {
                 }}
                 className="p-1.5 rounded-lg text-[#64748b] hover:text-[#1A71B8] hover:bg-[#f0f4f8] transition-colors"
                 title="Compartir caso"
+                {...(isFirstCard ? { 'data-tour': 'case-card-share-btn' } : {})}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -214,6 +216,7 @@ function CaseCard({ student: caseItem, onSelect }) {
               <div
                 className={`flex items-center gap-1 px-2 py-0.5 border rounded-xl shadow-sm ${statusConfig.borderColor} ${statusConfig.bgColor}`}
                 title={`Estado: ${statusConfig.label}`}
+                {...(isFirstCard ? { 'data-tour': 'case-card-status' } : {})}
               >
                 <div className={`w-1.5 h-1.5 rounded-full ${statusConfig.dotColor}`} />
                 <span className={`text-[10px] font-semibold ${statusConfig.textColor}`}>

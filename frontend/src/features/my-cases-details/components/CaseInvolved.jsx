@@ -74,7 +74,7 @@ function CaseInvolved({ caseData, onUpdateCase, isLoading = false }) {
     <div style={{ fontFamily: "'Poppins', sans-serif" }} className="h-full flex flex-col text-white">
       <div className="h-full flex flex-col">
         {/* Header con estilo consistente */}
-        <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2">
+        <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2" data-tour="involucrados-header">
           <div className="min-w-0 flex-1">
             <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
               <Users size={18} className="text-[#34B6D8] drop-shadow-[0_0_8px_rgba(52,182,216,0.6)] flex-shrink-0 sm:w-5 sm:h-5" />
@@ -89,7 +89,7 @@ function CaseInvolved({ caseData, onUpdateCase, isLoading = false }) {
             </p>
           </div>
           {/* Container relativo para el botón y el popup */}
-          <div className="relative flex-shrink-0">
+          <div className="relative flex-shrink-0" data-tour="involucrados-add-btn">
             <button
               ref={buttonRef}
               onClick={toggleForm}
@@ -127,7 +127,7 @@ function CaseInvolved({ caseData, onUpdateCase, isLoading = false }) {
         </div>
 
         {/* Contenido - ya no muestra el formulario aquí */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-4 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 custom-scrollbar" data-tour="involucrados-content">
           {involved.length > 0 ? (
             <InvolvedTable
               involved={involved}

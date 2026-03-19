@@ -275,7 +275,7 @@ function CaseDocuments({ allFiles, isLoading = false, caseId, onRefresh }) {
   return (
     <div className="flex flex-col h-full overflow-hidden text-white" style={{ fontFamily: "'Poppins', sans-serif" }}>
       {/* Header de documentos */}
-      <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2">
+      <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2" data-tour="documentos-header">
         <div className="min-w-0 flex-1">
           <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
             <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#34B6D8] drop-shadow-[0_0_8px_rgba(52,182,216,0.6)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -291,7 +291,7 @@ function CaseDocuments({ allFiles, isLoading = false, caseId, onRefresh }) {
             <span className="sm:hidden">Archivos del caso</span>
           </p>
         </div>
-        <label className={`cursor-pointer inline-flex items-center gap-1 sm:gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#1A71B8] to-[#34B6D8] hover:from-[#34B6D8] hover:to-[#1A71B8] rounded-lg transition-all shadow-[0_4px_16px_rgba(26,113,184,0.4)] flex-shrink-0 ${isUploading ? 'opacity-50 cursor-wait' : ''}`}>
+        <label data-tour="documentos-upload-btn" className={`cursor-pointer inline-flex items-center gap-1 sm:gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#1A71B8] to-[#34B6D8] hover:from-[#34B6D8] hover:to-[#1A71B8] rounded-lg transition-all shadow-[0_4px_16px_rgba(26,113,184,0.4)] flex-shrink-0 ${isUploading ? 'opacity-50 cursor-wait' : ''}`}>
           <input
             type="file"
             multiple
@@ -327,7 +327,7 @@ function CaseDocuments({ allFiles, isLoading = false, caseId, onRefresh }) {
           </div>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-4 min-h-0">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-4 min-h-0" data-tour="documentos-list">
           <div className="space-y-3">
             {filteredFiles.map((file) => (
               <div

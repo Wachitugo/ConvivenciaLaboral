@@ -4,7 +4,7 @@ import StepCompletionForm from './StepCompletionForm';
 
 function ProtocolStep({ paso, index, isLastStep, onComplete, isEditing, onCancelEdit, onSubmitEdit, caseCreatedAt }) {
   return (
-    <div className="relative pl-9 group">
+    <div className="relative pl-9 group" data-tour={index <= 1 ? `protocolo-step-${index}` : undefined}>
       {/* Indicador de estado */}
       <div className={`absolute left-0 top-0 w-8 h-8 rounded-full border-2 border-[#0A3866] shadow-[0_0_8px_rgba(0,0,0,0.5)] transition-all flex items-center justify-center z-10 ${getEstadoColor(paso.estado)}`}>
         {paso.estado === 'completado' && (

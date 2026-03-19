@@ -14,6 +14,7 @@ import {
   MyCasesSkeleton
 } from "../features/my-cases";
 import ShareCaseModal from "../features/my-cases/ShareCaseModal";
+import MyCasesTour from "../features/my-cases/MyCasesTour";
 import { casesService, usersService } from "../services/api";
 import { calculateDeadlineDate, getDeadlineStatus } from "../utils/dateUtils";
 
@@ -522,6 +523,9 @@ function MyCases() {
             currentUserId={usuario?.id}
             onShareSuccess={handleShareSuccess}
           />
+
+          {/* Tour de ayuda flotante */}
+          <MyCasesTour />
         </>
       )}
     </>
