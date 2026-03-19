@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TokenLogsTable = ({ logs, schools }) => {
+const TokenLogsTable = ({ logs, schools, loading = false }) => {
     const getSchoolName = (log) => {
         return schools.find(s => log.school_ids?.includes(s.id))?.nombre || log.school_id || 'N/A';
     };
@@ -24,7 +24,16 @@ const TokenLogsTable = ({ logs, schools }) => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                        {logs.length > 0 ? (
+                        {loading ? (
+                            <tr>
+                                <td colSpan="7" className="px-6 py-10 text-center">
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="w-8 h-8 border-4 border-blue-100 border-t-blue-500 rounded-full animate-spin" />
+                                        <p className="text-sm text-gray-400 font-medium">Cargando registros...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        ) : logs.length > 0 ? (
                             logs.map((log, idx) => (
                                 <tr key={idx} className="hover:bg-gray-50">
                                     <td className="px-6 py-3 whitespace-nowrap text-gray-600">
