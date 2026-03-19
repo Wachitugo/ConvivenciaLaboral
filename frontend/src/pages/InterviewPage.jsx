@@ -3,7 +3,6 @@ import { useOutletContext } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { useInterview } from '../contexts/InterviewContext';
 import {
-    InterviewHeader,
     CreateInterviewModal,
     InterviewList,
     InterviewPageSkeleton
@@ -143,14 +142,7 @@ function InterviewPage() {
             {isLoading ? (
                 <InterviewPageSkeleton />
             ) : (
-                <div className={`flex-1 flex flex-col rounded-lg shadow-sm shadow-cyan-600/20 ${current.cardBg} border border-gray-300 transition-all duration-300 overflow-hidden`}>
-
-                    {/* Header personalizado tipo MyCases */}
-                    <InterviewHeader
-                        isSidebarOpen={isSidebarOpen}
-                        toggleSidebar={toggleSidebar}
-                        textPrimary={current.textPrimary}
-                    />
+                <div className="flex-1 flex flex-col bg-[#0A3866]/20 backdrop-blur-3xl border border-[#1A71B8]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.4)] rounded-[32px] overflow-hidden transition-all duration-300 relative">
 
                     {/* Toolbar */}
                     <InterviewToolbar
@@ -164,7 +156,7 @@ function InterviewPage() {
                     />
 
                     {/* Contenido Principal */}
-                    <div className="flex-1 px-6 pb-6 overflow-y-auto">
+                    <div className="flex-1 px-4 pb-6 overflow-y-auto">
                         <InterviewList
                             interviews={filteredInterviews}
                             onOpenModal={() => setIsModalOpen(true)}

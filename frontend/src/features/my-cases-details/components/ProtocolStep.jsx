@@ -62,44 +62,28 @@ function ProtocolStep({ paso, index, isLastStep, onComplete, isEditing, onCancel
             )}
 
             {/* Mostrar plazo calculado si existe estimated_time y el paso no está completado */}
-            {paso.estado !== 'completado' && paso.estimated_time && (
+            {paso.estado !== 'completado' && paso.estimated_time && !/ver documento/i.test(paso.estimated_time) && (
               <div className="flex items-center gap-2">
                 <span className="text-xs px-2.5 py-1 rounded-full border border-orange-500/40 bg-orange-500/10 text-orange-300 flex items-center gap-1.5 uppercase font-bold tracking-wider">
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   {(() => {
-                    // Función para calcular fecha límite considerando días hábiles
-                    const getHeadlineText = (durationStr) => {
-                      // Debugging logs
-                      // console.log('ProtocolStep Debug:', { id: paso.id, caseCreatedAt, durationStr });
+                    const durationStr = paso.estimated_time;
 
-                      // Si el backend ya calculó una fecha límite, usarla (preferible)
-                      // FIX: Usar caseCreatedAt como fecha base si está disponible, sino fallback a now()
-                      const baseDate = caseCreatedAt ? new Date(caseCreatedAt) : new Date();
-
-                      // Calculate fresh deadline
-                      const freshDeadline = calculateDeadlineDate(durationStr, baseDate);
-
-                      // If we have a fresh calculation relative to Case Creation, stick with it (fixes stale backend dates)
-                      if (caseCreatedAt && freshDeadline) {
-                        return `Vence: ${freshDeadline.toLocaleDateString('es-CL', { day: 'numeric', month: 'long' })} (${durationStr})`;
+                    // Prioridad 1: deadline calculado por el backend (incluye lógica post-investigación)
+                    if (paso.deadline) {
+                      const backendDate = new Date(paso.deadline);
+                      if (!isNaN(backendDate.getTime())) {
+                        return `Vence: ${backendDate.toLocaleDateString('es-CL', { day: 'numeric', month: 'long' })} (${durationStr})`;
                       }
+                    }
 
-                      // Fallback to backend deadline if available and we couldn't recalculate
-                      if (paso.deadline) {
-                        const backendDate = new Date(paso.deadline);
-                        if (!isNaN(backendDate.getTime())) {
-                          return `Vence: ${backendDate.toLocaleDateString('es-CL', { day: 'numeric', month: 'long' })} (${durationStr})`;
-                        }
-                      }
-
-                      // Final fallback
-                      if (!freshDeadline) return durationStr;
-                      return `Vence: ${freshDeadline.toLocaleDateString('es-CL', { day: 'numeric', month: 'long' })} (${durationStr})`;
-                    };
-
-                    return getHeadlineText(paso.estimated_time);
+                    // Prioridad 2: calcular desde creación del caso (fallback para protocolos sin deadline guardado)
+                    const baseDate = caseCreatedAt ? new Date(caseCreatedAt) : new Date();
+                    const freshDeadline = calculateDeadlineDate(durationStr, baseDate);
+                    if (!freshDeadline) return durationStr;
+                    return `Vence: ${freshDeadline.toLocaleDateString('es-CL', { day: 'numeric', month: 'long' })} (${durationStr})`;
                   })()}
                 </span>
               </div>

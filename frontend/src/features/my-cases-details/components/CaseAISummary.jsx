@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import CaseAISummarySkeleton from '../skeletons/CaseAISummarySkeleton';
 import { casesService } from '../../../services/api';
 import { createLogger } from '../../../utils/logger';
-import { RotateCcw, FileText, CheckCircle, Sparkles, AlertCircle } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import { RotateCcw, FileText } from 'lucide-react';
 
 const logger = createLogger('CaseAISummary');
 
@@ -20,51 +19,14 @@ function CaseAISummary({ caseData, isLoading = false, onUpdateCase }) {
       return;
     }
 
-    // 2. Fallback: Generar desde descripción SOLO si no hay datos (ni persistidos ni locales)
+    // 2. Fallback: usar descripción del caso si no hay ai_summary
     if (!summaryData && caseData.description) {
-      const initialPoints = caseData.description
-        .split('.')
-        .filter(p => p.trim().length > 0)
-        .slice(0, 4);
-
       setSummaryData({
-        mainPoints: initialPoints.length > 0 ? initialPoints : ["No hay descripción disponible"],
-        recommendations: [],
-        riskLevel: "Calculando...", // Placeholder
-        nextSteps: "Generar resumen para ver pasos siguientes"
+        description: caseData.description,
+        riskLevel: "Calculando..."
       });
     }
   }, [caseData]); // Dependemos principalmente de caseData
-
-  // Generar recomendaciones basadas en el tipo de caso (fallback)
-  const getRecommendations = (type) => {
-    const recs = {
-      'Bullying': [
-        "Activar protocolo de acoso escolar inmediatamente",
-        "Entrevistar a los involucrados por separado",
-        "Informar a los apoderados de ambas partes"
-      ],
-      'Conflicto': [
-        "Realizar mediación escolar si las partes están dispuestas",
-        "Establecer acuerdos de convivencia",
-        "Seguimiento a los 15 días"
-      ],
-      'Vulneración de derechos': [
-        "Notificar a dirección y encargada de convivencia",
-        "Evaluar denuncia a tribunales o fiscalía si corresponde",
-        "Resguardar la privacidad del estudiante"
-      ],
-      'default': [
-        "Recabar más antecedentes del caso",
-        "Entrevistar a los involucrados",
-        "Registrar todas las acciones en la plataforma"
-      ]
-    };
-
-    // Buscar coincidencia parcial
-    const key = Object.keys(recs).find(k => type?.includes(k)) || 'default';
-    return recs[key];
-  };
 
   const handleGenerateSummary = async () => {
     try {
@@ -103,13 +65,7 @@ function CaseAISummary({ caseData, isLoading = false, onUpdateCase }) {
     return <CaseAISummarySkeleton />;
   }
 
-  // Asegurar que summaryData existe para evitar errores de renderizado
-  const displaySummary = summaryData || {
-    mainPoints: [],
-    recommendations: [],
-    riskLevel: "Bajo",
-    nextSteps: ""
-  };
+  const displaySummary = summaryData || { description: '', riskLevel: 'Bajo' };
 
   return (
     <div style={{ fontFamily: "'Poppins', sans-serif" }} className="h-full flex flex-col">
@@ -147,28 +103,23 @@ function CaseAISummary({ caseData, isLoading = false, onUpdateCase }) {
         </div>
 
         <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4 custom-scrollbar">
-          {/* Puntos Clave */}
+          {/* Descripción del caso */}
           <div className="bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md">
             <h3 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-4 flex items-center gap-2">
               <FileText size={18} className="text-[#34B6D8]" />
-              Puntos Clave
+              Descripción
             </h3>
-            <ul className="space-y-4">
-              {displaySummary.mainPoints.map((point, index) => (
-                <li key={index} className="flex items-start gap-4">
-                  <div className="w-2 h-2 rounded-full bg-[#34B6D8] mt-[6px] flex-shrink-0 shadow-[0_0_8px_rgba(52,182,216,0.8)]"></div>
-                  {/* Usando ReactMarkdown para renderizar negritas correctamente */}
-                  <div className="prose prose-base prose-invert max-w-none text-white leading-relaxed">
-                    <ReactMarkdown components={{
-                      p: ({ node, ...props }) => <span {...props} />,
-                      strong: ({ node, ...props }) => <strong className="text-white font-bold" {...props} />
-                    }}>
-                      {point}
-                    </ReactMarkdown>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            {displaySummary.description ? (
+              <div className="space-y-3">
+                {displaySummary.description.split('\n\n').filter(p => p.trim()).map((paragraph, index) => (
+                  <p key={index} className="text-sm text-white/85 leading-relaxed text-justify">
+                    {paragraph.trim()}
+                  </p>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-white/40 italic">Sin descripción. Genera el resumen para analizar el caso.</p>
+            )}
           </div>
         </div>
       </div>

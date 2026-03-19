@@ -4,13 +4,13 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }) {
   const { current } = useTheme();
 
   return (
-    <div className={`px-6 py-4 border-b border-gray-200 flex-shrink-0`}>
+    <div className={`px-6 py-4 border-b border-[#1A71B8]/30 flex-shrink-0 backdrop-blur-md bg-[#0A3866]/40 rounded-t-[32px]`}>
       <div className="grid grid-cols-3 items-center">
         {/* Toggle a la izquierda */}
         <div className="flex justify-start">
           <button
             onClick={toggleSidebar}
-            className={`p-2 rounded-lg ${current.textSecondary} hover:${current.textPrimary} hover:bg-opacity-10 hover:bg-gray-500 transition-all`}
+            className={`p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all`}
             title={isSidebarOpen ? "Cerrar sidebar" : "Abrir sidebar"}
           >
             {isSidebarOpen ? (
@@ -29,7 +29,7 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }) {
         {/* Título centrado */}
         <div className="flex justify-center">
           <h1
-            className={`text-lg font-semibold ${current.textPrimary}`}
+            className={`text-lg font-semibold text-white`}
             style={{ fontFamily: "'Stack Sans Notch', sans-serif" }}
           >
             Resumen General
@@ -38,7 +38,7 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }) {
 
         {/* Fecha a la derecha */}
         <div className="flex justify-end">
-          <span className={`text-sm ${current.textSecondary}`}>
+          <span className={`text-sm text-white/60`}>
             {new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </span>
         </div>

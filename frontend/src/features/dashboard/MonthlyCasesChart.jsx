@@ -6,13 +6,13 @@ import EmptyChartState from './EmptyChartState';
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white px-3 py-2 border border-gray-200 rounded-lg shadow-sm text-xs">
-        <p className="font-semibold text-gray-900 mb-1">{label}</p>
+      <div className="bg-[#0A3866]/90 px-3 py-2 border border-[#1A71B8]/30 rounded-xl shadow-xl text-xs backdrop-blur-md">
+        <p className="font-semibold text-white mb-1">{label}</p>
         {payload.map((entry, index) => (
           <div key={index} className="flex items-center gap-2 mb-0.5 last:mb-0">
             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
-            <span className="text-gray-600 capitalize">{entry.name}:</span>
-            <span className="font-medium text-gray-900 tabular-nums">
+            <span className="text-white/60 capitalize">{entry.name}:</span>
+            <span className="font-medium text-white/90 tabular-nums">
               {entry.value} {entry.value === 1 ? 'caso' : 'casos'}
             </span>
           </div>
@@ -82,30 +82,25 @@ export default function MonthlyCasesChart({ data, rollingData, selectedYear }) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 h-full flex flex-col transition-all hover:shadow-md">
-      <div className="flex flex-row justify-between items-center mb-6">
+    <div className="bg-[#0A3866]/40 backdrop-blur-xl border border-[#1A71B8]/30 p-6 rounded-3xl h-full flex flex-col transition-all duration-500 hover:shadow-[0_0_40px_rgba(52,182,216,0.2)] hover:bg-[#0A3866]/60 hover:border-[#34B6D8]/60 group relative overflow-hidden">
+      {/* Background Decorator */}
+      <div className="absolute -top-32 -left-32 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none group-hover:bg-indigo-500/20 transition-all duration-700"></div>
+
+      <div className="flex flex-row justify-between items-center mb-8 relative z-10">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-indigo-50 rounded-lg">
-            <BarChart3 className="w-5 h-5 text-indigo-600" />
+          <div className="p-2 bg-indigo-500/20 rounded-xl backdrop-blur-sm">
+            <BarChart3 className="w-5 h-5 text-indigo-400" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-gray-800 leading-tight">
+            <h2 className="text-base font-bold text-white leading-tight">
               {isComparison ? 'Comparativa de Casos' : 'Evolución de Casos'}
             </h2>
-            <span className="text-xs text-gray-500 font-medium">
+            <span className="text-xs text-white/60 font-medium">
               {isComparison ? 'Año actual vs anterior' : 'Tendencia mensual'}
             </span>
           </div>
         </div>
 
-        <select
-          value={viewMode}
-          onChange={(e) => setViewMode(e.target.value)}
-          className="text-xs font-medium text-gray-600 bg-gray-50 border-gray-200 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 py-1.5 px-3 outline-none transition-colors"
-        >
-          <option value="6months">Últimos 6 meses</option>
-          <option value="12months">Todo el año</option>
-        </select>
       </div>
 
       {hasData ? (
@@ -118,14 +113,14 @@ export default function MonthlyCasesChart({ data, rollingData, selectedYear }) {
             >
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="#f1f5f9"
+                stroke="rgba(255,255,255,0.05)"
                 vertical={false}
               />
               <XAxis
                 dataKey="mes"
-                tick={{ fill: '#64748b', fontSize: 11, fontWeight: 500 }}
+                tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: 500 }}
                 tickLine={false}
-                axisLine={{ stroke: '#e2e8f0' }}
+                axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
                 dy={10}
                 tickFormatter={(value, index) => {
                   // Mostrar el año si es diferente al actual en la vista rolling
@@ -139,11 +134,11 @@ export default function MonthlyCasesChart({ data, rollingData, selectedYear }) {
                 }}
               />
               <YAxis
-                tick={{ fill: '#64748b', fontSize: 11, fontWeight: 500 }}
+                tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: 500 }}
                 tickLine={false}
-                axisLine={{ stroke: '#e2e8f0' }}
+                axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
               />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
 
               {isComparison && (
                 <Legend
@@ -160,15 +155,15 @@ export default function MonthlyCasesChart({ data, rollingData, selectedYear }) {
                   <Bar
                     dataKey="previous"
                     name={`${prevYear}`}
-                    fill="#cbd5e1"
-                    radius={[4, 4, 4, 4]}
+                    fill="url(#colorPrevious)"
+                    radius={[6, 6, 6, 6]}
                     maxBarSize={30}
                   />
                   <Bar
                     dataKey="current"
                     name={`${curYear}`}
-                    fill="#6366f1"
-                    radius={[4, 4, 4, 4]}
+                    fill="url(#colorCurrent)"
+                    radius={[6, 6, 6, 6]}
                     maxBarSize={30}
                   />
                 </>
@@ -176,13 +171,23 @@ export default function MonthlyCasesChart({ data, rollingData, selectedYear }) {
                 <Bar
                   dataKey="casos"
                   name="Casos"
-                  radius={[4, 4, 4, 4]}
+                  radius={[6, 6, 6, 6]}
                   maxBarSize={50}
                 >
+                  <defs>
+                    <linearGradient id="colorCurrent" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#06b6d4" stopOpacity={1}/>
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                    </linearGradient>
+                    <linearGradient id="colorPrevious" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#475569" stopOpacity={1}/>
+                      <stop offset="95%" stopColor="#1e293b" stopOpacity={0.8}/>
+                    </linearGradient>
+                  </defs>
                   {chartData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={(entry.year && entry.year !== currentYear) ? '#cbd5e1' : '#6366f1'}
+                      fill={(entry.year && entry.year !== currentYear) ? 'url(#colorPrevious)' : 'url(#colorCurrent)'}
                     />
                   ))}
                 </Bar>
@@ -198,18 +203,18 @@ export default function MonthlyCasesChart({ data, rollingData, selectedYear }) {
 
       {/* Resumen - Se adapta dinámicamente a la data mostrada */}
       {hasData && (
-        <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+        <div className="mt-4 pt-4 border-t border-[#1A71B8]/30 flex items-center justify-between text-xs text-white/60">
           {isComparison ? (
             <div className="flex gap-4 w-full justify-between px-1">
-              <span>{prevYear}: <strong className="text-gray-700 font-semibold">{chartData.reduce((sum, item) => sum + (item.previous || 0), 0)}</strong></span>
-              <span>{curYear}: <strong className="text-indigo-600 font-semibold">{chartData.reduce((sum, item) => sum + (item.current || 0), 0)}</strong></span>
+              <span>{prevYear}: <strong className="text-white/80 font-semibold">{chartData.reduce((sum, item) => sum + (item.previous || 0), 0)}</strong></span>
+              <span>{curYear}: <strong className="text-[#34B6D8] font-semibold">{chartData.reduce((sum, item) => sum + (item.current || 0), 0)}</strong></span>
             </div>
           ) : (
             <>
               <span className="font-medium">
                 {viewMode === '6months' ? 'Últimos 6 meses' : 'Total anual'}
               </span>
-              <span className="font-semibold text-indigo-600 tabular-nums px-1">
+              <span className="font-semibold text-[#34B6D8] tabular-nums px-1">
                 Total: {chartData.reduce((sum, item) => sum + (item.casos || 0), 0)} casos
               </span>
             </>

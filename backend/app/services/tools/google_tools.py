@@ -21,7 +21,7 @@ class GoogleTools:
             ]
         )
         # Delegación de dominio para enviar como el usuario especificado
-        self.creds = self.creds.with_subject('contacto@convivenciainteligente.cl')
+        self.creds = self.creds.with_subject('info@convivencialaboral.com')
 
     def _text_to_html(self, text: str) -> str:
         """
@@ -362,7 +362,7 @@ class GoogleTools:
         # Intentar envío
         try:
             credentials_to_use = self.creds # Default
-            sender_email = 'contacto@convivenciainteligente.cl'  # Email por defecto
+            sender_email = 'info@convivencialaboral.com'  # Email por defecto
             
             if should_delegate:
                 logger.info(f"🔄 Intentando enviar como: {delegate_email}")
@@ -407,7 +407,7 @@ class GoogleTools:
                 try:
                     # Retry with default creds
                     service = build('gmail', 'v1', credentials=self.creds)
-                    fallback_email = 'contacto@convivenciainteligente.cl'
+                    fallback_email = 'info@convivencialaboral.com'
                     
                     # Usar HTML también en fallback
                     html_body = self._text_to_html(body)

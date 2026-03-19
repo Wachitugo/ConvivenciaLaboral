@@ -14,12 +14,10 @@ function ShareCaseModal({ isOpen, onClose, caseData, currentUserId, onShareSucce
   const [isSaving, setIsSaving] = useState(false);
   const [userId, setUserId] = useState(null);
 
-  // Obtener userId desde prop o localStorage
   useEffect(() => {
     if (currentUserId) {
       setUserId(currentUserId);
     } else {
-      // Fallback: obtener desde localStorage
       try {
         const usuarioData = JSON.parse(localStorage.getItem('usuario'));
         if (usuarioData && usuarioData.id) {
@@ -31,7 +29,6 @@ function ShareCaseModal({ isOpen, onClose, caseData, currentUserId, onShareSucce
     }
   }, [currentUserId]);
 
-  // Cargar usuarios disponibles y permisos actuales
   useEffect(() => {
     if (isOpen && caseData && userId) {
       loadData();
@@ -41,11 +38,8 @@ function ShareCaseModal({ isOpen, onClose, caseData, currentUserId, onShareSucce
   const loadData = async () => {
     setIsLoading(true);
     try {
-      // Cargar usuarios disponibles para compartir
       const users = await casesService.getAvailableUsers(caseData.id, userId);
       setAvailableUsers(users);
-
-      // Cargar permisos actuales
       const permissions = await casesService.getCasePermissions(caseData.id, userId);
       setCurrentPermissions(permissions);
     } catch (error) {
@@ -73,28 +67,14 @@ function ShareCaseModal({ isOpen, onClose, caseData, currentUserId, onShareSucce
       alert('Selecciona al menos un usuario para compartir');
       return;
     }
-
     setIsSaving(true);
     try {
       const userIds = selectedUsers.map(u => u.id);
-      const result = await casesService.shareCase(
-        caseData.id,
-        userId,
-        userIds,
-        selectedPermission
-      );
-
-      // Recargar datos
+      const result = await casesService.shareCase(caseData.id, userId, userIds, selectedPermission);
       await loadData();
-
-      // Limpiar selección
       setSelectedUsers([]);
       setSearchTerm('');
-
-      // Notificar éxito
-      if (onShareSuccess) {
-        onShareSuccess(result);
-      }
+      if (onShareSuccess) onShareSuccess(result);
     } catch (error) {
       logger.error("Error compartiendo caso:", error);
       alert("Error al compartir el caso. Verifica que seas el propietario.");
@@ -105,10 +85,8 @@ function ShareCaseModal({ isOpen, onClose, caseData, currentUserId, onShareSucce
 
   const handleRemovePermission = async (targetUserId) => {
     if (!confirm('¿Deseas revocar el acceso a este usuario?')) return;
-
     try {
       await casesService.revokePermission(caseData.id, userId, targetUserId);
-      // Recargar datos
       await loadData();
     } catch (error) {
       logger.error("Error revocando permiso:", error);
@@ -118,11 +96,8 @@ function ShareCaseModal({ isOpen, onClose, caseData, currentUserId, onShareSucce
 
   const handleUpdatePermission = async (permissionId, targetUserId, newPermissionType) => {
     try {
-      // Primero revocar
       await casesService.revokePermission(caseData.id, userId, targetUserId);
-      // Luego otorgar nuevo permiso
       await casesService.shareCase(caseData.id, userId, [targetUserId], newPermissionType);
-      // Recargar datos
       await loadData();
     } catch (error) {
       logger.error("Error actualizando permiso:", error);
@@ -130,28 +105,32 @@ function ShareCaseModal({ isOpen, onClose, caseData, currentUserId, onShareSucce
     }
   };
 
-  // Filtrar usuarios disponibles por búsqueda
   const filteredUsers = availableUsers.filter(user =>
     user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.correo.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const getInitial = (nombre) => (nombre || 'U').charAt(0).toUpperCase();
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
+    <div
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+      onClick={onClose}
+    >
       <div
-        className="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden"
+        className="bg-[#0A3866]/90 backdrop-blur-3xl border border-[#1A71B8]/30 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
         style={{ fontFamily: "'Poppins', sans-serif" }}
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Compartir caso</h2>
-            <p className="text-sm text-gray-600 mt-1">{caseData?.title}</p>
+            <h2 className="text-lg font-bold text-white">Compartir caso</h2>
+            <p className="text-sm text-white/50 mt-0.5 truncate max-w-xs">{caseData?.title}</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-xl text-white/40 hover:text-white hover:bg-white/10 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -160,70 +139,74 @@ function ShareCaseModal({ isOpen, onClose, caseData, currentUserId, onShareSucce
         </div>
 
         {/* Body */}
-        <div className="px-6 py-4 overflow-y-auto max-h-[calc(90vh-180px)]">
+        <div className="px-6 py-4 overflow-y-auto flex-1 custom-scrollbar">
           {isLoading ? (
-            <div className="text-center py-8">
-              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-              <p className="mt-2 text-sm text-gray-600">Cargando...</p>
+            <div className="flex flex-col items-center justify-center py-12 gap-3">
+              <div className="w-8 h-8 border-2 border-[#1A71B8] border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm text-white/50">Cargando...</p>
             </div>
           ) : (
             <>
-              {/* Sección para agregar usuarios */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Buscar y agregar usuarios del colegio
-                </label>
+              {/* Agregar usuarios */}
+              <div className="mb-5">
+                <p className="text-xs font-bold text-white/50 uppercase tracking-widest mb-3">
+                  Buscar usuarios
+                </p>
 
-                {/* Barra de búsqueda */}
                 <div className="flex gap-2 mb-3">
-                  <div className="flex-1">
+                  <div className="flex-1 relative">
+                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
                     <input
                       type="text"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Buscar por nombre o correo..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      placeholder="Nombre o correo..."
+                      className="w-full pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#1A71B8]/50 focus:border-[#1A71B8]/50 transition-all"
                     />
                   </div>
                   <select
                     value={selectedPermission}
                     onChange={(e) => setSelectedPermission(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white"
+                    className="px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#1A71B8]/50 focus:border-[#1A71B8]/50 transition-all"
                   >
-                    <option value="view">Solo ver</option>
-                    <option value="edit">Ver y editar</option>
+                    <option value="view" className="bg-[#0A3866]">Solo ver</option>
+                    <option value="edit" className="bg-[#0A3866]">Ver y editar</option>
                   </select>
                 </div>
 
-                {/* Lista de usuarios disponibles */}
                 {filteredUsers.length > 0 ? (
-                  <div className="space-y-1 max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-2">
+                  <div className="space-y-1 max-h-48 overflow-y-auto custom-scrollbar rounded-2xl border border-white/10 bg-white/5 p-2">
                     {filteredUsers.map((user) => {
                       const isSelected = selectedUsers.some(u => u.id === user.id);
                       return (
                         <div
                           key={user.id}
                           onClick={() => handleToggleUser(user)}
-                          className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
+                          className={`flex items-center gap-3 p-2.5 rounded-xl cursor-pointer transition-colors ${
                             isSelected
-                              ? 'bg-blue-50 border border-blue-200'
-                              : 'hover:bg-gray-50 border border-transparent'
+                              ? 'bg-[#1A71B8]/20 border border-[#1A71B8]/40'
+                              : 'hover:bg-white/5 border border-transparent'
                           }`}
                         >
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => {}}
-                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                          />
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
-                            {user.nombre.charAt(0).toUpperCase()}
+                          <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                            isSelected ? 'bg-[#1A71B8] border-[#1A71B8]' : 'border-white/30'
+                          }`}>
+                            {isSelected && (
+                              <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
+                          </div>
+                          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#1A71B8] to-[#34B6D8] flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                            {getInitial(user.nombre)}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">{user.nombre}</p>
-                            <p className="text-xs text-gray-500 truncate">{user.correo}</p>
+                            <p className="text-sm font-semibold text-white truncate">{user.nombre}</p>
+                            <p className="text-xs text-white/40 truncate">{user.correo}</p>
                           </div>
-                          <span className="text-xs text-gray-500 px-2 py-1 bg-gray-100 rounded">
+                          <span className="text-[10px] text-white/40 px-2 py-0.5 bg-white/5 border border-white/10 rounded-lg">
                             {user.rol}
                           </span>
                         </div>
@@ -231,17 +214,16 @@ function ShareCaseModal({ isOpen, onClose, caseData, currentUserId, onShareSucce
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-4 text-gray-500 text-sm">
+                  <div className="text-center py-6 text-white/40 text-sm bg-white/5 border border-white/10 rounded-2xl">
                     {searchTerm ? 'No se encontraron usuarios' : 'No hay usuarios disponibles para compartir'}
                   </div>
                 )}
 
-                {/* Botón para compartir con seleccionados */}
                 {selectedUsers.length > 0 && (
                   <button
                     onClick={handleShareWithSelected}
                     disabled={isSaving}
-                    className="mt-3 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium disabled:opacity-50"
+                    className="mt-3 w-full px-4 py-2.5 bg-[#1A71B8] hover:bg-[#1A71B8]/80 text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-50 border border-white/20 shadow-md"
                   >
                     {isSaving ? 'Compartiendo...' : `Compartir con ${selectedUsers.length} usuario(s)`}
                   </button>
@@ -249,18 +231,18 @@ function ShareCaseModal({ isOpen, onClose, caseData, currentUserId, onShareSucce
               </div>
 
               {/* Separador */}
-              <div className="border-t border-gray-200 my-4"></div>
+              <div className="border-t border-white/10 my-4" />
 
-              {/* Lista de personas con acceso actual */}
+              {/* Personas con acceso */}
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-3">
-                  Personas con acceso ({currentPermissions.length})
-                </h3>
+                <p className="text-xs font-bold text-white/50 uppercase tracking-widest mb-3">
+                  Con acceso ({currentPermissions.length})
+                </p>
 
                 {currentPermissions.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <div className="text-center py-8 text-white/30 bg-white/5 border border-white/10 rounded-2xl">
+                    <svg className="w-10 h-10 mx-auto mb-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                     <p className="text-sm">Aún no has compartido este caso</p>
                   </div>
@@ -269,33 +251,31 @@ function ShareCaseModal({ isOpen, onClose, caseData, currentUserId, onShareSucce
                     {currentPermissions.map((perm) => (
                       <div
                         key={perm.id}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
+                        className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-2xl"
                       >
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
-                            {(perm.user_name || 'U').charAt(0).toUpperCase()}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">{perm.user_name || 'Usuario'}</p>
-                            <p className="text-xs text-gray-500">
-                              {perm.permission_type === 'view' ? 'Solo ver' : 'Ver y editar'}
-                            </p>
-                          </div>
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#34B6D8] to-[#1A71B8] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                          {getInitial(perm.user_name)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-white truncate">{perm.user_name || 'Usuario'}</p>
+                          <p className="text-xs text-white/40">
+                            {perm.permission_type === 'view' ? 'Solo ver' : 'Ver y editar'}
+                          </p>
                         </div>
 
                         <div className="flex items-center gap-2">
                           <select
                             value={perm.permission_type}
                             onChange={(e) => handleUpdatePermission(perm.id, perm.user_id, e.target.value)}
-                            className="px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs bg-white"
+                            className="px-2.5 py-1.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-[#1A71B8]/50 transition-all"
                           >
-                            <option value="view">Solo ver</option>
-                            <option value="edit">Ver y editar</option>
+                            <option value="view" className="bg-[#0A3866]">Solo ver</option>
+                            <option value="edit" className="bg-[#0A3866]">Ver y editar</option>
                           </select>
 
                           <button
                             onClick={() => handleRemovePermission(perm.user_id)}
-                            className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                            className="p-1.5 rounded-xl text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-colors"
                             title="Revocar acceso"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -313,10 +293,10 @@ function ShareCaseModal({ isOpen, onClose, caseData, currentUserId, onShareSucce
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 flex justify-end">
+        <div className="px-6 py-4 border-t border-[#1A71B8]/30 flex justify-end flex-shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+            className="px-4 py-2 bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 rounded-xl text-sm font-medium transition-colors"
           >
             Cerrar
           </button>

@@ -5,11 +5,11 @@ import EmptyChartState from './EmptyChartState';
 const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-white px-3 py-2 border border-gray-200 rounded text-xs shadow-md">
-                <p className="font-bold text-gray-900 mb-1">{payload[0].name}</p>
+            <div className="bg-[#0A3866]/90 px-3 py-2 border border-[#1A71B8]/30 rounded-xl text-xs shadow-xl backdrop-blur-md">
+                <p className="font-bold text-white mb-1">{payload[0].name}</p>
                 <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full" style={{ backgroundColor: payload[0].payload.fill }}></span>
-                    <p className="text-gray-700 tabular-nums">
+                    <p className="text-white/80 tabular-nums">
                         {payload[0].value} entrevistas
                     </p>
                 </div>
@@ -31,16 +31,18 @@ export default function InterviewDemographicsChart({ genderData }) {
     const chartData = genderData ? genderData.filter(d => d.count > 0) : [];
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 h-full flex flex-col transition-all hover:shadow-md">
-            <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-fuchsia-50 rounded-lg">
-                    <PieChartIcon className="w-5 h-5 text-fuchsia-600" />
+        <div className="bg-[#0A3866]/40 backdrop-blur-xl border border-[#1A71B8]/30 p-6 rounded-3xl h-full flex flex-col transition-all duration-500 hover:shadow-[0_0_40px_rgba(52,182,216,0.2)] hover:bg-[#0A3866]/60 hover:border-[#34B6D8]/60 group relative overflow-hidden">
+            <div className="absolute -top-32 -right-32 w-64 h-64 bg-fuchsia-500/10 rounded-full blur-[80px] pointer-events-none group-hover:bg-fuchsia-500/20 transition-all duration-700"></div>
+            
+            <div className="flex items-center gap-3 mb-8 relative z-10">
+                <div className="p-2 bg-fuchsia-500/20 rounded-xl backdrop-blur-sm">
+                    <PieChartIcon className="w-5 h-5 text-fuchsia-400" />
                 </div>
                 <div>
-                    <h4 className="text-base font-bold text-gray-800 leading-tight">
+                    <h4 className="text-base font-bold text-white leading-tight">
                         Entrevistas por Género
                     </h4>
-                    <span className="text-xs text-gray-500 font-medium">
+                    <span className="text-xs text-white/60 font-medium">
                         Distribución demográfica
                     </span>
                 </div>
@@ -65,14 +67,14 @@ export default function InterviewDemographicsChart({ genderData }) {
                                     <Cell key={`cell-${index}`} fill={GENDER_COLORS[entry.name] || GENDER_COLORS['No especificado']} />
                                 ))}
                             </Pie>
-                            <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
+                            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
                             <Legend
                                 verticalAlign="bottom"
                                 height={36}
                                 iconType="circle"
                                 iconSize={8}
                                 wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }}
-                                formatter={(value) => <span className="text-gray-600 font-medium">{value}</span>}
+                                formatter={(value) => <span className="text-white/60 font-medium">{value}</span>}
                             />
                         </PieChart>
                     </ResponsiveContainer>

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import CaseDocumentsSkeleton from '../skeletons/CaseDocumentsSkeleton';
 import { casesService, chatService } from '../../../services/api';
 import { createLogger } from '../../../utils/logger';
@@ -433,44 +434,43 @@ function CaseDocuments({ allFiles, isLoading = false, caseId, onRefresh }) {
         </div>
       )}
 
-      {/* Modal de Preview */}
-      {previewFile && (
+      {/* Modal de Preview — Portal para escapar del stacking context del backdrop-blur padre */}
+      {previewFile && createPortal(
         <div
-          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
           onClick={handleClosePreview}
           onKeyDown={(e) => e.key === 'Escape' && handleClosePreview()}
         >
           <div
-            className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden"
+            className="bg-[#0A3866]/95 backdrop-blur-3xl border border-[#1A71B8]/30 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden"
             onClick={(e) => e.stopPropagation()}
+            style={{ fontFamily: "'Poppins', sans-serif" }}
           >
-            {/* Header del modal */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#1A71B8]/30 flex-shrink-0">
               <div className="flex items-center gap-3 min-w-0">
-                <div className={`p-2 rounded-lg ${getFileColor(previewFile.content_type)} flex-shrink-0`}>
+                <div className="p-2 rounded-xl bg-white/10 text-[#34B6D8] flex-shrink-0">
                   {getFileIcon(previewFile.content_type)}
                 </div>
                 <div className="min-w-0">
-                  <p className="font-medium text-gray-900 truncate">{previewFile.name}</p>
-                  <p className="text-xs text-gray-500">{previewFile.size} • {getFileLabel(previewFile.content_type, previewFile.name)}</p>
+                  <p className="font-bold text-white truncate text-sm">{previewFile.name}</p>
+                  <p className="text-xs text-white/40">{previewFile.size} • <span className="text-[#34B6D8] font-bold uppercase">{getFileLabel(previewFile.content_type, previewFile.name)}</span></p>
                 </div>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                {/* Botón descargar en el modal */}
                 <button
                   onClick={() => handleInstantDownload(previewFile)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
                   disabled={isActionLoading}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-[#1A71B8] hover:bg-[#1A71B8]/80 rounded-lg transition-all shadow-md border border-white/20 disabled:opacity-50"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
                   <span className="hidden sm:inline">Descargar</span>
                 </button>
-                {/* Botón cerrar */}
                 <button
                   onClick={handleClosePreview}
-                  className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
+                  className="p-2 rounded-xl text-white/40 hover:text-white hover:bg-white/10 transition-colors"
                   title="Cerrar"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -480,15 +480,12 @@ function CaseDocuments({ allFiles, isLoading = false, caseId, onRefresh }) {
               </div>
             </div>
 
-            {/* Contenido del preview */}
-            <div className="flex-1 overflow-auto bg-gray-100 flex items-center justify-center min-h-0">
+            {/* Contenido */}
+            <div className="flex-1 overflow-auto bg-black/20 flex items-center justify-center min-h-0">
               {isPreviewLoading ? (
-                <div className="flex flex-col items-center justify-center p-8">
-                  <svg className="animate-spin w-10 h-10 text-blue-600 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <p className="text-gray-600">Cargando vista previa...</p>
+                <div className="flex flex-col items-center justify-center p-8 gap-3">
+                  <div className="w-10 h-10 border-2 border-[#1A71B8] border-t-transparent rounded-full animate-spin" />
+                  <p className="text-sm text-white/50">Cargando vista previa...</p>
                 </div>
               ) : previewUrl ? (
                 previewFile.content_type === 'application/pdf' ? (
@@ -501,25 +498,26 @@ function CaseDocuments({ allFiles, isLoading = false, caseId, onRefresh }) {
                   <img
                     src={previewUrl}
                     alt={previewFile.name}
-                    className="max-w-full max-h-[70vh] object-contain"
+                    className="max-w-full max-h-[70vh] object-contain rounded-xl"
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center p-8 text-center">
-                    <div className={`p-4 rounded-xl ${getFileColor(previewFile.content_type)} mb-4`}>
+                    <div className="p-4 rounded-2xl bg-white/10 text-white/40 mb-4">
                       {getFileIcon(previewFile.content_type)}
                     </div>
-                    <p className="text-gray-600 mb-2">No se puede previsualizar este tipo de archivo</p>
-                    <p className="text-sm text-gray-400">Descárgalo para verlo</p>
+                    <p className="text-white/60 text-sm mb-1">No se puede previsualizar este tipo de archivo</p>
+                    <p className="text-xs text-white/30">Descárgalo para verlo</p>
                   </div>
                 )
               ) : (
                 <div className="flex flex-col items-center justify-center p-8 text-center">
-                  <p className="text-gray-600">Error al cargar la vista previa</p>
+                  <p className="text-white/50 text-sm">Error al cargar la vista previa</p>
                 </div>
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

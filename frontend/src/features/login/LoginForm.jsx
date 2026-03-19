@@ -68,15 +68,15 @@ function LoginForm() {
     <div className={`w-full  `}>
       {/* Mensaje de error */}
       {displayError && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-sm font-medium backdrop-blur-md shadow-[0_0_15px_rgba(239,68,68,0.2)]">
           {displayError}
         </div>
       )}
 
       {/* Formulario */}
       <form onSubmit={handleSubmit} className="text-left">
-        <div className="mb-3">
-          <label htmlFor="email" className={`block mb-1.5 text-sm font-medium ${current.textPrimary}`}>
+        <div className="mb-5">
+          <label htmlFor="email" className={`block mb-2 text-sm font-semibold text-white/80 tracking-wide`}>
             Correo electrónico
           </label>
           <input
@@ -84,14 +84,14 @@ function LoginForm() {
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className={`w-full px-4 py-3.5 text-base border ${current.formBorder} rounded-xl ${current.inputBg} ${current.textSecondary} placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500`}
+            className={`w-full px-5 py-4 text-base border border-[#1A71B8]/40 rounded-xl bg-[#0A3866]/50 text-white placeholder-white/30 focus:outline-none focus:border-[#34B6D8] focus:ring-2 focus:ring-[#34B6D8]/50 transition-all backdrop-blur-sm shadow-inner`}
             placeholder="correo@laboral.cl"
             required
           />
         </div>
 
         <div className="mb-2">
-          <label htmlFor="password" className={`block mb-1.5 text-sm font-medium ${current.textPrimary}`}>
+          <label htmlFor="password" className={`block mb-2 text-sm font-semibold text-white/80 tracking-wide`}>
             Contraseña
           </label>
           <input
@@ -99,7 +99,7 @@ function LoginForm() {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className={`w-full px-4 py-3.5 text-base border ${current.formBorder} rounded-xl ${current.inputBg} ${current.textSecondary} placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500`}
+            className={`w-full px-5 py-4 text-base border border-[#1A71B8]/40 rounded-xl bg-[#0A3866]/50 text-white placeholder-white/30 focus:outline-none focus:border-[#34B6D8] focus:ring-2 focus:ring-[#34B6D8]/50 transition-all backdrop-blur-sm shadow-inner`}
             placeholder="••••••••"
             required
           />
@@ -117,11 +117,11 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 px-6 py-4 mt-8 border-none rounded-xl bg-blue-600 text-white text-base font-semibold hover:bg-blue-700 transition-all cursor-pointer shadow-md hover:shadow-lg disabled:bg-blue-400 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-2 px-6 py-4 mt-8 border border-[#34B6D8]/50 rounded-xl bg-gradient-to-r from-[#1A71B8] to-[#34B6D8] text-white text-base font-bold hover:shadow-[0_0_20px_rgba(52,182,216,0.4)] transition-all cursor-pointer shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5"
         >
           {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
           {!loading && (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
             </svg>
           )}
@@ -130,12 +130,12 @@ function LoginForm() {
 
 
       {/* Footer */}
-      <div className={`mt-4 text-xs ${current.textMuted} text-center`}>
+      <div className={`mt-6 text-xs text-white/50 text-center leading-relaxed font-medium`}>
         Al continuar, reconoces la{' '}
-        <a href="#" className={`${current.textSecondary} hover:underline`}>
+        <a href="#" className={`text-[#34B6D8] hover:text-white transition-colors hover:underline`}>
           Política de Privacidad
         </a>{' '}
-        y Términos y Condiciones
+        y <a href="#" className={`text-[#34B6D8] hover:text-white transition-colors hover:underline`}>Términos y Condiciones</a>
       </div>
     </div>
   );

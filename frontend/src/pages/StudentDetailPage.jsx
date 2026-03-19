@@ -110,29 +110,23 @@ function StudentDetailPage() {
   const studentName = student ? `${student.nombres} ${student.apellidos}` : '';
 
   return (
-    <div className={`flex-1 flex flex-col rounded-lg shadow-sm shadow-cyan-600/20 ${current.cardBg} border border-gray-300 transition-all duration-300 overflow-hidden`}>
-      <StudentDetailHeader
-        isSidebarOpen={isSidebarOpen}
-        toggleSidebar={toggleSidebar}
-        textPrimary={current.textPrimary}
-      />
-
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-4 pl-4 sm:pl-4">
+    <div className={`flex-1 flex flex-col    transition-all duration-300 overflow-hidden`}>
+ 
+      <div className="flex-1 overflow-y-auto custom-scrollbar  ">
         <div className="mx-auto space-y-3 sm:space-y-4">
           {isLoading || !student ? (
             <StudentDetailPageSkeleton />
           ) : (
             <>
-              {/* Breadcrumb */}
-              <Breadcrumb caseName={studentName} />
+        
 
               {/* Información Personal */}
               <PersonalInfoCard student={student} onUpdateStudent={handleUpdateStudent} canEdit={true} />
 
-              {/* Tabs Container */}
-              <div className="bg-white rounded-xl border-2 border-gray-300 shadow-md overflow-hidden">
+              {/* Tabs Container - Estilo CaseDetailTabs */}
+              <div className="flex flex-col rounded-3xl border border-[#1A71B8]/30 bg-[#0A3866]/30 backdrop-blur-3xl overflow-hidden">
                 <StudentTabs activeTab={activeTab} setActiveTab={setActiveTab} canViewConvivencia={canEdit} />
-                <div>
+                <div className="bg-white/5 rounded-b-3xl relative z-10 backdrop-blur-md min-h-[55vh]">
                   {renderTabContent()}
                 </div>
               </div>

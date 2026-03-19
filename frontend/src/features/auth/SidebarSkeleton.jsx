@@ -5,7 +5,7 @@ function SidebarSkeleton({ isOpen }) {
         fixed left-4 top-4 bottom-4 z-50
         rounded-3xl shadow-[0_8px_40px_rgba(10,56,102,0.18),0_2px_8px_rgba(26,113,184,0.10)] bg-white/80 backdrop-blur-xl border border-[#e2e8f0]
         hidden lg:flex
-        ${isOpen ? 'w-64' : 'w-16'}
+        ${isOpen ? 'w-72' : 'w-16'}
         overflow-hidden`}
     >
       {/* Header Skeleton */}

@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { InterviewDetailHeader } from '../features/interviews';
-import Breadcrumb from '../components/Breadcrumb';
 import {
     InterviewGeneralInfo,
     InterviewSummaryTab,
@@ -15,6 +14,8 @@ import { useInterviewDetailPage } from '../features/interviews-details/hooks/use
 import AssociateCaseModal from '../features/interviews/AssociateCaseModal';
 import { interviewsService } from '../services/api';
 import { useInterview } from '../contexts/InterviewContext';
+import { ConfirmModal } from '../components/modals';
+import { Trash2, Link as LinkIcon, FileText, Mic, PenTool, Download, Sparkles, AlertCircle, FileAudio, Keyboard } from 'lucide-react';
 
 function InterviewDetailPage() {
     const { schoolSlug } = useParams();
@@ -36,6 +37,7 @@ function InterviewDetailPage() {
         handleInputChange,
         handleSignatureEnd,
         handleUploadSignature,
+        handleDeleteSignature,
         generateSummary,
         handleSaveAudioRecording,
         navigate,
@@ -43,13 +45,13 @@ function InterviewDetailPage() {
         selectedDocumentId,
         studentSignatureUrl,
         guardianSignatureUrl,
-        handleDeleteSignature,
         handleSave,
         refreshInterview
     } = useInterviewDetailPage();
 
     const { updateInterview, deleteInterview } = useInterview();
     const [isAssociateModalOpen, setIsAssociateModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // Added isDeleteModalOpen
     const [isAssociating, setIsAssociating] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
@@ -120,87 +122,73 @@ function InterviewDetailPage() {
         }
     };
 
+    const handleConfirmDelete = async () => {
+        await handleDeleteInterview();
+        setIsDeleteModalOpen(false);
+    };
+
     return (
-        <div style={{ fontFamily: "'Poppins', sans-serif" }} className={`flex-1 flex flex-col rounded-lg shadow-md  ${current.cardBg} border border-gray-300 transition-all duration-300 overflow-hidden`}>
-            {/* Header with Breadcrumb and Actions */}
-            <InterviewDetailHeader
-                title={interview ? interview.studentName : 'Cargando...'}
-                onBack={() => navigate(-1)}
-                onExport={() => { }} // Add export logic later
-                onDelete={handleDeleteInterview}
-                interviewData={interview}
-                isDeleting={isDeleting}
-            />
-
+        <div style={{ fontFamily: "'Poppins', sans-serif" }} className={`flex-1 flex flex-col shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all duration-300 overflow-auto`}>
+      
             {/* Content Container */}
-            <div className="flex flex-col p-4 gap-3 flex-1 overflow-hidden">
-
-                {/* Breadcrumb */}
-                <div className="w-full mb-1 mt-2 flex-shrink-0 flex items-center justify-between gap-4">
-                    <Breadcrumb caseName={interview?.studentName} />
-                    {interview?.status === 'Autorizada' && (
-                        <button
-                            onClick={handleOpenAssociateModal}
-                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 border border-gray-200 transition-colors"
-                            title="Asociar a Caso"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                            </svg>
-                            <span>Asociar caso</span>
-                        </button>
-                    )}
-                </div>
+            <div className="flex flex-col gap-3 flex-1 min-h-0">
 
                 {/* Layout Vertical: Info General arriba, Tabs abajo */}
-                <div className="flex flex-col gap-4 flex-1 overflow-hidden">
+                <div className="flex flex-col gap-4 flex-1 min-h-0">
 
                     {/* TOP: General Info */}
                     <div className="flex-shrink-0">
-                        <InterviewGeneralInfo interview={interview} onUpdate={handleUpdateGeneralInfo} />
+                        <InterviewGeneralInfo
+                            interview={interview}
+                            onUpdate={handleUpdateGeneralInfo}
+                            onDelete={() => setIsDeleteModalOpen(true)}
+                            onAssociate={() => setIsAssociateModalOpen(true)}
+                        />
                     </div>
 
-                    {/* BOTTOM: Tabs & Content */}
-                    <div className="flex-1 flex flex-col overflow-hidden rounded-xl border-2 border-gray-300 ">
+                    {/* BOTTOM: Tabs & Content - Estilo CaseDetailTabs */}
+                    <div className="flex-1 min-h-0">
+                        <div className="flex flex-col rounded-3xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.4)] border border-[#1A71B8]/30 h-full bg-[#0A3866]/30 backdrop-blur-3xl">
 
-                        {/* Custom Tabs */}
-                        <InterviewTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+                            {/* Custom Tabs */}
+                            <InterviewTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-                        {/* Tab Content Area */}
-                        <div className={`flex-1 bg-white rounded-b-xl overflow-hidden flex flex-col`}>
-                            {activeTab === 'resumen' && (
-                                <InterviewSummaryTab
-                                    formData={formData}
-                                    generateSummary={generateSummary}
-                                    interview={interview}
-                                />
-                            )}
+                            {/* Tab Content Area */}
+                            <div className="flex-1 bg-white/5 rounded-b-3xl overflow-y-auto relative z-10 backdrop-blur-md">
+                                {activeTab === 'resumen' && (
+                                    <InterviewSummaryTab
+                                        formData={formData}
+                                        generateSummary={generateSummary}
+                                        interview={interview}
+                                    />
+                                )}
 
-                            {activeTab === 'entrevista' && (
-                                <InterviewNotesTab
-                                    formData={formData}
-                                    handleInputChange={handleInputChange}
-                                    onSaveRecording={handleSaveAudioRecording}
-                                    onUpload={handleFiles}
-                                    onSave={handleSave}
-                                    documents={documents}
-                                    handleDownload={handleDownload}
-                                    handleDelete={handleDelete}
-                                    onSelectDocument={handleSelectDocument}
-                                    selectedDocumentId={selectedDocumentId}
-                                />
-                            )}
+                                {activeTab === 'entrevista' && (
+                                    <InterviewNotesTab
+                                        formData={formData}
+                                        handleInputChange={handleInputChange}
+                                        onSaveRecording={handleSaveAudioRecording}
+                                        onUpload={handleFiles}
+                                        onSave={handleSave}
+                                        documents={documents}
+                                        handleDownload={handleDownload}
+                                        handleDelete={handleDelete}
+                                        onSelectDocument={handleSelectDocument}
+                                        selectedDocumentId={selectedDocumentId}
+                                    />
+                                )}
 
-                            {activeTab === 'autorización' && (
-                                <InterviewConsentTab
-                                    formData={formData}
-                                    handleSignatureEnd={handleSignatureEnd}
-                                    onUploadSignature={handleUploadSignature}
-                                    studentSignatureUrl={studentSignatureUrl}
-                                    guardianSignatureUrl={guardianSignatureUrl}
-                                    onDeleteSignature={handleDeleteSignature}
-                                />
-                            )}
+                                {activeTab === 'autorización' && (
+                                    <InterviewConsentTab
+                                        formData={formData}
+                                        handleSignatureEnd={handleSignatureEnd}
+                                        onUploadSignature={handleUploadSignature}
+                                        studentSignatureUrl={studentSignatureUrl}
+                                        guardianSignatureUrl={guardianSignatureUrl}
+                                        onDeleteSignature={handleDeleteSignature}
+                                    />
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -219,6 +207,21 @@ function InterviewDetailPage() {
                 onAssociate={handleAssociateCase}
                 interview={interview}
                 isAssociating={isAssociating}
+            />
+
+            {/* Modal de Confirmación de Eliminación */}
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => !isDeleting && setIsDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                title="¿Eliminar entrevista?"
+                message={`¿Estás seguro de que deseas eliminar la entrevista de ${interview?.studentName || 'este estudiante'}? Esta acción no se puede deshacer y se eliminarán todos los archivos asociados.`}
+                confirmText="Eliminar"
+                cancelText="Cancelar"
+                icon="danger"
+                confirmButtonClass="bg-red-600 hover:bg-red-700"
+                isLoading={isDeleting}
+                loadingText="Eliminando..."
             />
         </div>
     );

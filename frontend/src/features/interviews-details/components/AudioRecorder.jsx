@@ -33,11 +33,11 @@ function AudioRecorder({
         return (
             <button
                 onClick={onStartRecording}
-                className="flex items-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-full shadow-xl hover:bg-blue-700 transition-all hover:scale-105 active:scale-95"
+                className="flex items-center gap-2 px-4 py-3 bg-[#1A71B8] text-white rounded-full shadow-[0_8px_32px_rgba(26,113,184,0.4)] border border-white/20 hover:bg-[#1A71B8]/80 transition-all hover:scale-105 active:scale-95"
                 title="Iniciar grabación"
             >
                 <Mic size={20} />
-                <span className="text-sm font-medium">Iniciar Grabación</span>
+                <span className="text-sm font-bold">Iniciar Grabación</span>
             </button>
         );
     }
@@ -45,20 +45,20 @@ function AudioRecorder({
     // Grabando - Burbuja expandida
     if (isRecording) {
         return (
-            <div className="flex items-center gap-4 px-5 py-3 bg-red-500 rounded-full shadow-xl animate-pulse">
+            <div className="flex items-center gap-4 px-5 py-3 bg-red-500/80 backdrop-blur-md rounded-full shadow-[0_8px_32px_rgba(239,68,68,0.4)] border border-red-400/50 animate-pulse">
                 <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-white animate-ping"></div>
-                    <span className="text-base font-mono font-semibold text-white">
+                    <span className="text-base font-mono font-bold text-white">
                         {formatTime(recordingDuration)}
                     </span>
                 </div>
                 <button
                     onClick={onStopRecording}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-white text-red-600 hover:bg-red-50 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
                     title="Detener grabación"
                 >
                     <Square size={16} fill="currentColor" />
-                    <span className="text-sm font-medium">Detener</span>
+                    <span className="text-sm font-bold">Detener</span>
                 </button>
             </div>
         );
@@ -68,37 +68,37 @@ function AudioRecorder({
     if (hasRecording && !isRecording) {
         return (
             <>
-                <div className="flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-full shadow-xl">
+                <div className="flex items-center gap-3 px-4 py-3 bg-[#0A3866]/90 backdrop-blur-xl border border-white/20 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
                     <button
                         onClick={onTogglePlayback}
-                        className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-colors"
+                        className="w-10 h-10 rounded-full bg-[#34B6D8] hover:bg-[#34B6D8]/80 text-[#0A3866] flex items-center justify-center transition-colors"
                         title={isPlaying ? "Pausar" : "Reproducir"}
                     >
                         {isPlaying ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
                     </button>
 
-                    <span className="text-sm font-mono font-medium text-gray-600 px-1">
+                    <span className="text-sm font-mono font-bold text-white px-1">
                         {formatTime(recordingDuration)}
                     </span>
 
-                    <div className="w-px h-6 bg-gray-200"></div>
+                    <div className="w-px h-6 bg-white/20"></div>
 
                     <button
                         onClick={handleDeleteClick}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-red-500 hover:bg-red-50 transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-red-400 hover:bg-red-500/20 transition-colors"
                         title="Eliminar grabación"
                     >
                         <Trash2 size={16} />
-                        <span className="text-sm font-medium">Eliminar</span>
+                        <span className="text-sm font-bold">Eliminar</span>
                     </button>
 
                     <button
                         onClick={onSaveRecording}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-green-600 hover:bg-green-50 transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-emerald-400 hover:bg-emerald-500/20 transition-colors"
                         title="Guardar grabación"
                     >
                         <Save size={16} />
-                        <span className="text-sm font-medium">Guardar</span>
+                        <span className="text-sm font-bold">Guardar</span>
                     </button>
 
                     {audioUrl && (

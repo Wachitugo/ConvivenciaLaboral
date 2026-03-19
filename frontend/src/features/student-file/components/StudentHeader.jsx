@@ -2,12 +2,12 @@ import React from 'react';
 
 function StudentHeader({ isSidebarOpen, toggleSidebar, textPrimary }) {
     return (
-        <div className="px-3 sm:px-6 py-2.5 sm:py-3 flex-shrink-0 border-b border-gray-100">
+        <div className="px-3 sm:px-6 py-2.5 sm:py-3 flex-shrink-0 border-b border-white/10">
             <div className="flex items-center justify-between gap-2">
                 {/* Botón sidebar */}
                 <button
                     onClick={toggleSidebar}
-                    className="p-2 sm:p-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200"
+                    className="p-2 sm:p-2.5 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-all duration-200"
                     title={isSidebarOpen ? "Cerrar sidebar" : "Abrir sidebar"}
                 >
                     {isSidebarOpen ? (
@@ -24,7 +24,7 @@ function StudentHeader({ isSidebarOpen, toggleSidebar, textPrimary }) {
 
                 {/* Título - oculto en móvil */}
                 <h1
-                    className={`hidden sm:block text-lg font-semibold ${textPrimary} truncate`}
+                    className={`hidden sm:block text-lg font-semibold text-white truncate`}
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
                     Ficha de Trabajadores

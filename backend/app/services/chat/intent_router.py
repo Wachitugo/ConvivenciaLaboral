@@ -106,6 +106,28 @@ class IntentRouter:
                 }
             
             # ════════════════════════════════════════════════════════════════════
+            # FAST-PATH #2.5: Document listing queries → DOCUMENT_ANALYSIS
+            # Must be before CASE_CREATION fast-path to avoid being swallowed
+            # ════════════════════════════════════════════════════════════════════
+            listing_phrases = [
+                "que documentos tienes", "qué documentos tienes",
+                "cuales documentos", "cuáles documentos",
+                "lista documentos", "listar documentos",
+                "documentos disponibles", "documentos tienes",
+                "a que documentos", "a qué documentos",
+                "que archivos tienes", "qué archivos tienes",
+                "cuales son los documentos", "cuáles son los documentos",
+                "mostrar documentos", "ver documentos",
+            ]
+            if any(phrase in message_lower for phrase in listing_phrases):
+                logger.info("🎯 [INTENT] Fast-path: DOCUMENT_ANALYSIS (document listing request)")
+                return {
+                    "intent": self.DOCUMENT_ANALYSIS,
+                    "confidence": 0.95,
+                    "reasoning": "Document listing request detected"
+                }
+
+            # ════════════════════════════════════════════════════════════════════
             # FAST-PATH #3: Active case conversation continuation
             # ════════════════════════════════════════════════════════════════════
             if history and len(history) >= 2 and not case_id:

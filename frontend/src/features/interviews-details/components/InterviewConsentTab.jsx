@@ -8,11 +8,11 @@ function InterviewConsentTab({ formData, handleSignatureEnd, onUploadSignature, 
     const handleSave = async () => {
         const toUpload = [];
 
-        // Trabajador
+        // Colaborador
         if (studentPadRef.current && typeof studentPadRef.current.isEmpty === 'function' && !studentPadRef.current.isEmpty()) {
             const blob = await studentPadRef.current.getBlob();
             if (blob) {
-                const file = new File([blob], `firma_trabajador_${Date.now()}.png`, { type: 'image/png' });
+                const file = new File([blob], `firma_colaborador_${Date.now()}.png`, { type: 'image/png' });
                 toUpload.push(onUploadSignature?.('student', file));
             }
         }
@@ -31,18 +31,18 @@ function InterviewConsentTab({ formData, handleSignatureEnd, onUploadSignature, 
     };
 
     return (
-        <div style={{ fontFamily: "'Poppins', sans-serif" }} className="h-full flex flex-col bg-white">
+        <div style={{ fontFamily: "'Poppins', sans-serif" }} className="h-full flex flex-col bg-transparent">
             {/* Header con estilo consistente */}
-            <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0 gap-2">
+            <div className="p-3 sm:p-4 border-b border-white/10 flex items-center justify-between flex-shrink-0 gap-2">
                 <div className="min-w-0 flex-1">
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#34B6D8] flex-shrink-0 drop-shadow-[0_0_8px_rgba(52,182,216,0.6)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span className="truncate">Firma de Conformidad</span>
                     </h3>
-                    <p className="text-xs sm:text-sm text-gray-500 mt-0.5 truncate">
-                        <span className="hidden sm:inline">La firma del trabajador es obligatoria para autorizar la entrevista.</span>
+                    <p className="text-xs sm:text-sm text-white/60 mt-0.5 truncate border-white/10">
+                        <span className="hidden sm:inline">La firma del colaborador es obligatoria para autorizar la entrevista.</span>
                         <span className="sm:hidden">Firmas de autorización</span>
                     </p>
                 </div>
@@ -55,19 +55,19 @@ function InterviewConsentTab({ formData, handleSignatureEnd, onUploadSignature, 
                         {/* Worker Signature */}
                         <div className="space-y-3">
                             <div className="flex justify-between items-center px-1">
-                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-1.5">
+                                <label className="text-sm font-bold text-white/90 uppercase tracking-wider flex items-center gap-1.5">
                                     <PenTool size={14} />
-                                    Firma del Trabajador
-                                    <span className="text-red-500 ml-1">*</span>
-                                    <span className="text-[10px] font-normal text-gray-400 ml-1">(Obligatoria)</span>
+                                    Firma del Colaborador
+                                    <span className="text-red-400 ml-1">*</span>
+                                    <span className="text-xs font-normal text-white/60 ml-1">(Obligatoria)</span>
                                 </label>
                                 {formData.studentSignature && (
-                                    <span className="text-emerald-600 text-xs font-bold flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                                    <span className="text-emerald-400 text-xs font-bold flex items-center gap-1 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
                                         <CheckCircle size={12} /> Firmado
                                     </span>
                                 )}
                             </div>
-                            <div className="border border-dashed border-gray-300 rounded-xl overflow-hidden bg-gray-50 relative shadow-inner group hover:border-blue-300 transition-colors h-40">
+                            <div className="border border-dashed border-white/20 rounded-xl overflow-hidden bg-white/5 relative shadow-inner group hover:border-[#34B6D8]/50 transition-colors h-40">
                                 <SignaturePad
                                     ref={studentPadRef}
                                     backgroundUrl={studentSignatureUrl}
@@ -80,7 +80,7 @@ function InterviewConsentTab({ formData, handleSignatureEnd, onUploadSignature, 
                 </div>
 
                 {/* Footer Actions */}
-                <div className="mt-auto pt-4 border-t border-gray-100 flex justify-end gap-3">
+                <div className="mt-auto pt-4 border-t border-white/10 flex justify-end gap-3">
                     <button
                         onClick={async () => {
                             studentPadRef.current?.clear?.();
@@ -88,14 +88,14 @@ function InterviewConsentTab({ formData, handleSignatureEnd, onUploadSignature, 
                                 await onDeleteSignature('student');
                             }
                         }}
-                        className="px-4 py-2 rounded-lg text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 transition-colors flex items-center gap-2"
+                        className="px-4 py-2 rounded-lg text-sm font-bold text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors flex items-center gap-2"
                     >
                         <Trash2 size={16} />
                         Limpiar Todo
                     </button>
                     <button
                         onClick={handleSave}
-                        className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm"
+                        className="px-4 py-2 rounded-lg text-sm font-bold text-white bg-[#1A71B8] hover:bg-[#1A71B8]/80 transition-colors flex items-center gap-2 shadow-[0_4px_12px_rgba(26,113,184,0.3)]"
                     >
                         <Save size={16} />
                         Guardar Firmas

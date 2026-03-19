@@ -26,15 +26,15 @@ function SaludFamiliaTab({ student, onUpdateStudent, canEdit = true }) {
     } = useSaludData(student, onUpdateStudent);
 
     return (
-        <div className="flex flex-col h-full bg-white overflow-hidden rounded-xl shadow-sm">
+        <div className="flex flex-col h-full overflow-hidden" style={{ fontFamily: "'Poppins', sans-serif" }}>
             {/* Header */}
-            <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+            <div className="p-3 sm:p-4 border-b border-white/10 flex items-center justify-between flex-shrink-0">
                 <div>
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
-                        <Heart size={18} className="text-blue-600 flex-shrink-0 sm:w-5 sm:h-5" />
+                    <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                        <Heart size={18} className="text-[#34B6D8] flex-shrink-0 sm:w-5 sm:h-5 drop-shadow-[0_0_8px_rgba(52,182,216,0.6)]" />
                         Salud y Emergencias
                     </h3>
-                    <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
+                    <p className="text-xs sm:text-sm text-white/50 mt-0.5">
                         Información médica y contactos de emergencia
                     </p>
                 </div>
@@ -46,14 +46,14 @@ function SaludFamiliaTab({ student, onUpdateStudent, canEdit = true }) {
                 {/* Datos básicos */}
                 <div className="mb-4">
                     <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
-                            <Stethoscope size={14} className="text-blue-500 flex-shrink-0 sm:w-4 sm:h-4" />
+                        <h4 className="text-xs sm:text-sm font-bold text-white/80 uppercase tracking-wide flex items-center gap-2">
+                            <Stethoscope size={14} className="text-[#34B6D8] flex-shrink-0 sm:w-4 sm:h-4" />
                             Información General
                         </h4>
                         {canEdit && (
                             <button
                                 onClick={() => openEditModal('general')}
-                                className="inline-flex items-center gap-1 px-2 py-1 text-xs sm:text-sm font-medium text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs sm:text-sm font-medium text-white/60 hover:text-[#34B6D8] hover:bg-white/5 rounded-lg transition-colors"
                             >
                                 <Edit size={14} />
                                 <span className="hidden sm:inline">Editar</span>
@@ -61,36 +61,36 @@ function SaludFamiliaTab({ student, onUpdateStudent, canEdit = true }) {
                         )}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                        <div className="bg-gray-50 p-2.5 sm:p-3 rounded-lg">
+                        <div className="bg-white/5 p-2.5 sm:p-3 rounded-lg border border-white/10">
                             <div className="flex items-center gap-2 mb-1">
-                                <Droplet size={14} className="text-blue-500" />
-                                <span className="text-xs font-medium text-gray-500 uppercase">Grupo Sanguíneo</span>
+                                <Droplet size={14} className="text-[#34B6D8]" />
+                                <span className="text-xs font-medium text-white/50 uppercase">Grupo Sanguíneo</span>
                             </div>
-                            <p className="font-bold text-gray-900 text-lg sm:text-xl">{saludData.grupoSanguineo}</p>
+                            <p className="font-bold text-white text-lg sm:text-xl">{saludData.grupoSanguineo}</p>
                         </div>
-                        <div className="bg-gray-50 p-2.5 sm:p-3 rounded-lg">
+                        <div className="bg-white/5 p-2.5 sm:p-3 rounded-lg border border-white/10">
                             <div className="flex items-center gap-2 mb-1">
-                                <Shield size={14} className="text-blue-500" />
-                                <span className="text-xs font-medium text-gray-500 uppercase">Previsión</span>
+                                <Shield size={14} className="text-[#34B6D8]" />
+                                <span className="text-xs font-medium text-white/50 uppercase">Previsión</span>
                             </div>
-                            <p className="font-bold text-gray-900 text-lg sm:text-xl">{saludData.prevision}</p>
+                            <p className="font-bold text-white text-lg sm:text-xl">{saludData.prevision}</p>
                         </div>
                     </div>
                 </div>
 
-                <hr className="border-gray-200 my-3 sm:my-4 -mx-3 sm:-mx-4" />
+                <hr className="border-white/10 my-3 sm:my-4 -mx-3 sm:-mx-4" />
 
                 {/* Alergias y Condiciones */}
                 <div className="mb-4">
                     <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
-                            <AlertCircle size={14} className="text-blue-500 flex-shrink-0 sm:w-4 sm:h-4" />
+                        <h4 className="text-xs sm:text-sm font-bold text-white/80 uppercase tracking-wide flex items-center gap-2">
+                            <AlertCircle size={14} className="text-[#34B6D8] flex-shrink-0 sm:w-4 sm:h-4" />
                             Alergias y Condiciones
                         </h4>
                         {canEdit && (
                             <button
                                 onClick={() => openEditModal('alergias')}
-                                className="inline-flex items-center gap-1 px-2 py-1 text-xs sm:text-sm font-medium text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs sm:text-sm font-medium text-white/60 hover:text-[#34B6D8] hover:bg-white/5 rounded-lg transition-colors"
                             >
                                 <Edit size={14} />
                                 <span className="hidden sm:inline">Editar</span>
@@ -100,11 +100,11 @@ function SaludFamiliaTab({ student, onUpdateStudent, canEdit = true }) {
                     <div className="space-y-3">
                         {/* Alergias */}
                         {saludData.alergias.length > 0 && (
-                            <div className="bg-gray-50 p-3 rounded-lg">
-                                <p className="text-xs font-medium text-gray-500 uppercase mb-2">Alergias</p>
+                            <div className="bg-white/5 p-3 rounded-lg border border-white/10">
+                                <p className="text-xs font-medium text-white/50 uppercase mb-2">Alergias</p>
                                 <div className="flex flex-wrap gap-1.5">
                                     {saludData.alergias.map((alergia, i) => (
-                                        <span key={i} className="px-2.5 py-1 bg-white text-gray-700 rounded-lg text-sm font-medium border border-gray-200">
+                                        <span key={i} className="px-2.5 py-1 bg-white/10 text-white/90 rounded-lg text-sm font-medium border border-white/10">
                                             {alergia}
                                         </span>
                                     ))}
@@ -114,11 +114,11 @@ function SaludFamiliaTab({ student, onUpdateStudent, canEdit = true }) {
 
                         {/* Condiciones Médicas */}
                         {saludData.condiciones.length > 0 && (
-                            <div className="bg-gray-50 p-3 rounded-lg">
-                                <p className="text-xs font-medium text-gray-500 uppercase mb-2">Condiciones Médicas</p>
+                            <div className="bg-white/5 p-3 rounded-lg border border-white/10">
+                                <p className="text-xs font-medium text-white/50 uppercase mb-2">Condiciones Médicas</p>
                                 <div className="flex flex-wrap gap-1.5">
                                     {saludData.condiciones.map((cond, i) => (
-                                        <span key={i} className="px-2.5 py-1 bg-white text-gray-700 rounded-lg text-sm font-medium border border-gray-200">
+                                        <span key={i} className="px-2.5 py-1 bg-white/10 text-white/90 rounded-lg text-sm font-medium border border-white/10">
                                             {cond}
                                         </span>
                                     ))}
@@ -128,11 +128,11 @@ function SaludFamiliaTab({ student, onUpdateStudent, canEdit = true }) {
 
                         {/* Alergias a Medicamentos */}
                         {saludData.alergiasMedicamentos.length > 0 && (
-                            <div className="bg-gray-50 p-3 rounded-lg">
-                                <p className="text-xs font-medium text-gray-500 uppercase mb-2">Alérgico a Medicamentos</p>
+                            <div className="bg-white/5 p-3 rounded-lg border border-white/10">
+                                <p className="text-xs font-medium text-white/50 uppercase mb-2">Alérgico a Medicamentos</p>
                                 <div className="flex flex-wrap gap-1.5">
                                     {saludData.alergiasMedicamentos.map((med, i) => (
-                                        <span key={i} className="px-2.5 py-1 bg-white text-gray-700 rounded-lg text-sm font-medium border border-gray-200">
+                                        <span key={i} className="px-2.5 py-1 bg-white/10 text-white/90 rounded-lg text-sm font-medium border border-white/10">
                                             {med}
                                         </span>
                                     ))}
@@ -142,26 +142,26 @@ function SaludFamiliaTab({ student, onUpdateStudent, canEdit = true }) {
 
                         {/* Estado vacío */}
                         {saludData.alergias.length === 0 && saludData.condiciones.length === 0 && saludData.alergiasMedicamentos.length === 0 && (
-                            <div className="bg-gray-50 p-4 rounded-lg text-center">
-                                <p className="text-sm text-gray-500">No hay alergias ni condiciones registradas</p>
+                            <div className="bg-white/5 p-4 rounded-lg text-center border border-white/10">
+                                <p className="text-sm text-white/50">No hay alergias ni condiciones registradas</p>
                             </div>
                         )}
                     </div>
                 </div>
 
-                <hr className="border-gray-200 my-3 sm:my-4 -mx-3 sm:-mx-4" />
+                <hr className="border-white/10 my-3 sm:my-4 -mx-3 sm:-mx-4" />
 
                 {/* Contactos de Emergencia */}
                 <div>
                     <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
-                            <Phone size={14} className="text-blue-500 flex-shrink-0 sm:w-4 sm:h-4" />
+                        <h4 className="text-xs sm:text-sm font-bold text-white/80 uppercase tracking-wide flex items-center gap-2">
+                            <Phone size={14} className="text-[#34B6D8] flex-shrink-0 sm:w-4 sm:h-4" />
                             Contactos de Emergencia
                         </h4>
                         {canEdit && (
                             <button
                                 onClick={() => openEditModal('contactos')}
-                                className="inline-flex items-center gap-1 px-2 py-1 text-xs sm:text-sm font-medium text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs sm:text-sm font-medium text-white/60 hover:text-[#34B6D8] hover:bg-white/5 rounded-lg transition-colors"
                             >
                                 <Edit size={14} />
                                 <span className="hidden sm:inline">Editar</span>
@@ -170,17 +170,17 @@ function SaludFamiliaTab({ student, onUpdateStudent, canEdit = true }) {
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
                         {contactosEmergencia.map((contacto, i) => (
-                            <div key={i} className="flex items-center gap-3 p-2.5 sm:p-3 rounded-lg bg-gray-50 border border-gray-200">
+                            <div key={i} className="flex items-center gap-3 p-2.5 sm:p-3 rounded-lg bg-white/5 border border-white/10">
                                 <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0 ${contacto.prioridad === 1
-                                    ? 'bg-blue-100 text-blue-600'
-                                    : 'bg-gray-200 text-gray-600'
+                                    ? 'bg-[#34B6D8]/20 text-[#34B6D8]'
+                                    : 'bg-white/10 text-white/60'
                                     }`}>
                                     {contacto.prioridad}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-gray-900 truncate">{contacto.nombre}</p>
-                                    <p className="text-xs text-gray-500">{contacto.parentesco}</p>
-                                    <p className="text-xs text-gray-600 font-medium mt-0.5">{contacto.telefono}</p>
+                                    <p className="text-sm font-medium text-white truncate">{contacto.nombre}</p>
+                                    <p className="text-xs text-white/50">{contacto.parentesco}</p>
+                                    <p className="text-xs text-white/70 font-medium mt-0.5">{contacto.telefono}</p>
                                 </div>
                             </div>
                         ))}

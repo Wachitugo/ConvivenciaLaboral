@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Plus, FileWarning, AlertTriangle, X, Save } from 'lucide-react';
 import { useCompromisos } from '../hooks';
 import { getEstadoCompromiso, formatDate } from '../utils';
@@ -37,22 +38,22 @@ function CompromisosTab({ student, canEdit = true }) {
     }, [student?.id]);
 
     return (
-        <div className="flex flex-col h-full bg-white overflow-hidden rounded-xl shadow-sm">
+        <div className="flex flex-col h-full overflow-hidden" style={{ fontFamily: "'Poppins', sans-serif" }}>
             {/* Header */}
-            <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+            <div className="p-3 sm:p-4 border-b border-white/10 flex items-center justify-between flex-shrink-0">
                 <div>
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
-                        <FileWarning size={18} className="text-blue-600 flex-shrink-0 sm:w-5 sm:h-5" />
+                    <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                        <FileWarning size={18} className="text-[#34B6D8] flex-shrink-0 sm:w-5 sm:h-5 drop-shadow-[0_0_8px_rgba(52,182,216,0.6)]" />
                         Sanciones
                     </h3>
-                    <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
+                    <p className="text-xs sm:text-sm text-white/50 mt-0.5">
                         Seguimiento de sanciones del colaborador
                     </p>
                 </div>
                 {canEdit && (
                     <button
                         onClick={() => setShowModal(true)}
-                        className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                        className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 text-xs font-medium text-white bg-[#1A71B8] hover:bg-[#1A71B8]/80 rounded-lg transition-colors border border-white/10"
                     >
                         <Plus size={12} />
                         <span className="hidden sm:inline">Nuevo</span>
@@ -65,15 +66,15 @@ function CompromisosTab({ student, canEdit = true }) {
 
                 {/* Alerta de compromisos activos */}
                 {compromisosActivos.length > 0 && (
-                    <div className="mb-4 bg-amber-50 rounded-lg border border-amber-200 p-2.5 sm:p-3 flex items-center gap-2 sm:gap-3">
-                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                            <AlertTriangle size={14} className="text-amber-600 sm:w-4 sm:h-4" />
+                    <div className="mb-4 bg-amber-500/10 rounded-lg border border-amber-500/20 p-2.5 sm:p-3 flex items-center gap-2 sm:gap-3">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                            <AlertTriangle size={14} className="text-amber-400 sm:w-4 sm:h-4" />
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-xs sm:text-sm font-semibold text-amber-800">
+                            <p className="text-xs sm:text-sm font-bold text-amber-300">
                                 {compromisosActivos.length} sanción{compromisosActivos.length > 1 ? 'es' : ''} activa{compromisosActivos.length > 1 ? 's' : ''}
                             </p>
-                            <p className="text-xs text-amber-600 truncate">Cualquier nueva falta puede significar incumplimiento</p>
+                            <p className="text-xs text-amber-400/70 truncate">Cualquier nueva falta puede significar incumplimiento</p>
                         </div>
                     </div>
                 )}
@@ -87,26 +88,26 @@ function CompromisosTab({ student, canEdit = true }) {
                                 const estadoInfo = getEstadoCompromiso(compromiso.estado);
                                 const IconEstado = estadoInfo.icon;
                                 return (
-                                    <div key={compromiso.id} className="bg-gray-50 rounded-lg border border-gray-200 p-3">
+                                    <div key={compromiso.id} className="bg-white/5 rounded-lg border border-white/10 p-3">
                                         <div className="flex items-start justify-between gap-2 mb-2">
-                                            <p className="text-sm font-medium text-gray-900 flex-1">{compromiso.descripcion}</p>
+                                            <p className="text-sm font-medium text-white flex-1">{compromiso.descripcion}</p>
                                             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${estadoInfo.bg} ${estadoInfo.text}`}>
                                                 <IconEstado size={10} />
                                                 {estadoInfo.label}
                                             </span>
                                         </div>
-                                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 mb-3">
+                                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/50 mb-3">
                                             {compromiso.casoAsociado && (
-                                                <span>Caso: <span className="text-gray-700">{compromiso.casoAsociado}</span></span>
+                                                <span>Caso: <span className="text-white/70">{compromiso.casoAsociado}</span></span>
                                             )}
-                                            <span>Vence: <span className="text-gray-700">{formatDate(compromiso.fechaVencimiento)}</span></span>
+                                            <span>Vence: <span className="text-white/70">{formatDate(compromiso.fechaVencimiento)}</span></span>
                                         </div>
                                         {canEdit && (
                                             <div className="flex gap-2">
                                                 {compromiso.estado !== 'cumplido' && (
                                                     <button
                                                         onClick={() => handleCambiarEstado(compromiso.id, 'cumplido')}
-                                                        className="flex-1 text-xs px-2 py-1.5 border border-green-200 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors font-medium"
+                                                        className="flex-1 text-xs px-2 py-1.5 border border-green-500/20 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors font-medium"
                                                     >
                                                         Marcar Cumplido
                                                     </button>
@@ -114,7 +115,7 @@ function CompromisosTab({ student, canEdit = true }) {
                                                 {compromiso.estado !== 'incumplido' && (
                                                     <button
                                                         onClick={() => handleCambiarEstado(compromiso.id, 'incumplido')}
-                                                        className="flex-1 text-xs px-2 py-1.5 border border-red-200 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors font-medium"
+                                                        className="flex-1 text-xs px-2 py-1.5 border border-red-500/20 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors font-medium"
                                                     >
                                                         Marcar Incumplido
                                                     </button>
@@ -127,28 +128,28 @@ function CompromisosTab({ student, canEdit = true }) {
                         </div>
 
                         {/* Vista Tabla - Desktop */}
-                        <div className="hidden md:block overflow-hidden rounded-lg border border-gray-200">
+                        <div className="hidden md:block overflow-hidden rounded-lg border border-white/10">
                             <table className="w-full text-sm">
-                                <thead className="bg-gray-50">
+                                <thead className="bg-black/10">
                                     <tr>
-                                        <th className="text-left px-3 py-2 text-xs font-semibold text-gray-600 uppercase">Compromiso</th>
-                                        <th className="text-left px-3 py-2 text-xs font-semibold text-gray-600 uppercase">Caso</th>
-                                        <th className="text-left px-3 py-2 text-xs font-semibold text-gray-600 uppercase">Vencimiento</th>
-                                        <th className="text-left px-3 py-2 text-xs font-semibold text-gray-600 uppercase">Estado</th>
-                                        {canEdit && <th className="text-left px-3 py-2 text-xs font-semibold text-gray-600 uppercase">Acciones</th>}
+                                        <th className="text-left px-3 py-2 text-xs font-bold text-white/50 uppercase">Compromiso</th>
+                                        <th className="text-left px-3 py-2 text-xs font-bold text-white/50 uppercase">Caso</th>
+                                        <th className="text-left px-3 py-2 text-xs font-bold text-white/50 uppercase">Vencimiento</th>
+                                        <th className="text-left px-3 py-2 text-xs font-bold text-white/50 uppercase">Estado</th>
+                                        {canEdit && <th className="text-left px-3 py-2 text-xs font-bold text-white/50 uppercase">Acciones</th>}
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-100">
+                                <tbody className="divide-y divide-white/5">
                                     {compromisos.map((compromiso) => {
                                         const estadoInfo = getEstadoCompromiso(compromiso.estado);
                                         const IconEstado = estadoInfo.icon;
                                         return (
-                                            <tr key={compromiso.id} className="hover:bg-gray-50 transition-colors">
-                                                <td className="px-3 py-2 text-gray-900 max-w-xs">
+                                            <tr key={compromiso.id} className="hover:bg-white/5 transition-colors">
+                                                <td className="px-3 py-2 text-white max-w-xs">
                                                     <p className="truncate font-medium">{compromiso.descripcion}</p>
                                                 </td>
-                                                <td className="px-3 py-2 text-gray-500">{compromiso.casoAsociado}</td>
-                                                <td className="px-3 py-2 text-gray-600">{formatDate(compromiso.fechaVencimiento)}</td>
+                                                <td className="px-3 py-2 text-white/50">{compromiso.casoAsociado}</td>
+                                                <td className="px-3 py-2 text-white/60">{formatDate(compromiso.fechaVencimiento)}</td>
                                                 <td className="px-3 py-2">
                                                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${estadoInfo.bg} ${estadoInfo.text}`}>
                                                         <IconEstado size={10} />
@@ -161,7 +162,7 @@ function CompromisosTab({ student, canEdit = true }) {
                                                             {compromiso.estado !== 'cumplido' && (
                                                                 <button
                                                                     onClick={() => handleCambiarEstado(compromiso.id, 'cumplido')}
-                                                                    className="text-xs px-1.5 py-0.5 border border-gray-200 bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors"
+                                                                    className="text-xs px-1.5 py-0.5 border border-white/10 bg-white/5 text-white/70 rounded hover:bg-white/10 transition-colors"
                                                                 >
                                                                     Cumplido
                                                                 </button>
@@ -169,7 +170,7 @@ function CompromisosTab({ student, canEdit = true }) {
                                                             {compromiso.estado !== 'incumplido' && (
                                                                 <button
                                                                     onClick={() => handleCambiarEstado(compromiso.id, 'incumplido')}
-                                                                    className="text-xs px-1.5 py-0.5 border border-gray-200 bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors"
+                                                                    className="text-xs px-1.5 py-0.5 border border-white/10 bg-white/5 text-white/70 rounded hover:bg-white/10 transition-colors"
                                                                 >
                                                                     Incumplido
                                                                 </button>
@@ -185,16 +186,16 @@ function CompromisosTab({ student, canEdit = true }) {
                         </div>
                     </>
                 ) : (
-                    <div className="flex items-center justify-center p-6 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                    <div className="flex items-center justify-center p-6 bg-white/5 rounded-lg border border-dashed border-white/10">
                         <div className="text-center">
-                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
-                                <FileWarning size={16} className="text-gray-400" />
+                            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-2">
+                                <FileWarning size={16} className="text-white/40" />
                             </div>
-                            <p className="text-sm text-gray-500">No hay sanciones registradas</p>
+                            <p className="text-sm text-white/50">No hay sanciones registradas</p>
                             {canEdit && (
                                 <button
                                     onClick={() => setShowModal(true)}
-                                    className="mt-3 inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
+                                    className="mt-3 inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-[#34B6D8] hover:text-white border border-[#34B6D8]/30 rounded-lg hover:bg-[#34B6D8]/10 transition-colors"
                                 >
                                     <Plus size={12} />
                                     Agregar primera sanción
@@ -206,71 +207,92 @@ function CompromisosTab({ student, canEdit = true }) {
             </div>
 
             {/* Modal para nuevo compromiso */}
-            {showModal && (
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 m-4 border border-gray-200">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-800">Nueva Sanción</h3>
-                            <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div>
-                                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Descripción *</label>
-                                <textarea
-                                    value={nuevoCompromiso.descripcion}
-                                    onChange={(e) => setNuevoCompromiso({ ...nuevoCompromiso, descripcion: e.target.value })}
-                                    className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    rows={3}
-                                    placeholder="Ej: Mantener buen comportamiento durante los recreos"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Fecha de vencimiento *</label>
-                                <input
-                                    type="date"
-                                    value={nuevoCompromiso.fechaVencimiento}
-                                    onChange={(e) => setNuevoCompromiso({ ...nuevoCompromiso, fechaVencimiento: e.target.value })}
-                                    className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Caso asociado</label>
-                                <select
-                                    value={nuevoCompromiso.casoAsociado}
-                                    onChange={(e) => setNuevoCompromiso({ ...nuevoCompromiso, casoAsociado: e.target.value })}
-                                    className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            {showModal && createPortal(
+                <>
+                    <div
+                        className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[60] transition-opacity"
+                        onClick={() => setShowModal(false)}
+                    />
+                    <div className="fixed right-0 top-0 h-full z-[70] flex items-center justify-end pointer-events-none" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                        <div className="w-[430px] h-full shadow-[0_0_40px_rgba(0,0,0,0.5)] bg-[#0A3866]/95 backdrop-blur-3xl border-l border-[#1A71B8]/30 flex flex-col animate-slide-in overflow-hidden pointer-events-auto">
+                            {/* Header */}
+                            <div className="px-6 py-5 border-b border-white/10 flex justify-between items-center">
+                                <div>
+                                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                                        <FileWarning size={18} className="text-[#34B6D8]" />
+                                        Nueva Sanción
+                                    </h2>
+                                    <p className="text-xs text-white/60 mt-0.5">Registra una nueva sanción para el colaborador</p>
+                                </div>
+                                <button
+                                    onClick={() => setShowModal(false)}
+                                    className="p-2 rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-colors"
                                 >
-                                    <option value="">Seleccionar caso...</option>
-                                    {casosAsociados.map(caso => (
-                                        <option key={caso.id} value={caso.titulo}>{caso.titulo}</option>
-                                    ))}
-                                </select>
+                                    <X size={20} />
+                                </button>
                             </div>
-                        </div>
 
-                        <div className="flex gap-3 mt-6">
-                            <button
-                                onClick={() => setShowModal(false)}
-                                className="flex-1 px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                onClick={handleAgregarCompromiso}
-                                disabled={!nuevoCompromiso.descripcion || !nuevoCompromiso.fechaVencimiento}
-                                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                            >
-                                <Save size={14} />
-                                Guardar
-                            </button>
+                            {/* Body */}
+                            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-white/50 uppercase tracking-widest">Descripción *</label>
+                                    <textarea
+                                        value={nuevoCompromiso.descripcion}
+                                        onChange={(e) => setNuevoCompromiso({ ...nuevoCompromiso, descripcion: e.target.value })}
+                                        className="w-full px-4 py-3 rounded-xl border border-white/20 focus:border-[#34B6D8] focus:ring-4 focus:ring-[#34B6D8]/10 outline-none bg-white/5 text-sm font-medium text-white placeholder:text-white/30 transition-all resize-none"
+                                        rows={4}
+                                        placeholder="Describe la sanción..."
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-white/50 uppercase tracking-widest">Fecha de vencimiento *</label>
+                                    <input
+                                        type="date"
+                                        value={nuevoCompromiso.fechaVencimiento}
+                                        onChange={(e) => setNuevoCompromiso({ ...nuevoCompromiso, fechaVencimiento: e.target.value })}
+                                        className="w-full px-4 py-3 rounded-xl border border-white/20 focus:border-[#34B6D8] focus:ring-4 focus:ring-[#34B6D8]/10 outline-none bg-white/5 text-sm font-medium text-white transition-all"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-white/50 uppercase tracking-widest">Caso asociado</label>
+                                    <select
+                                        value={nuevoCompromiso.casoAsociado}
+                                        onChange={(e) => setNuevoCompromiso({ ...nuevoCompromiso, casoAsociado: e.target.value })}
+                                        className="w-full px-4 py-3 rounded-xl border border-white/20 focus:border-[#34B6D8] focus:ring-4 focus:ring-[#34B6D8]/10 outline-none bg-white/5 text-sm font-medium text-white transition-all appearance-none"
+                                    >
+                                        <option value="" className="bg-[#0A3866]">Seleccionar caso...</option>
+                                        {casosAsociados.map(caso => (
+                                            <option key={caso.id} value={caso.titulo} className="bg-[#0A3866]">{caso.titulo}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="p-6 border-t border-white/10">
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => setShowModal(false)}
+                                        className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 text-white/70 rounded-xl text-sm font-bold hover:bg-white/10 hover:text-white transition-all"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        onClick={handleAgregarCompromiso}
+                                        disabled={!nuevoCompromiso.descripcion || !nuevoCompromiso.fechaVencimiento}
+                                        className="flex-1 px-4 py-2.5 bg-[#1A71B8] hover:bg-[#1A71B8]/80 text-white border border-white/10 rounded-xl text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <Save size={14} />
+                                        Guardar
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </>,
+                document.body
             )}
         </div>
     );

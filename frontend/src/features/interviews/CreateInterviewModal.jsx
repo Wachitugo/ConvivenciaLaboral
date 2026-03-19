@@ -175,16 +175,16 @@ function CreateInterviewModal({ isOpen, onClose }) {
             />
 
             <div className="fixed right-0 top-0 h-full z-[70] flex items-center justify-end pointer-events-none" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                <div className="w-[430px] h-full shadow-2xl bg-white border-l border-gray-100 flex flex-col animate-slide-in overflow-hidden pointer-events-auto">
+                <div className="w-[430px] h-full shadow-[0_0_40px_rgba(0,0,0,0.5)] bg-[#0A3866]/95 backdrop-blur-3xl border-l border-[#1A71B8]/30 flex flex-col animate-slide-in overflow-hidden pointer-events-auto">
                     {/* Header */}
-                    <div className="px-6 py-5 border-b border-gray-100 bg-white flex justify-between items-center">
+                    <div className="px-6 py-5 border-b border-white/10 bg-transparent flex justify-between items-center">
                         <div>
-                            <h2 className="text-lg font-semibold text-gray-800">Nueva Entrevista</h2>
-                            <p className="text-xs text-gray-500 mt-0.5">Complete la información del trabajador para registrar la entrevista</p>
+                            <h2 className="text-lg font-bold text-white">Nueva Entrevista</h2>
+                            <p className="text-xs text-white/60 mt-0.5">Complete la información del colaborador para registrar la entrevista</p>
                         </div>
                         <button
                             onClick={onClose}
-                            className="p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors"
+                            className="p-2 rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-colors"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -193,11 +193,11 @@ function CreateInterviewModal({ isOpen, onClose }) {
                     </div>
 
                     {/* Body */}
-                    <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-white space-y-6">
+                    <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-transparent space-y-6">
                         {/* STEP 1: Select Grade First */}
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-2">
-                                <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center">1</span>
+                            <label className="text-xs font-bold text-white/50 uppercase tracking-widest flex items-center gap-2">
+                                <span className="w-5 h-5 rounded-full bg-[#1A71B8]/40 border border-[#1A71B8] text-[#34B6D8] text-xs flex items-center justify-center shadow-[0_0_8px_rgba(26,113,184,0.5)]">1</span>
                                 Área de trabajo
                             </label>
                             <select
@@ -205,35 +205,35 @@ function CreateInterviewModal({ isOpen, onClose }) {
                                 value={formData.grade}
                                 onChange={handleGradeChange}
                                 autoFocus
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-300 focus:ring-0 outline-none bg-gray-50 text-sm font-medium text-gray-800 transition-all"
+                                className="w-full px-4 py-3 rounded-xl border border-white/20 focus:border-[#34B6D8] focus:ring-4 focus:ring-[#34B6D8]/10 outline-none bg-white/5 text-sm font-medium text-white transition-all shadow-inner appearance-none"
                             >
-                                <option value="">Seleccione un área de trabajo...</option>
-                                <option value="Administración">Administración</option>
-                                <option value="Operaciones">Operaciones</option>
-                                <option value="Recursos Humanos">Recursos Humanos</option>
-                                <option value="Finanzas">Finanzas</option>
-                                <option value="Tecnología">Tecnología</option>
-                                <option value="Ventas">Ventas</option>
-                                <option value="Marketing">Marketing</option>
-                                <option value="Producción">Producción</option>
-                                <option value="Logística">Logística</option>
-                                <option value="Atención al Cliente">Atención al Cliente</option>
+                                <option value="" className="bg-[#0A3866] text-white">Seleccione un área de trabajo...</option>
+                                <option value="Administración" className="bg-[#0A3866] text-white">Administración</option>
+                                <option value="Operaciones" className="bg-[#0A3866] text-white">Operaciones</option>
+                                <option value="Recursos Humanos" className="bg-[#0A3866] text-white">Recursos Humanos</option>
+                                <option value="Finanzas" className="bg-[#0A3866] text-white">Finanzas</option>
+                                <option value="Tecnología" className="bg-[#0A3866] text-white">Tecnología</option>
+                                <option value="Ventas" className="bg-[#0A3866] text-white">Ventas</option>
+                                <option value="Marketing" className="bg-[#0A3866] text-white">Marketing</option>
+                                <option value="Producción" className="bg-[#0A3866] text-white">Producción</option>
+                                <option value="Logística" className="bg-[#0A3866] text-white">Logística</option>
+                                <option value="Atención al Cliente" className="bg-[#0A3866] text-white">Atención al Cliente</option>
                             </select>
                             {formData.grade && (
-                                <p className="text-xs text-green-600 flex items-center gap-1">
+                                <p className="text-xs text-[#34B6D8] flex items-center gap-1">
                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    {studentsInGrade.length} trabajadores en esta área
+                                    {studentsInGrade.length} colaboradores en esta área
                                 </p>
                             )}
                         </div>
 
                         {/* STEP 2: Student Name with Autocomplete */}
                         <div className="space-y-2 relative">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-2">
-                                <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${formData.grade ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-500'}`}>2</span>
-                                Nombre del Trabajador
+                            <label className="text-xs font-bold text-white/50 uppercase tracking-widest flex items-center gap-2">
+                                <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${formData.grade ? 'bg-[#1A71B8]/40 border border-[#1A71B8] text-[#34B6D8] shadow-[0_0_8px_rgba(26,113,184,0.5)]' : 'bg-white/10 text-white/30 border border-white/10'}`}>2</span>
+                                Nombre del Colaborador
                             </label>
                             <div className="relative">
                                 <input
@@ -246,41 +246,42 @@ function CreateInterviewModal({ isOpen, onClose }) {
                                     placeholder={formData.grade ? "Click aquí o escribe para buscar..." : "Primero selecciona un área"}
                                     disabled={!formData.grade}
                                     autoComplete="off"
-                                    className={`w-full px-4 py-3 rounded-xl border focus:ring-0 outline-none text-sm font-medium transition-all placeholder:text-gray-400 ${formData.grade
-                                        ? 'border-gray-200 focus:border-blue-300 bg-gray-50 text-gray-800'
-                                        : 'border-gray-100 bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    className={`w-full px-4 py-3 rounded-xl border focus:ring-4 outline-none text-sm font-medium transition-all placeholder:text-white/30 ${formData.grade
+                                        ? 'border-white/20 focus:border-[#34B6D8] focus:ring-[#34B6D8]/10 bg-white/5 text-white shadow-inner'
+                                        : 'border-white/5 bg-white/5 text-white/40 cursor-not-allowed'
                                         }`}
                                 />
                                 {selectedStudentId && (
-                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500">
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#34B6D8]">
+                                        <svg className="w-5 h-5 drop-shadow-[0_0_4px_rgba(52,182,216,0.6)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                         </svg>
                                     </span>
                                 )}
+
                             </div>
 
                             {/* Suggestions dropdown */}
                             {showSuggestions && filteredStudents.length > 0 && (
                                 <div
                                     ref={suggestionsRef}
-                                    className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto"
+                                    className="absolute z-50 w-full mt-1 bg-[#0A3866] border border-white/20 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] max-h-60 overflow-y-auto backdrop-blur-xl"
                                 >
                                     {filteredStudents.map((student) => (
                                         <button
                                             key={student.id}
                                             type="button"
                                             onClick={() => handleSelectStudent(student)}
-                                            className="w-full px-4 py-3 text-left hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0 flex items-center gap-3"
+                                            className="w-full px-4 py-3 text-left hover:bg-white/10 transition-colors border-b border-white/10 last:border-b-0 flex items-center gap-3"
                                         >
-                                            <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-semibold flex-shrink-0">
+                                            <div className="w-8 h-8 rounded-full bg-[#1A71B8]/40 border border-[#1A71B8] text-[#34B6D8] flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-[0_0_8px_rgba(26,113,184,0.4)]">
                                                 {(student.nombres || '?')[0]?.toUpperCase()}
                                             </div>
                                             <div className="min-w-0">
-                                                <p className="text-sm font-medium text-gray-800 truncate">
+                                                <p className="text-sm font-bold text-white truncate">
                                                     {student.nombres} {student.apellidos}
                                                 </p>
-                                                <p className="text-xs text-gray-500">
+                                                <p className="text-xs text-white/60">
                                                     RUT: {student.rut || 'N/A'}
                                                 </p>
                                             </div>
@@ -291,44 +292,44 @@ function CreateInterviewModal({ isOpen, onClose }) {
 
                             {/* Helper text */}
                             {formData.grade && (
-                                <p className="text-xs text-gray-400">
-                                    Escribe al menos 2 caracteres para buscar entre los {studentsInGrade.length} trabajadores del área.
+                                <p className="text-xs text-white/40">
+                                    Escribe al menos 2 caracteres para buscar entre los {studentsInGrade.length} colaboradores del área.
                                 </p>
                             )}
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-2">
-                                <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${selectedStudentId && formData.gender ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-500'}`}>3</span>
-                                Género del Trabajador
-                                <span className="text-xs font-normal text-gray-400 normal-case">(automático)</span>
+                            <label className="text-xs font-bold text-white/50 uppercase tracking-widest flex items-center gap-2">
+                                <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${selectedStudentId && formData.gender ? 'bg-[#1A71B8]/40 border border-[#1A71B8] text-[#34B6D8] shadow-[0_0_8px_rgba(26,113,184,0.5)]' : 'bg-white/10 text-white/30 border border-white/10'}`}>3</span>
+                                Género del Colaborador
+                                <span className="text-[10px] font-normal text-white/40 normal-case">(automático)</span>
                             </label>
                             <div className="relative">
                                 <input
                                     type="text"
                                     value={formData.gender || ''}
                                     disabled
-                                    placeholder={selectedStudentId ? 'No registrado' : 'Se completará al seleccionar trabajador'}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 text-sm font-medium text-gray-600 cursor-not-allowed"
+                                    placeholder={selectedStudentId ? 'No registrado' : 'Se completará al seleccionar colaborador'}
+                                    className="w-full px-4 py-3 rounded-xl border border-white/5 bg-white/5 text-sm font-medium text-white/50 cursor-not-allowed"
                                 />
                                 {selectedStudentId && formData.gender && (
-                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500">
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#34B6D8]">
+                                        <svg className="w-5 h-5 drop-shadow-[0_0_4px_rgba(52,182,216,0.6)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                         </svg>
                                     </span>
                                 )}
                             </div>
-                            <p className="text-xs text-gray-400">
-                                Este dato se obtiene automáticamente del registro del trabajador.
+                            <p className="text-xs text-white/40">
+                                Este dato se obtiene automáticamente del registro del colaborador.
                             </p>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-2">
-                                <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${formData.gender ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-500'}`}>4</span>
+                            <label className="text-xs font-bold text-white/50 uppercase tracking-widest flex items-center gap-2">
+                                <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${formData.gender ? 'bg-[#1A71B8]/40 border border-[#1A71B8] text-[#34B6D8] shadow-[0_0_8px_rgba(26,113,184,0.5)]' : 'bg-white/10 text-white/30 border border-white/10'}`}>4</span>
                                 Nombre Entrevistador
-                                <span className="text-red-500">*</span>
+                                <span className="text-[#34B6D8] text-lg leading-none">*</span>
                             </label>
                             <input
                                 type="text"
@@ -336,24 +337,24 @@ function CreateInterviewModal({ isOpen, onClose }) {
                                 value={formData.interviewer}
                                 onChange={handleInputChange}
                                 placeholder="Ej. Juan Pérez"
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-300 focus:ring-0 outline-none bg-gray-50 text-sm font-medium text-gray-800 transition-all placeholder:text-gray-400"
+                                className="w-full px-4 py-3 rounded-xl border border-white/20 focus:border-[#34B6D8] focus:ring-4 focus:ring-[#34B6D8]/10 outline-none bg-white/5 text-sm font-medium text-white transition-all placeholder:text-white/30 shadow-inner"
                             />
                         </div>
                     </div>
 
                     {/* Footer */}
-                    <div className="p-6 border-t border-gray-100 bg-white">
+                    <div className="p-6 border-t border-white/10 bg-transparent">
                         <div className="flex gap-3">
                             <button
                                 onClick={onClose}
-                                className="flex-1 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-all"
+                                className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 text-white/70 rounded-xl text-sm font-bold hover:bg-white/10 hover:text-white transition-all"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={handleCreate}
                                 disabled={isLoading || !formData.studentName || !formData.interviewer}
-                                className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex-1 px-4 py-2.5 bg-[#1A71B8] hover:bg-[#1A71B8]/80 text-white border border-white/10 rounded-xl text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isLoading ? (
                                     <>

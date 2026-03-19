@@ -9,50 +9,20 @@ function CaseDetailPageSkeleton() {
             style={{ fontFamily: "'Poppins', sans-serif" }}
         >
             <div className="flex-1 flex flex-col">
-                {/* Header Skeleton - matches CaseHeader.jsx */}
-                <div className="flex items-center justify-between p-3 border-b border-gray-200 flex-shrink-0 animate-pulse">
-                    <div className="flex items-center gap-4">
-                        {/* Back button skeleton */}
-                        <div className="w-9 h-9 bg-gray-200 rounded-lg"></div>
-                    </div>
-                    {/* Title skeleton */}
-                    <div className="h-5 bg-gray-200 rounded w-32"></div>
-                    {/* Menu button skeleton */}
-                    <div className="flex items-center gap-2">
-                        <div className="w-9 h-9 bg-gray-200 rounded-lg"></div>
-                    </div>
-                </div>
+                {/* Layout vertical: Info arriba, Tabs abajo */}
+                <div className="flex flex-col gap-4 flex-1 min-h-0">
+                    {/* Información General Skeleton */}
+                    <CaseGeneralInfoSkeleton />
 
-                {/* Contenido del Detalle */}
-                <div className="p-4 flex flex-col gap-2 flex-1">
-                    {/* Breadcrumb y Botones Skeleton */}
-                    <div className="flex items-center justify-between gap-4 flex-shrink-0 animate-pulse">
-                        <div className="flex items-center gap-2">
-                            <div className="h-4 bg-gray-200 rounded w-16"></div>
-                            <div className="h-4 bg-gray-200 rounded w-4"></div>
-                            <div className="h-4 bg-gray-200 rounded w-32"></div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="h-8 bg-gray-200 rounded-lg w-24"></div>
-                            <div className="h-8 bg-gray-200 rounded-lg w-20"></div>
-                        </div>
-                    </div>
+                    {/* Sistema de tabs Skeleton */}
+                    <div className="flex-1 min-h-0 overflow-hidden">
+                        <div className="flex flex-col overflow-hidden rounded-3xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.4)] border border-[#1A71B8]/30 h-full bg-[#0A3866]/30 backdrop-blur-3xl">
+                            {/* Tabs Header Skeleton */}
+                            <CaseDetailTabsHeaderSkeleton />
 
-                    {/* Layout vertical: Info arriba, Tabs abajo */}
-                    <div className="flex flex-col gap-4 flex-1 min-h-0">
-                        {/* Información General Skeleton */}
-                        <CaseGeneralInfoSkeleton />
-
-                        {/* Sistema de tabs Skeleton */}
-                        <div className="flex-1 min-h-0 overflow-hidden">
-                            <div className="flex flex-col overflow-hidden rounded-xl shadow-sm border-2 border-gray-300 h-full bg-white">
-                                {/* Tabs Header Skeleton */}
-                                <CaseDetailTabsHeaderSkeleton />
-
-                                {/* Tab Content Skeleton */}
-                                <div className="flex-1 bg-white rounded-b-xl min-h-[500px] overflow-y-auto">
-                                    <CaseAISummarySkeleton />
-                                </div>
+                            {/* Tab Content Skeleton */}
+                            <div className="flex-1 bg-white/5 rounded-b-3xl min-h-[500px] overflow-y-auto">
+                                <CaseAISummarySkeleton />
                             </div>
                         </div>
                     </div>

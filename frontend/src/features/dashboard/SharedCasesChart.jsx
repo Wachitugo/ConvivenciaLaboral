@@ -5,11 +5,11 @@ import EmptyChartState from './EmptyChartState';
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white px-3 py-2 border border-gray-200 rounded text-xs shadow-md">
-        <p className="font-bold text-gray-900 mb-1">{payload[0].name}</p>
+      <div className="bg-[#0A3866]/90 px-3 py-2 border border-[#1A71B8]/30 rounded-xl text-xs shadow-xl backdrop-blur-md">
+        <p className="font-bold text-white mb-1">{payload[0].name}</p>
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: payload[0].payload.color }}></span>
-          <p className="text-gray-700 tabular-nums">
+          <p className="text-white/80 tabular-nums">
             {payload[0].value} casos ({payload[0].payload.percentage}%)
           </p>
         </div>
@@ -37,7 +37,7 @@ export default function SharedCasesChart({ data }) {
     {
       name: 'No compartidos',
       value: data?.notShared || 0,
-      color: '#e2e8f0', // slate-200
+      color: '#334155', // slate-700 for dark mode
       percentage: 0
     }
   ];
@@ -54,16 +54,18 @@ export default function SharedCasesChart({ data }) {
   const hasData = total > 0;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 h-full flex flex-col transition-all hover:shadow-md">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-violet-50 rounded-lg">
-          <Share2 className="w-5 h-5 text-violet-600" />
+    <div className="bg-[#0A3866]/40 backdrop-blur-xl border border-[#1A71B8]/30 p-6 rounded-3xl h-full flex flex-col transition-all duration-500 hover:shadow-[0_0_40px_rgba(52,182,216,0.2)] hover:bg-[#0A3866]/60 hover:border-[#34B6D8]/60 group relative overflow-hidden">
+      <div className="absolute -top-32 -left-32 w-64 h-64 bg-violet-500/10 rounded-full blur-[80px] pointer-events-none group-hover:bg-violet-500/20 transition-all duration-700"></div>
+      
+      <div className="flex items-center gap-3 mb-8 relative z-10">
+        <div className="p-2 bg-violet-500/20 rounded-xl backdrop-blur-sm">
+          <Share2 className="w-5 h-5 text-violet-400" />
         </div>
         <div>
-          <h4 className="text-base font-bold text-gray-800 leading-tight">
+          <h4 className="text-base font-bold text-white leading-tight">
             Casos Compartidos
           </h4>
-          <span className="text-xs text-gray-500 font-medium">
+          <span className="text-xs text-white/60 font-medium">
             Estado de colaboración
           </span>
         </div>
@@ -89,7 +91,7 @@ export default function SharedCasesChart({ data }) {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
                 <Legend
                   verticalAlign="bottom"
                   height={36}
@@ -97,8 +99,8 @@ export default function SharedCasesChart({ data }) {
                   iconSize={8}
                   wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }}
                   formatter={(value, entry) => (
-                    <span className="text-gray-600 font-medium">
-                      {value} <span className="text-gray-400">({entry.payload.percentage}%)</span>
+                    <span className="text-white/80 font-medium">
+                      {value} <span className="text-white/50">({entry.payload.percentage}%)</span>
                     </span>
                   )}
                 />
