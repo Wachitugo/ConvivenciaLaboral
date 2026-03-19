@@ -1045,7 +1045,7 @@ INSTRUCCIONES:
         if intent_result['intent'] == intent_router.DOCUMENT_ANALYSIS and not files:
             logger.info(f"🔍 [REMOTE SEARCH] User requested document analysis without attachments. Using Search Apps...")
             
-            yield json.dumps({"type": "thinking", "content": f"Buscando en documentos del colegio y normativas legales..."}, ensure_ascii=False) + "\n"
+            yield json.dumps({"type": "thinking", "content": f"Buscando en documentos y normativas legales..."}, ensure_ascii=False) + "\n"
             
             try:
                 # Get session context for better search
@@ -1095,7 +1095,7 @@ INSTRUCCIONES:
 
         # Simular pensamientos iniciales (UI Feedback)
         thoughts = [
-            f"Analizando Información del Colegio {school_name}...",
+            f"Analizando información de {school_name}...",
             "Consultando contexto..."
         ]
         if is_protocol:

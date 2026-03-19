@@ -163,49 +163,18 @@ class ReglamentoSearchService:
                 f"servingConfigs/default_search"
             )
             
-            # 1. Definir request Enterprise (con Extractive Segments)
-            enterprise_request = {
+            standard_request = {
                 "serving_config": serving_config,
                 "query": query,
                 "page_size": max_results,
                 "content_search_spec": {
-                    "extractive_content_spec": {
-                        "max_extractive_answer_count": 1, 
-                        "max_extractive_segment_count": 5,
-                        "return_extractive_segment_score": True
-                    },
                     "snippet_spec": {
                         "return_snippet": True,
                         "max_snippet_count": 5,
                     }
                 }
             }
-            
-            response = None
-            try:
-                # Intentar búsqueda Enterprise
-                response = client.search(enterprise_request)
-            except Exception as e:
-                # Si falla (ej: 400 por ser motor Standard), intentar búsqueda Standard
-                error_msg = str(e).lower()
-                if "enterprise" in error_msg or "400" in error_msg or "invalid argument" in error_msg:
-                    logger.warning(f"⚠️ [RAG] Enterprise search failed for {app_id}, retrying with Standard search. Error: {e}")
-                    
-                    standard_request = {
-                        "serving_config": serving_config,
-                        "query": query,
-                        "page_size": max_results,
-                        "content_search_spec": {
-                            # SIN extractive_content_spec
-                            "snippet_spec": {
-                                "return_snippet": True,
-                                "max_snippet_count": 5,
-                            }
-                        }
-                    }
-                    response = client.search(standard_request)
-                else:
-                    raise e
+            response = client.search(standard_request)
 
             all_results = list(response.results)
             
