@@ -108,11 +108,7 @@ function CaseCard({ student: caseItem, onSelect }) {
           {/* Primera fila: título y botones de acción */}
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="text-left flex-1 min-w-0">
-<<<<<<< HEAD
-              <h3 className="font-semibold text-white group-hover:text-[#34B6D8] transition-colors text-sm line-clamp-2">
-=======
               <h3 className="font-semibold text-[#0f172a] group-hover:text-[#1A71B8] transition-colors text-sm line-clamp-2">
->>>>>>> e9bcc40 (feat: Introduce `GlowEffect` component and revamp `CasesToolbar` UI with updated styling and quick case creation functionality.)
                 {caseItem.title}
               </h3>
             </div>
@@ -122,11 +118,6 @@ function CaseCard({ student: caseItem, onSelect }) {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-<<<<<<< HEAD
-                  setIsShareModalOpen(true);
-                }}
-                className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
-=======
                   onEdit(caseItem);
                 }}
                 className="p-1.5 rounded-lg text-[#64748b] hover:text-[#1A71B8] hover:bg-[#f0f4f8] transition-colors"
@@ -142,7 +133,6 @@ function CaseCard({ student: caseItem, onSelect }) {
                   setIsShareModalOpen(true);
                 }}
                 className="p-1.5 rounded-lg text-[#64748b] hover:text-[#1A71B8] hover:bg-[#f0f4f8] transition-colors"
->>>>>>> e9bcc40 (feat: Introduce `GlowEffect` component and revamp `CasesToolbar` UI with updated styling and quick case creation functionality.)
                 title="Compartir caso"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,15 +144,9 @@ function CaseCard({ student: caseItem, onSelect }) {
 
           {/* Segunda fila: involucrados, fecha y estados */}
           <div className="flex items-center justify-between gap-3 mt-auto">
-<<<<<<< HEAD
-            <div className="flex items-center gap-3 text-xs text-white/60">
-              {caseItem.counterCase && (
-                <span className="text-[12px] text-white font-mono bg-[#1A71B8]/20 px-1.5 py-0.5 rounded border border-[#1A71B8]/40">
-=======
             <div className="flex items-center gap-3 text-xs text-[#64748b]">
               {caseItem.counterCase && (
                 <span className="text-[12px] text-[#0f172a] font-mono bg-[#f0f4f8] px-1.5 py-0.5 rounded border border-[#e2e8f0]">
->>>>>>> e9bcc40 (feat: Introduce `GlowEffect` component and revamp `CasesToolbar` UI with updated styling and quick case creation functionality.)
                   {caseItem.counterCase}
                 </span>
               )}
