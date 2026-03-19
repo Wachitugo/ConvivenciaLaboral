@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useTheme } from '../../../contexts/ThemeContext';
 
 function OptionsMenu({
@@ -10,26 +9,7 @@ function OptionsMenu({
 }) {
   const { current } = useTheme();
 
-  // Verificar si el usuario es Trabajador
-  const isWorker = useMemo(() => {
-    try {
-      const userStr = localStorage.getItem('usuario');
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        return user.rol === 'Trabajador';
-      }
-    } catch (error) {
-      console.error('Error reading user role:', error);
-    }
-    return false;
-  }, []);
-
-  // No mostrar el menú si:
-  // 1. No está abierto
-  // 2. No hay mensajes (no se ha generado conversación)
-  // 3. Ya existe un caso relacionado
-  // 4. El usuario es Trabajador
-  if (!isOpen || messagesCount === 0 || hasRelatedCase || isWorker) return null;
+  if (!isOpen || messagesCount === 0 || hasRelatedCase) return null;
 
   const canGenerateCase = !isGeneratingCase;
 

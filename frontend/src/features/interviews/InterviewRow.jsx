@@ -52,13 +52,13 @@ function InterviewRow({ interview, onSelect, onAssociate, isSelected, onToggleSe
                 />
             </td>
             {/* Alumno */}
-            <td onClick={() => onSelect(interview)} className="px-6 py-4 whitespace-nowrap cursor-pointer">
+            <td onClick={() => onSelect(interview)} className="px-3 sm:px-5 py-4 whitespace-nowrap cursor-pointer">
                 <div className="text-sm font-bold text-white group-hover:text-[#34B6D8] transition-colors">
                     {interview.studentName}
                 </div>
             </td>
-            {/* Género */}
-            <td onClick={() => onSelect(interview)} className="px-6 py-4 whitespace-nowrap text-sm cursor-pointer">
+            {/* Género — oculto en móvil, visible desde lg */}
+            <td onClick={() => onSelect(interview)} className="hidden lg:table-cell px-3 sm:px-5 py-4 whitespace-nowrap text-sm cursor-pointer">
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${interview.gender === 'Masculino' ? 'bg-[#1A71B8]/20 text-[#34B6D8] border-[#1A71B8]/30' :
                     interview.gender === 'Femenino' ? 'bg-pink-500/20 text-pink-300 border-pink-500/30' :
                         'bg-white/10 text-white/70 border-white/20'
@@ -66,8 +66,8 @@ function InterviewRow({ interview, onSelect, onAssociate, isSelected, onToggleSe
                     {interview.gender || 'N/A'}
                 </span>
             </td>
-            {/* Curso */}
-            <td onClick={() => onSelect(interview)} className="px-6 py-4 whitespace-nowrap text-sm cursor-pointer">
+            {/* Área — oculto en móvil, visible desde md */}
+            <td onClick={() => onSelect(interview)} className="hidden md:table-cell px-3 sm:px-5 py-4 whitespace-nowrap text-sm cursor-pointer">
                 <span className="font-mono bg-white/10 text-white/80 px-2.5 py-1 rounded-lg text-xs border border-white/20">
                     {interview.grade}
                 </span>
@@ -76,19 +76,19 @@ function InterviewRow({ interview, onSelect, onAssociate, isSelected, onToggleSe
 
 
             {/* Fecha */}
-            <td onClick={() => onSelect(interview)} className="px-6 py-4 whitespace-nowrap text-sm text-white/70 cursor-pointer">
+            <td onClick={() => onSelect(interview)} className="px-3 sm:px-5 py-4 whitespace-nowrap text-sm text-white/70 cursor-pointer">
                 <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-[#34B6D8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-[#34B6D8] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     {interview.date}
                 </div>
             </td>
 
-            {/* Entrevistador */}
-            <td onClick={() => onSelect(interview)} className="px-6 py-4 whitespace-nowrap text-sm text-white/70 cursor-pointer">
+            {/* Entrevistador — oculto en móvil, visible desde lg */}
+            <td onClick={() => onSelect(interview)} className="hidden lg:table-cell px-3 sm:px-5 py-4 whitespace-nowrap text-sm text-white/70 cursor-pointer">
                 <div className="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-[#34B6D8]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-[#34B6D8] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                     {interview.interviewer || 'N/A'}
@@ -96,7 +96,7 @@ function InterviewRow({ interview, onSelect, onAssociate, isSelected, onToggleSe
             </td>
 
             {/* Estado */}
-            <td onClick={() => onSelect(interview)} className="px-6 py-4 whitespace-nowrap cursor-pointer">
+            <td onClick={() => onSelect(interview)} className="px-3 sm:px-5 py-4 whitespace-nowrap cursor-pointer">
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig.bgColor} ${statusConfig.textColor}`}>
                     <div className={`w-1.5 h-1.5 rounded-full ${statusConfig.dotColor}`} />
                     {statusConfig.label}
@@ -104,7 +104,7 @@ function InterviewRow({ interview, onSelect, onAssociate, isSelected, onToggleSe
             </td>
 
             {/* Acciones */}
-            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <td className="px-3 sm:px-5 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div className="flex items-center justify-end gap-1">
                     {interview.status === 'Autorizada' && (
                         <button
