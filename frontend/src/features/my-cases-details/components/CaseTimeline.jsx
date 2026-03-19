@@ -67,8 +67,18 @@ function CaseTimeline({ caseData, onUpdateCase, isLoading = false }) {
       setPasosProtocolo(pasosAdaptados);
       setProtocoloAsignado(caseData.protocol || 'Protocolo Inteligente');
     } else if (caseData.pasosProtocolo && caseData.pasosProtocolo.length > 0) {
-      // Si ya existen pasos guardados en el caso
-      setPasosProtocolo(caseData.pasosProtocolo);
+      // Normalizar estado también en la rama pasosProtocolo
+      const pasosNormalizados = caseData.pasosProtocolo.map((paso, index) => {
+        const isCompleted = paso.status === 'completed' || paso.estado === 'completado';
+        const isInProgress = paso.status === 'in_progress' || paso.estado === 'en_progreso';
+        return {
+          ...paso,
+          id: paso.id || `step-${index}`,
+          estado: isCompleted ? 'completado' : (isInProgress ? 'en_progreso' : 'pendiente'),
+          status: isCompleted ? 'completed' : (isInProgress ? 'in_progress' : 'pending'),
+        };
+      });
+      setPasosProtocolo(pasosNormalizados);
       setProtocoloAsignado(caseData.protocol || caseData.protocolo || null);
     }
     // REMOVED automatic fallback logic
