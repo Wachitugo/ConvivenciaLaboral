@@ -23,22 +23,22 @@ const SchoolRow = ({ school, onEditLimit }) => (
                 </div>
             </div>
         </td>
-        <td className="py-4 text-right">
+        <td className="py-4 px-6 text-right">
             <span className="font-medium text-green-600 text-sm">
                 {school.token_usage?.input_tokens?.toLocaleString() || 0}
             </span>
         </td>
-        <td className="py-4 text-right">
+        <td className="py-4 px-6 text-right">
             <span className="font-medium text-yellow-600 text-sm">
                 {school.token_usage?.output_tokens?.toLocaleString() || 0}
             </span>
         </td>
-        <td className="py-4 text-right">
+        <td className="py-4 px-6 text-right">
             <span className="font-medium text-indigo-600 text-sm">
                 {school.token_usage?.total_tokens?.toLocaleString() || 0}
             </span>
         </td>
-        <td className="py-4">
+        <td className="py-4 px-4">
             <div className="flex flex-col items-center gap-2">
                 <div className="flex items-center gap-2 w-full max-w-[180px]">
                     <span className="text-[10px] uppercase text-gray-400 font-bold w-6 text-right">In</span>
@@ -72,7 +72,7 @@ const SchoolRow = ({ school, onEditLimit }) => (
 
 const UserRow = ({ user, getSchoolName, onEditLimit }) => (
     <tr className="hover:bg-gray-50">
-        <td className="py-4 pl-4">
+        <td className="py-4 pl-4 pr-6">
             <div className="flex items-center gap-3">
                 <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center text-purple-600 font-bold text-sm border-2 border-white shadow-sm">
                     {user.nombre?.charAt(0).toUpperCase()}
@@ -83,7 +83,7 @@ const UserRow = ({ user, getSchoolName, onEditLimit }) => (
                 </div>
             </div>
         </td>
-        <td className="py-4">
+        <td className="py-4 px-4">
             {user.colegios?.length > 0 ? (
                 <div className="flex flex-wrap gap-1">
                     {user.colegios.map(schoolId => {
@@ -101,22 +101,22 @@ const UserRow = ({ user, getSchoolName, onEditLimit }) => (
                 </span>
             )}
         </td>
-        <td className="py-4 text-right">
+        <td className="py-4 px-6 text-right">
             <span className="font-medium text-green-600 text-sm">
                 {user.token_usage?.input_tokens?.toLocaleString() || 0}
             </span>
         </td>
-        <td className="py-4 text-right">
+        <td className="py-4 px-6 text-right">
             <span className="font-medium text-yellow-600 text-sm">
                 {user.token_usage?.output_tokens?.toLocaleString() || 0}
             </span>
         </td>
-        <td className="py-4 text-right">
+        <td className="py-4 px-6 text-right">
             <span className="font-medium text-indigo-600 text-sm">
                 {user.token_usage?.total_tokens?.toLocaleString() || 0}
             </span>
         </td>
-        <td className="py-4">
+        <td className="py-4 px-4">
             <div className="flex flex-col items-center gap-2">
                 <div className="flex items-center gap-2 w-full max-w-[180px]">
                     <span className="text-[10px] uppercase text-gray-400 font-bold w-6 text-right">In</span>
@@ -171,27 +171,27 @@ const TokensTable = ({
             <table className="w-full">
                 <thead>
                     <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
-                        <th className="pb-3 pl-4">Nombre</th>
-                        {activeTab === 'users' && <th className="pb-3">Colegio</th>}
-                        <th className="pb-3 cursor-pointer hover:text-gray-700 text-right group" onClick={() => onSort('input_tokens')}>
+                        <th className="pb-3 pl-4 pr-6">Nombre</th>
+                        {activeTab === 'users' && <th className="pb-3 px-4">Organización</th>}
+                        <th className="pb-3 px-6 cursor-pointer hover:text-gray-700 text-right group" onClick={() => onSort('input_tokens')}>
                             <div className="flex items-center justify-end gap-1">
                                 Input
                                 <RenderSortIcon column="input_tokens" />
                             </div>
                         </th>
-                        <th className="pb-3 cursor-pointer hover:text-gray-700 text-right group" onClick={() => onSort('output_tokens')}>
+                        <th className="pb-3 px-6 cursor-pointer hover:text-gray-700 text-right group" onClick={() => onSort('output_tokens')}>
                             <div className="flex items-center justify-end gap-1">
                                 Output
                                 <RenderSortIcon column="output_tokens" />
                             </div>
                         </th>
-                        <th className="pb-3 cursor-pointer hover:text-gray-700 text-right group" onClick={() => onSort('total_tokens')}>
+                        <th className="pb-3 px-6 cursor-pointer hover:text-gray-700 text-right group" onClick={() => onSort('total_tokens')}>
                             <div className="flex items-center justify-end gap-1">
                                 Consumo Total
                                 <RenderSortIcon column="total_tokens" />
                             </div>
                         </th>
-                        <th className="pb-3 text-center">Uso vs Límite</th>
+                        <th className="pb-3 px-4 text-center">Uso vs Límite</th>
                         <th className="pb-3 text-right pr-4">Acciones</th>
                     </tr>
                 </thead>

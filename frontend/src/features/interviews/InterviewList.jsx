@@ -170,7 +170,7 @@ function InterviewList({ interviews, onOpenModal }) {
                 loadingText="Eliminando..."
             />
 
-            <div className="flex-1 flex flex-col bg-white/5 rounded-2xl border border-white/10 overflow-hidden backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.2)] relative">
+            <div className="flex-1 flex flex-col bg-white/5 rounded-2xl border border-white/10 overflow-hidden backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.2)] relative" data-tour="interview-table">
                 {/* Loading overlay during deletion */}
                 {isDeleting && (
                     <div className="absolute inset-0 z-20 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center">
@@ -192,7 +192,7 @@ function InterviewList({ interviews, onOpenModal }) {
                         <thead className="sticky top-0 z-10">
                             <tr className="bg-white/5 border-b border-white/10">
                                 {/* Checkbox */}
-                                <th scope="col" className="px-3 py-4 w-10">
+                                <th scope="col" className="px-3 py-4 w-10" data-tour="interview-checkbox-header">
                                     <input
                                         type="checkbox"
                                         checked={allSelected}
@@ -200,58 +200,58 @@ function InterviewList({ interviews, onOpenModal }) {
                                         className="w-4 h-4 text-[#34B6D8] bg-white/10 border-white/20 rounded focus:ring-[#34B6D8] focus:ring-2 cursor-pointer"
                                     />
                                 </th>
-                                {/* Alumno */}
-                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest w-1/4">
+                                {/* Trabajador — siempre visible */}
+                                <th scope="col" className="px-3 sm:px-5 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest whitespace-nowrap">
                                     <div className="flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4 text-white/50 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
                                         Trabajador
                                     </div>
                                 </th>
-                                {/* Género */}
-                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest">
+                                {/* Género — oculto en móvil, visible desde lg */}
+                                <th scope="col" className="hidden lg:table-cell px-3 sm:px-5 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest whitespace-nowrap">
                                     <div className="flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4 text-white/50 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                                         </svg>
                                         Género
                                     </div>
                                 </th>
-                                {/* Curso */}
-                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest">
+                                {/* Área — oculto en móvil, visible desde md */}
+                                <th scope="col" className="hidden md:table-cell px-3 sm:px-5 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest whitespace-nowrap">
                                     <div className="flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4 text-white/50 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                         </svg>
-                                        Área de trabajo
+                                        Área
                                     </div>
                                 </th>
 
-                                {/* Fecha */}
-                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest">
+                                {/* Fecha — siempre visible */}
+                                <th scope="col" className="px-3 sm:px-5 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest whitespace-nowrap">
                                     <div className="flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4 text-white/50 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
                                         Fecha
                                     </div>
                                 </th>
 
-                                {/* Entrevistador */}
-                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest">
+                                {/* Entrevistador — oculto en móvil, visible desde lg */}
+                                <th scope="col" className="hidden lg:table-cell px-3 sm:px-5 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest whitespace-nowrap">
                                     <div className="flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4 text-white/50 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                         </svg>
                                         Entrevistador
                                     </div>
                                 </th>
 
-                                {/* Estado */}
-                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest">
+                                {/* Estado — siempre visible */}
+                                <th scope="col" className="px-3 sm:px-5 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest whitespace-nowrap" data-tour="interview-status-col">
                                     <div className="flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4 text-white/50 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
                                         Estado
@@ -259,7 +259,7 @@ function InterviewList({ interviews, onOpenModal }) {
                                 </th>
 
                                 {/* Acciones */}
-                                <th scope="col" className="relative px-6 py-4">
+                                <th scope="col" className="relative px-3 sm:px-5 py-4">
                                     <span className="sr-only">Acciones</span>
                                 </th>
                             </tr>

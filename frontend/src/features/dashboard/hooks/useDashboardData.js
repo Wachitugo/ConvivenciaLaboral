@@ -138,19 +138,19 @@ export const useDashboardData = () => {
           return;
         }
 
-        // Directivo ve todos los casos del colegio, otros roles ven solo sus casos
-        const isDirectivo = usuario.rol === 'Directivo';
-        logger.info(`[Dashboard] Usuario: ${usuario.nombre}, Rol: ${usuario.rol}, isDirectivo: ${isDirectivo}`);
+        // Gerente ve todos los casos del colegio, otros roles ven solo sus casos
+        const isGerente = usuario.rol === 'Gerente Relaciones Laborales';
+        logger.info(`[Dashboard] Usuario: ${usuario.nombre}, Rol: ${usuario.rol}, isGerente: ${isGerente}`);
 
         const [cases, sessions, interviews] = await Promise.all([
-          isDirectivo
+          isGerente
             ? casesService.getAllCasesBySchool(colegio.id)
             : casesService.getCases(usuario.id, colegio.id),
           chatService.getSessions(usuario.id).catch(err => {
             logger.error("Error fetching sessions:", err);
             return [];
           }),
-          isDirectivo
+          isGerente
             ? interviewsService.listAllBySchool(colegio.id).catch(err => {
                 logger.error("Error fetching all school interviews:", err);
                 return [];

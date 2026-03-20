@@ -12,14 +12,30 @@ import {
   useStudentFilters
 } from '../features/student-file';
 import { studentsService } from '../services/api';
+import CreateStudentModal from '../features/student-file-details/components/CreateStudentModal';
+import ColaboradoresTour from '../features/student-file/components/ColaboradoresTour';
 
 function FichaAlumnosPage() {
   const { current } = useTheme();
   const { isSidebarOpen, toggleSidebar } = useOutletContext();
   const [students, setStudents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(null);
 
   const { filteredStudents, filters, handleFilterChange, handleClearFilters, isFiltered } = useStudentFilters(students);
+
+  const userRol = (() => {
+    try { return JSON.parse(localStorage.getItem('usuario'))?.rol || ''; }
+    catch { return ''; }
+  })();
+
+  const canCreateStudent = [
+    'Gerente Relaciones Laborales',
+    'Encargado de Relaciones Laborales',
+    'Investigador'
+  ].includes(userRol);
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -57,6 +73,28 @@ function FichaAlumnosPage() {
     fetchStudents();
   }, []);
 
+  const handleCreateStudent = async (studentData) => {
+    try {
+      setIsSaving(true);
+      const userStr = localStorage.getItem('usuario');
+      const user = JSON.parse(userStr);
+      const colegioId = typeof user.colegios?.[0] === 'object' ? user.colegios[0].id : user.colegios?.[0];
+
+      await studentsService.createStudent({ ...studentData, colegio_id: colegioId });
+
+      // Recargar lista
+      const data = await studentsService.getStudents(colegioId);
+      setStudents(data);
+      setShowCreateModal(false);
+      setSuccessMessage(`${studentData.nombres} ${studentData.apellidos} fue agregado correctamente.`);
+      setTimeout(() => setSuccessMessage(null), 4000);
+    } catch (error) {
+      console.error('Error creating student:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (isLoading) {
     return <FichaAlumnosPageSkeleton />;
   }
@@ -68,6 +106,7 @@ function FichaAlumnosPage() {
         onFilterChange={handleFilterChange}
         totalStudents={students.length}
         filteredCount={filteredStudents.length}
+        onCreateStudent={canCreateStudent ? () => setShowCreateModal(true) : null}
       />
       <div className="flex-1 px-4  pb-4 sm:pb-6 overflow-y-auto">
         {filteredStudents.length === 0 && students.length === 0 ? (
@@ -78,6 +117,30 @@ function FichaAlumnosPage() {
           <StudentCards students={filteredStudents} />
         )}
       </div>
+      {/* Toast de éxito */}
+      {successMessage && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-fade-in-down">
+          <div className="bg-white border border-green-100 rounded-2xl shadow-xl px-5 py-4 flex items-center gap-3 min-w-[320px]">
+            <div className="w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-800">Colaborador creado</p>
+              <p className="text-xs text-gray-500">{successMessage}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <CreateStudentModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSave={handleCreateStudent}
+        isSaving={isSaving}
+      />
+      <ColaboradoresTour />
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useTheme } from '../../../contexts/ThemeContext';
 
 function HeaderButtons({
@@ -12,26 +11,8 @@ function HeaderButtons({
 }) {
   const { current } = useTheme();
 
-  // Verificar si el usuario es Trabajador
-  const isWorker = useMemo(() => {
-    try {
-      const userStr = localStorage.getItem('usuario');
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        return user.rol === 'Trabajador';
-      }
-    } catch (error) {
-      console.error('Error reading user role:', error);
-    }
-    return false;
-  }, []);
-
-  // Mostrar botón "Generar Caso" solo si:
-  // - Hay mensajes (conversación iniciada)
-  // - No hay caso relacionado ya
-  // - No se está generando un caso
-  // - El usuario NO es Trabajador
-  const showGenerateCaseButton = messagesCount > 0 && !relatedCase && !isGeneratingCase && !isWorker;
+  // Mostrar botón "Generar Caso" solo si hay mensajes, no hay caso y no está generando
+  const showGenerateCaseButton = messagesCount > 0 && !relatedCase && !isGeneratingCase;
 
   // Filtrar archivos internos (protocol_*) para el contador
   const safeFilesCount = chatFiles.filter(f => {
@@ -60,6 +41,7 @@ function HeaderButtons({
       {/* Botón "Generar Caso" */}
       {showGenerateCaseButton && (
         <button
+          data-tour="chat-generate-case-btn"
           onClick={onGenerateCase}
           className={`px-3 py-2 rounded-xl ${current.textPrimary} bg-blue-600 hover:bg-blue-700 text-white transition-all flex items-center gap-2`}
           title="Generar Caso"

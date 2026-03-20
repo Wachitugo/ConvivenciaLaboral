@@ -481,7 +481,9 @@ function ChatInterfaceGeneral({ onSendMessage, relatedCase, isThinking, isStream
 
       {/* Sugerencias - Solo se muestran cuando no hay mensajes */}
       {onSuggestionClick && !hasMessages && (
-        <SuggestionCards onSuggestionClick={onSuggestionClick} />
+        <div data-tour="chat-suggestions">
+          <SuggestionCards onSuggestionClick={onSuggestionClick} />
+        </div>
       )}
 
 
@@ -515,6 +517,7 @@ function ChatInterfaceGeneral({ onSendMessage, relatedCase, isThinking, isStream
           <div className="relative flex items-start gap-4 px-2">
             <label
               htmlFor="file-upload"
+              data-tour="chat-attach-btn"
               className="flex-shrink-0 mt-[14px] cursor-pointer text-[#64748b] hover:text-[#1A71B8] transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -524,6 +527,7 @@ function ChatInterfaceGeneral({ onSendMessage, relatedCase, isThinking, isStream
 
             <textarea
               ref={textareaRef}
+              data-tour="chat-input"
               value={input + (isListening ? interimTranscript : '')}
               onChange={handleInputChange}
               onKeyDown={(e) => {
@@ -626,22 +630,6 @@ function ChatInterfaceGeneral({ onSendMessage, relatedCase, isThinking, isStream
                 <span>Voz</span>
               </button>
 
-              {/* Divisor */}
-              <div className="w-px h-4 bg-slate-200 mx-2" />
-
-              {/* Tags de sugerencia rápida */}
-              <div className="hidden sm:flex gap-2">
-                {['Conflicto laboral', 'Protocolo', 'Ley 21.643'].map(tag => (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => setInput(prev => prev ? `${prev} ${tag}` : tag)}
-                    className="px-3 py-1 bg-slate-50 hover:bg-[#1A71B8]/5 rounded-lg text-[10px] font-black uppercase tracking-wider text-[#64748b] hover:text-[#1A71B8] transition-all"
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* Botón enviar / stop */}

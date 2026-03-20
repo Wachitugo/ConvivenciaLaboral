@@ -42,6 +42,15 @@ function CaseTimeline({ caseData, onUpdateCase, isLoading = false }) {
     return () => clearInterval(interval);
   }, [isGenerating]);
 
+  // Determinar si el caso es de acoso sexual
+  const esAcosoSexual = /acoso sexual/i.test(caseData.caseType || caseData.case_type || '');
+
+  // Si el caso no es de acoso sexual, quitar el texto condicional entre paréntesis del título
+  const limpiarTitulo = (titulo) => {
+    if (esAcosoSexual) return titulo;
+    return titulo.replace(/\s*\(en caso de acoso sexual\)/gi, '').trim();
+  };
+
   // Cargar pasos del protocolo
   useEffect(() => {
     if (caseData.protocolSteps && caseData.protocolSteps.length > 0) {
@@ -50,12 +59,13 @@ function CaseTimeline({ caseData, onUpdateCase, isLoading = false }) {
         // Determine status/estado considering both backend (status) and frontend (estado) keys
         const isCompleted = paso.status === 'completed' || paso.estado === 'completado';
         const isInProgress = paso.status === 'in_progress' || paso.estado === 'en_progreso';
+        const tituloRaw = paso.title || paso.titulo || '';
 
         return {
           ...paso, // Preserve original fields (like status, id, etc)
           id: paso.id || `step-${index}`,
-          titulo: paso.title || paso.titulo || paso,
-          descripcion: paso.description || paso.title || paso.titulo || "",
+          titulo: limpiarTitulo(tituloRaw),
+          descripcion: paso.description || limpiarTitulo(tituloRaw) || "",
           estado: isCompleted ? 'completado' : (isInProgress ? 'en_progreso' : 'pendiente'),
           status: isCompleted ? 'completed' : (isInProgress ? 'in_progress' : 'pending'), // Ensure status is kept in sync
           fecha: paso.completed_at || paso.fecha || null,
@@ -67,8 +77,20 @@ function CaseTimeline({ caseData, onUpdateCase, isLoading = false }) {
       setPasosProtocolo(pasosAdaptados);
       setProtocoloAsignado(caseData.protocol || 'Protocolo Inteligente');
     } else if (caseData.pasosProtocolo && caseData.pasosProtocolo.length > 0) {
-      // Si ya existen pasos guardados en el caso
-      setPasosProtocolo(caseData.pasosProtocolo);
+      // Normalizar estado también en la rama pasosProtocolo
+      const pasosNormalizados = caseData.pasosProtocolo.map((paso, index) => {
+        const isCompleted = paso.status === 'completed' || paso.estado === 'completado';
+        const isInProgress = paso.status === 'in_progress' || paso.estado === 'en_progreso';
+        const tituloRaw = paso.titulo || paso.title || '';
+        return {
+          ...paso,
+          id: paso.id || `step-${index}`,
+          titulo: limpiarTitulo(tituloRaw),
+          estado: isCompleted ? 'completado' : (isInProgress ? 'en_progreso' : 'pendiente'),
+          status: isCompleted ? 'completed' : (isInProgress ? 'in_progress' : 'pending'),
+        };
+      });
+      setPasosProtocolo(pasosNormalizados);
       setProtocoloAsignado(caseData.protocol || caseData.protocolo || null);
     }
     // REMOVED automatic fallback logic

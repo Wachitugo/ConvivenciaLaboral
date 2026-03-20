@@ -31,7 +31,7 @@ function CaseInvolved({ caseData, onUpdateCase, isLoading = false }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isFormOpen]);
 
-  const handleAddParticipant = ({ name, grade, rut, gender, role, studentId }) => {
+  const handleAddParticipant = ({ name, grade, rut, gender, role, cargo, antiguedad, studentId }) => {
     const participant = {
       id: Date.now(),
       name,
@@ -39,6 +39,8 @@ function CaseInvolved({ caseData, onUpdateCase, isLoading = false }) {
       rut,
       gender,
       role,
+      cargo,
+      antiguedad,
       studentId // Reference to the student in the system
     };
 

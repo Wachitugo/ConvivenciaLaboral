@@ -29,6 +29,7 @@ export function useTokensSection(initialTab = 'dashboard') {
     const [selectedSchoolId, setSelectedSchoolId] = useState('');
     const [selectedUserId, setSelectedUserId] = useState('');
     const [loading, setLoading] = useState(true);
+    const [loadingHistory, setLoadingHistory] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
     const [modalOpen, setModalOpen] = useState(false);
@@ -59,6 +60,7 @@ export function useTokensSection(initialTab = 'dashboard') {
     };
 
     const fetchHistory = async () => {
+        setLoadingHistory(true);
         try {
             const filters = {
                 startDate: dateRange.start,
@@ -74,6 +76,8 @@ export function useTokensSection(initialTab = 'dashboard') {
             setLogs(logsRes);
         } catch (error) {
             console.error("Error fetching history/logs", error);
+        } finally {
+            setLoadingHistory(false);
         }
     };
 
@@ -119,8 +123,8 @@ export function useTokensSection(initialTab = 'dashboard') {
     );
 
     const filteredUsers = users.filter(u =>
-        u.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.correo.toLowerCase().includes(searchTerm.toLowerCase())
+        (u.nombre?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (u.correo?.toLowerCase() || '').includes(searchTerm.toLowerCase())
     );
 
     const handleSort = (key) => {
@@ -179,6 +183,7 @@ export function useTokensSection(initialTab = 'dashboard') {
         selectedUserId,
         setSelectedUserId,
         loading,
+        loadingHistory,
         searchTerm,
         setSearchTerm,
         modalOpen,

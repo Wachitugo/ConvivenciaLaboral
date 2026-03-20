@@ -2,7 +2,9 @@ import React from 'react';
 import { Activity, Clock } from 'lucide-react';
 
 export default function TokenActivityTimeline({ data }) {
-    const sortedData = [...(data || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const sortedData = [...(data || [])]
+        .filter(item => (item.total_tokens || 0) > 0)
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
 
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 h-full flex flex-col">
