@@ -469,7 +469,7 @@ function MyCases() {
         <>
           {/* Contenedor principal - "Deep Blue Contrast" */}
           <div
-            className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden`}
+            className={`flex-1 flex  rounded-3xl border border-[#1A71B8]/30 bg-[#0A3866]/30 backdrop-blur-3xl flex-col transition-all duration-300 overflow-hidden`}
           >
       
             <CasesToolbar
