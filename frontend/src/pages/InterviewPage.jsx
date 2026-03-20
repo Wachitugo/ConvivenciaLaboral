@@ -8,6 +8,7 @@ import {
     InterviewPageSkeleton
 } from '../features/interviews';
 import InterviewToolbar from '../features/interviews/InterviewToolbar';
+import InterviewsTour from '../features/interviews/InterviewsTour';
 
 function InterviewPage() {
     const { current } = useTheme();
@@ -170,6 +171,7 @@ function InterviewPage() {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
             />
+            <InterviewsTour />
         </>
     );
 }

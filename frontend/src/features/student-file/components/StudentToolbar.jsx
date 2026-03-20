@@ -11,7 +11,7 @@ function StudentToolbar({ filters, onFilterChange, totalStudents, filteredCount,
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2 flex-1 flex-wrap">
                     {/* Búsqueda */}
-                    <div className="relative max-w-xs min-w-[200px]">
+                    <div className="relative max-w-xs min-w-[200px]" data-tour="colaboradores-search">
                         <input
                             type="text"
                             name="searchTerm"
@@ -23,12 +23,14 @@ function StudentToolbar({ filters, onFilterChange, totalStudents, filteredCount,
                     </div>
 
                     {/* Filtros */}
+                    <div className="flex items-center gap-2 flex-wrap" data-tour="colaboradores-filters">
                     <FilterDropdown name="sortBy" value={filters.sortBy} onChange={onFilterChange} options={SORT_OPTIONS} className="w-auto" />
                     <FilterDropdown name="curso" value={filters.curso} onChange={onFilterChange} options={CURSO_OPTIONS} className="w-auto" />
                     <FilterDropdown name="characteristic" value={filters.characteristic} onChange={onFilterChange} options={CHARACTERISTIC_OPTIONS} className="w-auto" />
 
+                    </div>
                     {/* Contador */}
-                    <span className="text-xs sm:text-sm text-white/50 font-medium whitespace-nowrap">
+                    <span className="text-xs sm:text-sm text-white/50 font-medium whitespace-nowrap" data-tour="colaboradores-counter">
                         {isFiltered ? (
                             <>
                                 <span className="font-semibold text-[#34B6D8]">{filteredCount}</span>
@@ -46,6 +48,7 @@ function StudentToolbar({ filters, onFilterChange, totalStudents, filteredCount,
                 {/* Botón Nuevo Colaborador — solo roles autorizados */}
                 {onCreateStudent && (
                     <button
+                        data-tour="colaboradores-new-btn"
                         onClick={onCreateStudent}
                         className="px-6 py-2.5 bg-[#1A71B8] hover:bg-[#155d96] text-white text-sm font-bold rounded-full shadow-xl border border-white/20 flex items-center gap-2 transition-colors active:scale-[0.98] whitespace-nowrap"
                     >

@@ -13,6 +13,7 @@ import {
 } from '../features/student-file';
 import { studentsService } from '../services/api';
 import CreateStudentModal from '../features/student-file-details/components/CreateStudentModal';
+import ColaboradoresTour from '../features/student-file/components/ColaboradoresTour';
 
 function FichaAlumnosPage() {
   const { current } = useTheme();
@@ -139,6 +140,7 @@ function FichaAlumnosPage() {
         onSave={handleCreateStudent}
         isSaving={isSaving}
       />
+      <ColaboradoresTour />
     </div>
   );
 }

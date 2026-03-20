@@ -41,6 +41,7 @@ function HeaderButtons({
       {/* Botón "Generar Caso" */}
       {showGenerateCaseButton && (
         <button
+          data-tour="chat-generate-case-btn"
           onClick={onGenerateCase}
           className={`px-3 py-2 rounded-xl ${current.textPrimary} bg-blue-600 hover:bg-blue-700 text-white transition-all flex items-center gap-2`}
           title="Generar Caso"

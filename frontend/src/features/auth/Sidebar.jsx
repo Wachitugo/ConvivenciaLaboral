@@ -92,6 +92,7 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
 
   return (
     <aside
+      data-tour="chat-sidebar"
       className={`
         transition-all duration-300 ease-in-out
         flex flex-col
@@ -142,6 +143,7 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
         <div className={`${isOpen ? 'px-4 mb-5' : 'px-2.5 mb-4'}`}>
           {isOpen ? (
             <button
+              data-tour="chat-new-btn"
               onClick={handleNewConsulta}
               className="sidebar-fade-in w-full flex items-center justify-center gap-2 bg-[#0A3866] hover:bg-[#1A71B8] text-white font-bold text-sm py-3 px-4 rounded-2xl transition-all shadow-md shadow-[#1A71B8]/20 active:scale-[0.98]"
             >

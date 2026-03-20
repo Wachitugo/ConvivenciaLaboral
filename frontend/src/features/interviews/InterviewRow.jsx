@@ -108,6 +108,7 @@ function InterviewRow({ interview, onSelect, onAssociate, isSelected, onToggleSe
                 <div className="flex items-center justify-end gap-1">
                     {interview.status === 'Autorizada' && (
                         <button
+                            data-tour="interview-associate-btn"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 onAssociate(interview);

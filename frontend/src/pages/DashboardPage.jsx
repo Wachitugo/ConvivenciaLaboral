@@ -15,6 +15,7 @@ import {
 } from '../features/dashboard';
 import { useDashboardData } from '../features/dashboard/hooks/useDashboardData';
 import Breadcrumb from '../components/Breadcrumb';
+import DashboardTour from '../features/dashboard/DashboardTour';
 import { useState } from 'react';
 
 function DashboardPage() {
@@ -50,7 +51,7 @@ function DashboardPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3" data-tour="dashboard-filters">
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(e.target.value)}
@@ -92,39 +93,53 @@ function DashboardPage() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#1A71B8]/5 via-[#0A3866]/0 to-transparent pointer-events-none blur-[120px] -z-10"></div>
             
             {/* KPI Cards - Arriba del todo */}
-            <StatsCards stats={dashboardData.stats} />
+            <div data-tour="dashboard-stats">
+              <StatsCards stats={dashboardData.stats} />
+            </div>
 
             {/* Fila 1: Casos próximos a vencer y gráficos */}
             <div className="grid grid-cols-3 gap-4 mb-4">
-              <RecentCases
-                cases={dashboardData.allCases}
-              />
-              <CaseStatusChart data={dashboardData.statusDistribution} />
-
-              <InterviewDemographicsChart
-                genderData={dashboardData.interviewsGender}
-                gradeData={dashboardData.interviewsGrade}
-              />
+              <div data-tour="dashboard-recent-cases">
+                <RecentCases cases={dashboardData.allCases} />
+              </div>
+              <div data-tour="dashboard-status-chart">
+                <CaseStatusChart data={dashboardData.statusDistribution} />
+              </div>
+              <div data-tour="dashboard-demographics">
+                <InterviewDemographicsChart
+                  genderData={dashboardData.interviewsGender}
+                  gradeData={dashboardData.interviewsGrade}
+                />
+              </div>
             </div>
             {/* Fila 3: Estadísticas de Entrevistas */}
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <InterviewCountChart data={dashboardData.interviewsGrade} />
-              <InterviewAssignmentChart data={dashboardData.interviewsAssignment} />
-
+              <div data-tour="dashboard-interview-count">
+                <InterviewCountChart data={dashboardData.interviewsGrade} />
+              </div>
+              <div data-tour="dashboard-interview-assignment">
+                <InterviewAssignmentChart data={dashboardData.interviewsAssignment} />
+              </div>
             </div>
             {/* Fila 2: Evolución mensual y Actividad diaria */}
             <div className="grid grid-cols-3 gap-4 mb-4">
-              <DailyActivityChart
-                data={dashboardData.dailyActivity}
-                selectedMonth={selectedMonth}
-                selectedYear={selectedYear}
-              />
-              <MonthlyCasesChart
-                data={dashboardData.monthlyEvolution}
-                rollingData={dashboardData.monthlyRolling}
-                selectedYear={selectedYear}
-              />
-              <SharedCasesChart data={dashboardData.sharedCases} />
+              <div data-tour="dashboard-daily-activity">
+                <DailyActivityChart
+                  data={dashboardData.dailyActivity}
+                  selectedMonth={selectedMonth}
+                  selectedYear={selectedYear}
+                />
+              </div>
+              <div data-tour="dashboard-monthly-cases">
+                <MonthlyCasesChart
+                  data={dashboardData.monthlyEvolution}
+                  rollingData={dashboardData.monthlyRolling}
+                  selectedYear={selectedYear}
+                />
+              </div>
+              <div data-tour="dashboard-shared-cases">
+                <SharedCasesChart data={dashboardData.sharedCases} />
+              </div>
             </div>
 
 
@@ -132,6 +147,7 @@ function DashboardPage() {
           </div>
         </div>
       )}
+      <DashboardTour />
     </>
   );
 }

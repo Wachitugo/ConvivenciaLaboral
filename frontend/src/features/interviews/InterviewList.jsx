@@ -170,7 +170,7 @@ function InterviewList({ interviews, onOpenModal }) {
                 loadingText="Eliminando..."
             />
 
-            <div className="flex-1 flex flex-col bg-white/5 rounded-2xl border border-white/10 overflow-hidden backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.2)] relative">
+            <div className="flex-1 flex flex-col bg-white/5 rounded-2xl border border-white/10 overflow-hidden backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.2)] relative" data-tour="interview-table">
                 {/* Loading overlay during deletion */}
                 {isDeleting && (
                     <div className="absolute inset-0 z-20 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center">
@@ -192,7 +192,7 @@ function InterviewList({ interviews, onOpenModal }) {
                         <thead className="sticky top-0 z-10">
                             <tr className="bg-white/5 border-b border-white/10">
                                 {/* Checkbox */}
-                                <th scope="col" className="px-3 py-4 w-10">
+                                <th scope="col" className="px-3 py-4 w-10" data-tour="interview-checkbox-header">
                                     <input
                                         type="checkbox"
                                         checked={allSelected}
@@ -249,7 +249,7 @@ function InterviewList({ interviews, onOpenModal }) {
                                 </th>
 
                                 {/* Estado — siempre visible */}
-                                <th scope="col" className="px-3 sm:px-5 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest whitespace-nowrap">
+                                <th scope="col" className="px-3 sm:px-5 py-4 text-left text-xs font-bold text-white/70 uppercase tracking-widest whitespace-nowrap" data-tour="interview-status-col">
                                     <div className="flex items-center gap-2">
                                         <svg className="w-4 h-4 text-white/50 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

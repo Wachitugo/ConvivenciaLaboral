@@ -43,7 +43,7 @@ function InterviewToolbar({
                     {/* Filters Section */}
                     <div className="flex items-center gap-2 flex-1 flex-wrap min-w-0">
                         {/* Search */}
-                        <div className="relative max-w-xs min-w-[200px]">
+                        <div className="relative max-w-xs min-w-[200px]" data-tour="interview-search">
                             <input
                                 type="text"
                                 name="searchTerm"
@@ -55,6 +55,7 @@ function InterviewToolbar({
                         </div>
 
                         {/* Main Filters */}
+                        <div className="flex items-center gap-2 flex-wrap" data-tour="interview-filters">
                         <FilterDropdown name="sortBy" value={filters.sortBy} onChange={onFilterChange} options={sortOptions} />
                         <div className="hidden md:block">
                             <FilterDropdown
@@ -100,9 +101,11 @@ function InterviewToolbar({
                             />
                         </div>
 
+                        </div>
                         {/* More Filters Toggle */}
                         <div className="relative">
                             <button
+                                data-tour="interview-more-filters"
                                 onClick={() => setShowMoreFilters(!showMoreFilters)}
                                 className={`px-4 py-2 border rounded-full text-sm font-medium flex items-center gap-2 transition-all shadow-sm ${showMoreFilters || filters.year !== 'all' || filters.month !== 'all'
                                     ? 'bg-white/20 text-white border-white/40 backdrop-blur-md'
@@ -135,6 +138,7 @@ function InterviewToolbar({
                     <div className="flex items-center gap-1 relative flex-shrink-0">
                         {/* New Interview Button */}
                         <button
+                            data-tour="interview-new-btn"
                             onClick={onOpenModal}
                             className="px-4 sm:px-6 py-2.5 shadow-lg rounded-full font-bold text-sm flex items-center gap-2 transition-all active:scale-[0.98] whitespace-nowrap z-50 bg-[#1A71B8] hover:bg-[#1A71B8]/80 text-white border border-white/10"
                         >
