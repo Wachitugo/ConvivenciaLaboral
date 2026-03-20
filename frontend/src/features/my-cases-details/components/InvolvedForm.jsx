@@ -15,7 +15,9 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
     studentName: '',
     rut: '',
     gender: '',
-    role: ''
+    role: '',
+    cargo: '',
+    antiguedad: ''
   });
 
   // Autocomplete states
@@ -127,10 +129,12 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
       rut: formData.rut,
       gender: formData.gender,
       role: formData.role,
+      cargo: formData.cargo,
+      antiguedad: formData.antiguedad,
       studentId: selectedStudentId
     });
 
-    setFormData({ grade: '', studentName: '', rut: '', gender: '', role: '' });
+    setFormData({ grade: '', studentName: '', rut: '', gender: '', role: '', cargo: '', antiguedad: '' });
     setSelectedStudentId(null);
   };
 
@@ -233,10 +237,50 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
         )}
       </div>
 
-      {/* Step 3: Rol */}
+      {/* Step 3: Cargo y Antigüedad */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-bold text-white/50 uppercase tracking-widest flex items-center gap-2">
+            <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${selectedStudentId ? 'bg-[#1A71B8] text-white shadow-[0_0_8px_rgba(26,113,184,0.6)]' : 'bg-white/5 text-white/30'}`}>3</span>
+            Cargo
+          </label>
+          <input
+            type="text"
+            name="cargo"
+            value={formData.cargo}
+            onChange={handleInputChange}
+            disabled={!selectedStudentId}
+            placeholder="Ej: Supervisor"
+            className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-1 focus:ring-[#34B6D8] focus:border-[#34B6D8] text-sm transition-all ${selectedStudentId
+              ? 'border-white/20 bg-white/5 text-white placeholder-white/40 focus:bg-[#0A3866]/80'
+              : 'border-transparent bg-white/5 text-white/30 cursor-not-allowed placeholder-white/20'
+              }`}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-bold text-white/50 uppercase tracking-widest flex items-center gap-2">
+            <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${selectedStudentId ? 'bg-[#1A71B8] text-white shadow-[0_0_8px_rgba(26,113,184,0.6)]' : 'bg-white/5 text-white/30'}`}>4</span>
+            Antigüedad
+          </label>
+          <input
+            type="text"
+            name="antiguedad"
+            value={formData.antiguedad}
+            onChange={handleInputChange}
+            disabled={!selectedStudentId}
+            placeholder="Ej: 3 años"
+            className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-1 focus:ring-[#34B6D8] focus:border-[#34B6D8] text-sm transition-all ${selectedStudentId
+              ? 'border-white/20 bg-white/5 text-white placeholder-white/40 focus:bg-[#0A3866]/80'
+              : 'border-transparent bg-white/5 text-white/30 cursor-not-allowed placeholder-white/20'
+              }`}
+          />
+        </div>
+      </div>
+
+      {/* Step 5: Rol */}
       <div className="space-y-1.5">
         <label className="text-[10px] font-bold text-white/50 uppercase tracking-widest flex items-center gap-2">
-          <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${selectedStudentId ? 'bg-[#1A71B8] text-white shadow-[0_0_8px_rgba(26,113,184,0.6)]' : 'bg-white/5 text-white/30'}`}>3</span>
+          <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${selectedStudentId ? 'bg-[#1A71B8] text-white shadow-[0_0_8px_rgba(26,113,184,0.6)]' : 'bg-white/5 text-white/30'}`}>5</span>
           Rol en el Caso
         </label>
         <select

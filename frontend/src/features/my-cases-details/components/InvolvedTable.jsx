@@ -26,12 +26,12 @@ const getRoleBadgeClasses = (color) => {
 
 function InvolvedTable({ involved, onRemoveParticipants, onUpdateParticipant }) {
   const [editingPerson, setEditingPerson] = useState(null);
-  const [editForm, setEditForm] = useState({ name: '', role: '' });
+  const [editForm, setEditForm] = useState({ name: '', role: '', cargo: '', antiguedad: '' });
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   const handleEdit = (person) => {
     setEditingPerson(person.id);
-    setEditForm({ name: person.name || '', role: person.role || '' });
+    setEditForm({ name: person.name || '', role: person.role || '', cargo: person.cargo || '', antiguedad: person.antiguedad || '' });
   };
 
   const handleSaveEdit = (personId) => {
@@ -67,10 +67,12 @@ function InvolvedTable({ involved, onRemoveParticipants, onUpdateParticipant }) 
       ) : (
         <>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[500px]">
+            <table className="w-full min-w-[700px]">
               <thead>
                 <tr className="border-b border-white/10">
                   <th className="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-wider bg-black/20">Involucrado</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-wider bg-black/20">Cargo</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-wider bg-black/20">Antigüedad</th>
                   <th className="px-6 py-4 text-left text-[10px] font-bold text-white/50 uppercase tracking-wider bg-black/20">Rol</th>
                   <th className="px-6 py-4 text-right text-[10px] font-bold text-white/50 uppercase tracking-wider bg-black/20">Acciones</th>
                 </tr>
@@ -111,6 +113,40 @@ function InvolvedTable({ involved, onRemoveParticipants, onUpdateParticipant }) 
                               )}
                             </div>
                           </div>
+                        )}
+                      </td>
+
+                      {/* Cargo */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editForm.cargo}
+                            onChange={(e) => setEditForm(prev => ({ ...prev, cargo: e.target.value }))}
+                            className="w-full px-3 py-1.5 border border-[#34B6D8]/50 bg-black/30 text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-[#34B6D8] text-sm"
+                            placeholder="Ej: Supervisor"
+                          />
+                        ) : (
+                          <span className="text-sm text-white/70">
+                            {person.cargo || <span className="text-white/25 italic text-xs">—</span>}
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Antigüedad */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editForm.antiguedad}
+                            onChange={(e) => setEditForm(prev => ({ ...prev, antiguedad: e.target.value }))}
+                            className="w-full px-3 py-1.5 border border-[#34B6D8]/50 bg-black/30 text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-[#34B6D8] text-sm"
+                            placeholder="Ej: 3 años"
+                          />
+                        ) : (
+                          <span className="text-sm text-white/70">
+                            {person.antiguedad || <span className="text-white/25 italic text-xs">—</span>}
+                          </span>
                         )}
                       </td>
 
