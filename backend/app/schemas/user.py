@@ -5,11 +5,6 @@ from enum import Enum
 
 class RoleName(str, Enum):
     """Roles fijos del sistema"""
-    ENCARGADO_CONVIVENCIA = "Encargado de Convivencia"
-    ESTUDIANTE = "Estudiante"
-    TRABAJADOR = "Trabajador"
-    APODERADO = "Apoderado"
-    DIRECTIVO = "Directivo"
     GERENTE_RELACIONES_LABORALES = "Gerente Relaciones Laborales"
     ENCARGADO_RELACIONES_LABORALES = "Encargado de Relaciones Laborales"
     INVESTIGADOR = "Investigador"

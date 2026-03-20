@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from firebase_admin import firestore
 
 from app.services.users.user_service import user_service
+from app.services.users.user_service_simple import user_service_simple
 from app.services.school_service import school_service
 from app.api import dependencies # Assuming dependencies module handles auth
 from app.schemas.user import Usuario, Colegio, UsuarioUpdate, ColegioUpdate
@@ -29,7 +30,7 @@ async def get_global_stats(
     # TODO: Validar permisos de admin si es necesario.
     
     # Calcular sumando todos los usuarios (fuente de verdad más granular), incluyendo inactivos
-    users = user_service.get_all_users(include_inactive=True)
+    users = user_service_simple.get_all_users(include_inactive=True)
     colegios = school_service.get_all_colegios()
     
     total_input = 0
@@ -64,7 +65,7 @@ async def get_users_stats(
     current_user: Usuario = Depends(dependencies.require_active_user)
 ):
     """Listado de usuarios con su consumo y límites."""
-    users = user_service.get_all_users()
+    users = user_service_simple.get_all_users()
     return users
 
 @router.post("/limits")
@@ -167,48 +168,48 @@ async def get_token_history(
                 "count": 0
             }
 
+        def process_logs_stream(stream):
+            for doc in stream:
+                data = doc.to_dict()
+                ts = data.get("timestamp")
+                if ts:
+                    date_str = ts.strftime("%Y-%m-%d")
+                    if date_str in daily_stats:
+                        daily_stats[date_str]["input_tokens"] += data.get("input_tokens", 0)
+                        daily_stats[date_str]["output_tokens"] += data.get("output_tokens", 0)
+                        daily_stats[date_str]["total_tokens"] += data.get("total_tokens", 0)
+                        daily_stats[date_str]["count"] += 1
+
         if user_id:
-            # Case 1: Filter by specific User
-            logs_stream = user_service.db.collection("usuarios").document(user_id)\
+            stream = user_service.db.collection("usuarios").document(user_id)\
                 .collection("usage_logs")\
                 .where("timestamp", ">=", query_start_date)\
                 .where("timestamp", "<=", query_end_date)\
-                .order_by("timestamp")\
                 .stream()
+            process_logs_stream(stream)
 
         elif school_id:
-            # Case 2: Filter by School
-            # Query the school-specific logs (renamed to avoid collection_group collision)
-            logs_stream = user_service.db.collection("colegios").document(school_id)\
+            stream = user_service.db.collection("colegios").document(school_id)\
                 .collection("school_usage_logs")\
                 .where("timestamp", ">=", query_start_date)\
                 .where("timestamp", "<=", query_end_date)\
-                .order_by("timestamp")\
                 .stream()
-        
+            process_logs_stream(stream)
+
         else:
-            # Case 3: Global
-            # Query ONLY "usage_logs" from collection group (which are User logs)
-            # This avoids double counting if we had used same name for school logs
-            # Case 3: Global
-            logs_stream = user_service.db.collection_group("usage_logs")\
-                .where("timestamp", ">=", query_start_date)\
-                .where("timestamp", "<=", query_end_date)\
-                .order_by("timestamp")\
-                .stream()
-            
-        for doc in logs_stream:
-            data = doc.to_dict()
-            ts = data.get("timestamp")
-            if ts:
-                # Handle Firestore datetime or standard datetime
-                date_str = ts.strftime("%Y-%m-%d")
-                if date_str in daily_stats:
-                    daily_stats[date_str]["input_tokens"] += data.get("input_tokens", 0)
-                    daily_stats[date_str]["output_tokens"] += data.get("output_tokens", 0)
-                    daily_stats[date_str]["total_tokens"] += data.get("total_tokens", 0)
-                    daily_stats[date_str]["count"] += 1
-                    
+            # Global: iterate over each user's subcollection to avoid composite index requirement
+            all_users = user_service_simple.get_all_users(include_inactive=True)
+            for u in all_users:
+                try:
+                    stream = user_service.db.collection("usuarios").document(u.id)\
+                        .collection("usage_logs")\
+                        .where("timestamp", ">=", query_start_date)\
+                        .where("timestamp", "<=", query_end_date)\
+                        .stream()
+                    process_logs_stream(stream)
+                except Exception as e_user:
+                    print(f"Error fetching history for user {u.id}: {e_user}")
+
         return sorted(daily_stats.values(), key=lambda x: x["date"])
         
     except Exception as e:
@@ -258,29 +259,46 @@ async def get_token_logs(
     try:
         if user_id:
             query = user_service.db.collection("usuarios").document(user_id)\
-                .collection("usage_logs")
+                .collection("usage_logs")\
+                .where("timestamp", ">=", query_start_date)\
+                .where("timestamp", "<=", query_end_date)\
+                .limit(limit)
         elif school_id:
             query = user_service.db.collection("colegios").document(school_id)\
-                .collection("school_usage_logs")
+                .collection("school_usage_logs")\
+                .where("timestamp", ">=", query_start_date)\
+                .where("timestamp", "<=", query_end_date)\
+                .limit(limit)
         else:
-            # Global view: usage_logs from collection group
-            query = user_service.db.collection_group("usage_logs")
-
-        # Apply common date filters
-        query = query.where("timestamp", ">=", query_start_date)\
-                     .where("timestamp", "<=", query_end_date)\
-                     .order_by("timestamp", direction=firestore.Query.DESCENDING)\
-                     .limit(limit)
+            # Global: query each user's usage_logs subcollection (avoids composite index requirement)
+            all_users = user_service_simple.get_all_users(include_inactive=True)
+            logs = []
+            for u in all_users:
+                try:
+                    user_docs = user_service.db.collection("usuarios").document(u.id)\
+                        .collection("usage_logs")\
+                        .where("timestamp", ">=", query_start_date)\
+                        .where("timestamp", "<=", query_end_date)\
+                        .stream()
+                    for doc in user_docs:
+                        data = doc.to_dict()
+                        if "timestamp" in data and data["timestamp"]:
+                            data["timestamp"] = data["timestamp"].isoformat()
+                        logs.append(data)
+                except Exception as e_user:
+                    print(f"Error fetching logs for user {u.id}: {e_user}")
+            logs.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+            return logs[:limit]
 
         docs = query.stream()
         logs = []
         for doc in docs:
             data = doc.to_dict()
             if "timestamp" in data and data["timestamp"]:
-                # Convert Firestore datetime to ISO string for JSON response
                 data["timestamp"] = data["timestamp"].isoformat()
             logs.append(data)
-            
+
+        logs.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
         return logs
 
     except Exception as e:

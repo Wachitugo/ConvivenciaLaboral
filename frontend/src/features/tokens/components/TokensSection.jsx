@@ -30,6 +30,7 @@ export default function TokensSection({ initialTab = 'dashboard' }) {
         selectedUserId,
         setSelectedUserId,
         loading,
+        loadingHistory,
         searchTerm,
         setSearchTerm,
         modalOpen,
@@ -88,17 +89,24 @@ export default function TokensSection({ initialTab = 'dashboard' }) {
                         <WarningsList schools={schools} users={users} />
 
                         {/* Charts */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <div className="lg:col-span-2 h-96">
-                                <TokenHistoryChart
-                                    data={history}
-                                    period={`${dateRange.start} - ${dateRange.end}`}
-                                />
+                        {loadingHistory ? (
+                            <div className="flex flex-col items-center justify-center py-16 text-center">
+                                <div className="w-8 h-8 border-4 border-indigo-100 border-t-indigo-500 rounded-full animate-spin mb-3" />
+                                <p className="text-sm font-medium text-gray-400">Cargando historial...</p>
                             </div>
-                            <div className="h-96">
-                                <TokenActivityTimeline data={history} />
+                        ) : (
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <div className="lg:col-span-2 h-96">
+                                    <TokenHistoryChart
+                                        data={history}
+                                        period={`${dateRange.start} - ${dateRange.end}`}
+                                    />
+                                </div>
+                                <div className="h-96">
+                                    <TokenActivityTimeline data={history} />
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </>
                 );
 
@@ -156,7 +164,7 @@ export default function TokensSection({ initialTab = 'dashboard' }) {
                             schools={schools}
                             filteredUsersForDropdown={filteredUsersForDropdown}
                         />
-                        <TokenLogsTable logs={logs} schools={schools} />
+                        <TokenLogsTable logs={logs} schools={schools} loading={loadingHistory} />
                     </>
                 );
 

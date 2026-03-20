@@ -39,11 +39,11 @@ function InterviewToolbar({
     return (
         <div className="p-3 mb-2 border-b border-white/10 relative z-[100]" style={{ fontFamily: "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" }}>
             <div className="relative flex flex-col gap-3 ">
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                     {/* Filters Section */}
-                    <div className="flex items-center gap-2 flex-1 flex-wrap">
+                    <div className="flex items-center gap-2 flex-1 flex-wrap min-w-0">
                         {/* Search */}
-                        <div className="relative max-w-xs min-w-[200px]">
+                        <div className="relative max-w-xs min-w-[200px]" data-tour="interview-search">
                             <input
                                 type="text"
                                 name="searchTerm"
@@ -55,25 +55,28 @@ function InterviewToolbar({
                         </div>
 
                         {/* Main Filters */}
+                        <div className="flex items-center gap-2 flex-wrap" data-tour="interview-filters">
                         <FilterDropdown name="sortBy" value={filters.sortBy} onChange={onFilterChange} options={sortOptions} />
-                        <FilterDropdown
-                            name="grade"
-                            value={filters.grade || 'all'}
-                            onChange={onFilterChange}
-                            options={[
-                                { value: 'all', label: 'Área de trabajo' },
-                                { value: 'Administración', label: 'Administración' },
-                                { value: 'Operaciones', label: 'Operaciones' },
-                                { value: 'Recursos Humanos', label: 'Recursos Humanos' },
-                                { value: 'Finanzas', label: 'Finanzas' },
-                                { value: 'Tecnología', label: 'Tecnología' },
-                                { value: 'Ventas', label: 'Ventas' },
-                                { value: 'Marketing', label: 'Marketing' },
-                                { value: 'Producción', label: 'Producción' },
-                                { value: 'Logística', label: 'Logística' },
-                                { value: 'Atención al Cliente', label: 'Atención al Cliente' },
-                            ]}
-                        />
+                        <div className="hidden md:block">
+                            <FilterDropdown
+                                name="grade"
+                                value={filters.grade || 'all'}
+                                onChange={onFilterChange}
+                                options={[
+                                    { value: 'all', label: 'Área de trabajo' },
+                                    { value: 'Administración', label: 'Administración' },
+                                    { value: 'Operaciones', label: 'Operaciones' },
+                                    { value: 'Recursos Humanos', label: 'Recursos Humanos' },
+                                    { value: 'Finanzas', label: 'Finanzas' },
+                                    { value: 'Tecnología', label: 'Tecnología' },
+                                    { value: 'Ventas', label: 'Ventas' },
+                                    { value: 'Marketing', label: 'Marketing' },
+                                    { value: 'Producción', label: 'Producción' },
+                                    { value: 'Logística', label: 'Logística' },
+                                    { value: 'Atención al Cliente', label: 'Atención al Cliente' },
+                                ]}
+                            />
+                        </div>
                         <FilterDropdown
                             name="status"
                             value={filters.status}
@@ -84,21 +87,25 @@ function InterviewToolbar({
                                 { value: 'Autorizada', label: 'Autorizada' },
                             ]}
                         />
-                        <FilterDropdown
-                            name="gender"
-                            value={filters.gender || 'all'}
-                            onChange={onFilterChange}
-                            options={[
-                                { value: 'all', label: 'Género' },
-                                { value: 'Masculino', label: 'Masculino' },
-                                { value: 'Femenino', label: 'Femenino' },
-                                { value: 'Otro', label: 'Otro' },
-                            ]}
-                        />
+                        <div className="hidden sm:block">
+                            <FilterDropdown
+                                name="gender"
+                                value={filters.gender || 'all'}
+                                onChange={onFilterChange}
+                                options={[
+                                    { value: 'all', label: 'Género' },
+                                    { value: 'Masculino', label: 'Masculino' },
+                                    { value: 'Femenino', label: 'Femenino' },
+                                    { value: 'Otro', label: 'Otro' },
+                                ]}
+                            />
+                        </div>
 
+                        </div>
                         {/* More Filters Toggle */}
                         <div className="relative">
                             <button
+                                data-tour="interview-more-filters"
                                 onClick={() => setShowMoreFilters(!showMoreFilters)}
                                 className={`px-4 py-2 border rounded-full text-sm font-medium flex items-center gap-2 transition-all shadow-sm ${showMoreFilters || filters.year !== 'all' || filters.month !== 'all'
                                     ? 'bg-white/20 text-white border-white/40 backdrop-blur-md'
@@ -128,11 +135,12 @@ function InterviewToolbar({
                     </div>
 
                     {/* Actions Section */}
-                    <div className="flex items-center gap-1 relative">
+                    <div className="flex items-center gap-1 relative flex-shrink-0">
                         {/* New Interview Button */}
                         <button
+                            data-tour="interview-new-btn"
                             onClick={onOpenModal}
-                            className="px-6 py-2.5 shadow-lg rounded-full font-bold text-sm flex items-center gap-2 transition-all active:scale-[0.98] whitespace-nowrap z-50 bg-[#1A71B8] hover:bg-[#1A71B8]/80 text-white border border-white/10"
+                            className="px-4 sm:px-6 py-2.5 shadow-lg rounded-full font-bold text-sm flex items-center gap-2 transition-all active:scale-[0.98] whitespace-nowrap z-50 bg-[#1A71B8] hover:bg-[#1A71B8]/80 text-white border border-white/10"
                         >
                             <svg className="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />

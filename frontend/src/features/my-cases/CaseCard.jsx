@@ -2,7 +2,7 @@ import { useState } from 'react';
 import ShareCaseModal from './ShareCaseModal';
 import GlowEffect from '../../components/GlowEffect';
 
-function CaseCard({ student: caseItem, onSelect }) {
+function CaseCard({ student: caseItem, onSelect, isFirstCard = false }) {
   const [isHoveringShared, setIsHoveringShared] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -73,7 +73,7 @@ function CaseCard({ student: caseItem, onSelect }) {
           onClick={() => onSelect(caseItem)}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          className=" bg-[#0A3866]/40 backdrop-blur-md border border-[#1A71B8]/30 p-4 rounded-2xl hover:bg-[#0A3866]/60 hover:border-[#34B6D8]/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(26,113,184,0.3)] group flex flex-col relative cursor-pointer h-full"
+          className="bg-white/90 border-b border-r border-[#e2e8f0] p-4 hover:bg-[#f8fafc] hover:border-[#1A71B8]/20 transition-all duration-150 group flex flex-col relative cursor-pointer h-full"
           style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
         >
           {/* Semáforo de plazos Protocolo */}
@@ -82,6 +82,7 @@ function CaseCard({ student: caseItem, onSelect }) {
               className="flex max-w-full items-center justify-between gap-2 rounded-full mb-1 transition-all duration-200"
               style={{ color: deadlineColor }}
               title={caseItem.deadlineText || "Estado de plazos del protocolo"}
+              {...(isFirstCard ? { 'data-tour': 'case-card-deadline' } : {})}
             >
               <div className="flex items-center gap-1.5">
                 {caseItem.deadlineStatus === 'red' && caseItem.deadlineText?.includes('Venció') && (
@@ -108,7 +109,7 @@ function CaseCard({ student: caseItem, onSelect }) {
           {/* Primera fila: título y botones de acción */}
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="text-left flex-1 min-w-0">
-              <h3 className="font-semibold text-white group-hover:text-[#34B6D8] transition-colors text-sm line-clamp-2">
+              <h3 className="font-semibold text-[#0f172a] group-hover:text-[#1A71B8] transition-colors text-sm line-clamp-2">
                 {caseItem.title}
               </h3>
             </div>
@@ -118,10 +119,23 @@ function CaseCard({ student: caseItem, onSelect }) {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  onEdit(caseItem);
+                }}
+                className="p-1.5 rounded-lg text-[#64748b] hover:text-[#1A71B8] hover:bg-[#f0f4f8] transition-colors"
+                title="Editar caso"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
                   setIsShareModalOpen(true);
                 }}
-                className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+                className="p-1.5 rounded-lg text-[#64748b] hover:text-[#1A71B8] hover:bg-[#f0f4f8] transition-colors"
                 title="Compartir caso"
+                {...(isFirstCard ? { 'data-tour': 'case-card-share-btn' } : {})}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -132,9 +146,9 @@ function CaseCard({ student: caseItem, onSelect }) {
 
           {/* Segunda fila: involucrados, fecha y estados */}
           <div className="flex items-center justify-between gap-3 mt-auto">
-            <div className="flex items-center gap-3 text-xs text-white/60">
+            <div className="flex items-center gap-3 text-xs text-[#64748b]">
               {caseItem.counterCase && (
-                <span className="text-[12px] text-white font-mono bg-[#1A71B8]/20 px-1.5 py-0.5 rounded border border-[#1A71B8]/40">
+                <span className="text-[12px] text-[#0f172a] font-mono bg-[#f0f4f8] px-1.5 py-0.5 rounded border border-[#e2e8f0]">
                   {caseItem.counterCase}
                 </span>
               )}
@@ -202,6 +216,7 @@ function CaseCard({ student: caseItem, onSelect }) {
               <div
                 className={`flex items-center gap-1 px-2 py-0.5 border rounded-xl shadow-sm ${statusConfig.borderColor} ${statusConfig.bgColor}`}
                 title={`Estado: ${statusConfig.label}`}
+                {...(isFirstCard ? { 'data-tour': 'case-card-status' } : {})}
               >
                 <div className={`w-1.5 h-1.5 rounded-full ${statusConfig.dotColor}`} />
                 <span className={`text-[10px] font-semibold ${statusConfig.textColor}`}>

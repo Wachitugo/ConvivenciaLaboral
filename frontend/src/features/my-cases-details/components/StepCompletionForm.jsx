@@ -1,8 +1,15 @@
 import { useState } from 'react';
 
 function StepCompletionForm({ paso, onComplete, onCancel }) {
-  const handleSubmit = () => {
-    onComplete('Paso completado', []);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      await onComplete('Paso completado', []);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -18,16 +25,28 @@ function StepCompletionForm({ paso, onComplete, onCancel }) {
       <div className="grid grid-cols-2 gap-3">
         <button
           onClick={onCancel}
-          className="px-3 py-1.5 text-white/50 bg-white/5 hover:bg-white/10 hover:text-white border border-white/10 rounded-lg transition-all text-xs font-bold"
+          disabled={isSubmitting}
+          className="px-3 py-1.5 text-white/50 bg-white/5 hover:bg-white/10 hover:text-white border border-white/10 rounded-lg transition-all text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Cancelar
         </button>
 
         <button
           onClick={handleSubmit}
-          className="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-emerald-400 text-white rounded-lg hover:from-emerald-400 hover:to-emerald-300 transition-all text-xs font-bold shadow-[0_4px_16px_rgba(16,185,129,0.3)]"
+          disabled={isSubmitting}
+          className="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-emerald-400 text-white rounded-lg hover:from-emerald-400 hover:to-emerald-300 transition-all text-xs font-bold shadow-[0_4px_16px_rgba(16,185,129,0.3)] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          Confirmar y Completar
+          {isSubmitting ? (
+            <>
+              <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+              Guardando...
+            </>
+          ) : (
+            'Confirmar y Completar'
+          )}
         </button>
       </div>
     </div>

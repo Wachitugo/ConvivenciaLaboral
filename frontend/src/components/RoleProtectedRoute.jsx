@@ -3,22 +3,12 @@ import { Navigate, Outlet, useLocation, useParams, useOutletContext } from 'reac
 /**
  * Roles con acceso completo al sistema (dashboard + todo)
  */
-const FULL_ACCESS_ROLES = ['Encargado de Convivencia', 'Directivo', 'Gerente Relaciones Laborales', 'Encargado de Relaciones Laborales'];
+const FULL_ACCESS_ROLES = ['Gerente Relaciones Laborales', 'Encargado de Relaciones Laborales'];
 
 /**
  * Roles con acceso a casos, entrevistas y ficha (sin dashboard)
  */
 const INVESTIGADOR_ALLOWED_PATHS = ['/mis-casos', '/entrevistas', '/ficha-alumnos'];
-
-/**
- * Rutas permitidas para rol Trabajador (y sus subrutas)
- */
-const TRABAJADOR_ALLOWED_PATHS = ['/chat-general'];
-
-/**
- * Página por defecto para Trabajadores
- */
-const TRABAJADOR_DEFAULT_PATH = '/chat-general';
 
 /**
  * Página por defecto para Investigadores
@@ -71,32 +61,7 @@ const RoleProtectedRoute = ({ requireFullAccess = false }) => {
         return <Outlet context={context} />;
     }
 
-    // Para Trabajadores: verificar si la ruta está permitida
-    if (userRole === 'Trabajador') {
-        // Ajustar paths permitidos con el slug si existe
-        const adjustPath = (path) => schoolSlug ? `/${schoolSlug}${path}` : path;
-
-        const defaultPath = adjustPath(TRABAJADOR_DEFAULT_PATH);
-
-        // Si la ruta requiere acceso completo, redirigir
-        if (requireFullAccess) {
-            return <Navigate to={defaultPath} replace />;
-        }
-
-        // Verificar si la ruta actual está en las permitidas
-        const isAllowed = TRABAJADOR_ALLOWED_PATHS.some(basePath => {
-            const pathToCheck = adjustPath(basePath);
-            return location.pathname === pathToCheck || location.pathname.startsWith(`${pathToCheck}/`);
-        });
-
-        if (!isAllowed) {
-            return <Navigate to={defaultPath} replace />;
-        }
-
-        return <Outlet context={context} />;
-    }
-
-    // Para otros roles no reconocidos, redirigir al login
+    // Para roles no reconocidos, redirigir al login
     return <Navigate to="/" replace />;
 };
 

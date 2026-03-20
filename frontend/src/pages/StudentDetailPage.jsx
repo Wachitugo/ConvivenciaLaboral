@@ -23,21 +23,8 @@ function StudentDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('salud');
 
-  // Determinar si el usuario puede editar (todos menos Trabajador)
-  const canEdit = useMemo(() => {
-    try {
-      const userStr = localStorage.getItem('usuario');
-      if (userStr) {
-        const user = JSON.parse(userStr);
-        return user.rol !== 'Trabajador';
-      }
-    } catch (error) {
-      console.error('Error reading user role:', error);
-    }
-    return true; // Por defecto permitir edición si no se puede leer el rol
-  }, []);
-
-  // Los Trabajadores SÍ pueden agregar a la bitácora
+  // Todos los roles pueden editar
+  const canEdit = true;
   const canEditBitacora = true;
 
 

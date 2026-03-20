@@ -7,7 +7,7 @@ export const INITIAL_FORM_STATE = {
     rut: '',
     email: '',
     curso: '',
-    rol: 'Encargado de Convivencia'
+    rol: 'Gerente Relaciones Laborales'
 };
 
 /**
@@ -18,9 +18,6 @@ export const STAFF_ROLE_OPTIONS = [
     { value: 'Gerente Relaciones Laborales', label: 'Gerente Relaciones Laborales' },
     { value: 'Encargado de Relaciones Laborales', label: 'Encargado de Relaciones Laborales' },
     { value: 'Investigador', label: 'Investigador' },
-    { value: 'Encargado de Convivencia', label: 'Encargado de Convivencia' },
-    { value: 'Directivo', label: 'Director' },
-    { value: 'Trabajador', label: 'Trabajador' }
 ];
 
 /**

@@ -4,7 +4,7 @@ import StepCompletionForm from './StepCompletionForm';
 
 function ProtocolStep({ paso, index, isLastStep, onComplete, isEditing, onCancelEdit, onSubmitEdit, caseCreatedAt }) {
   return (
-    <div className="relative pl-9 group">
+    <div className="relative pl-9 group" data-tour={index <= 1 ? `protocolo-step-${index}` : undefined}>
       {/* Indicador de estado */}
       <div className={`absolute left-0 top-0 w-8 h-8 rounded-full border-2 border-[#0A3866] shadow-[0_0_8px_rgba(0,0,0,0.5)] transition-all flex items-center justify-center z-10 ${getEstadoColor(paso.estado)}`}>
         {paso.estado === 'completado' && (
@@ -41,7 +41,7 @@ function ProtocolStep({ paso, index, isLastStep, onComplete, isEditing, onCancel
                 </span>
               </div>
               
-              {(paso.estado === 'pendiente' || paso.estado === 'en_progreso') && (
+              {paso.estado !== 'completado' && paso.status !== 'completed' && (
                 <button
                   onClick={onComplete}
                   className="px-3 py-1.5 text-xs uppercase tracking-wider font-bold text-[#34B6D8] border border-[#34B6D8]/50 hover:bg-[#34B6D8]/10 hover:border-[#34B6D8] hover:text-white hover:shadow-[0_0_12px_rgba(52,182,216,0.5)] rounded-lg transition-all ml-auto bg-[#34B6D8]/5"
@@ -55,10 +55,15 @@ function ProtocolStep({ paso, index, isLastStep, onComplete, isEditing, onCancel
               <p className="text-sm text-white/80 text-justify leading-relaxed">{paso.descripcion}</p>
             )}
 
-            {paso.estado === 'completado' && paso.fecha && (
-              <p className="text-xs text-emerald-400/80 mt-1 uppercase tracking-widest font-mono font-bold">
-                Completado {formatearFecha(paso.fecha)}
-              </p>
+            {paso.estado === 'completado' && (
+              <div className="flex items-center gap-1.5 mt-1">
+                <svg className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-xs text-emerald-400 font-semibold">
+                  Completado {paso.fecha ? formatearFecha(paso.fecha) : 'recientemente'}
+                </span>
+              </div>
             )}
 
             {/* Mostrar plazo calculado si existe estimated_time y el paso no está completado */}

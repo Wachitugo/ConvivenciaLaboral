@@ -92,6 +92,7 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
 
   return (
     <aside
+      data-tour="chat-sidebar"
       className={`
         transition-all duration-300 ease-in-out
         flex flex-col
@@ -142,6 +143,7 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
         <div className={`${isOpen ? 'px-4 mb-5' : 'px-2.5 mb-4'}`}>
           {isOpen ? (
             <button
+              data-tour="chat-new-btn"
               onClick={handleNewConsulta}
               className="sidebar-fade-in w-full flex items-center justify-center gap-2 bg-[#0A3866] hover:bg-[#1A71B8] text-white font-bold text-sm py-3 px-4 rounded-2xl transition-all shadow-md shadow-[#1A71B8]/20 active:scale-[0.98]"
             >
@@ -167,8 +169,8 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
       {/* Navegación */}
       <nav className="flex-1 px-3 flex flex-col overflow-hidden">
 
-        {/* Dashboard — solo roles con acceso (no Trabajador ni Investigador) */}
-        {usuario?.rol !== 'Trabajador' && usuario?.rol !== 'Investigador' && (
+        {/* Dashboard — solo roles con acceso completo (no Investigador) */}
+        {usuario?.rol !== 'Investigador' && (
           <button
             onClick={() => { navigate(getPath('/dashboard')); if (window.innerWidth < 1024) onToggle(); }}
             className={navBtnClass('/dashboard')}
@@ -184,8 +186,8 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
         )}
 
 
-        {/* Secciones para roles con acceso a casos (no Trabajador) */}
-        {usuario?.rol !== 'Trabajador' && (
+        {/* Secciones para todos los roles */}
+        {(
           <>
             <button
               onClick={() => { navigate(getPath('/mis-casos')); if (window.innerWidth < 1024) onToggle(); }}
@@ -231,7 +233,7 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
         )}
 
         {/* Sección Historial */}
-        <div className={`flex-1 flex flex-col overflow-hidden ${isOpen && usuario?.rol !== 'Trabajador' && usuario?.rol !== 'Investigador' ? 'sidebar-fade-in' : 'hidden'}`}>
+        <div className={`flex-1 flex flex-col overflow-hidden ${isOpen && usuario?.rol !== 'Investigador' ? 'sidebar-fade-in' : 'hidden'}`}>
           <div className="px-2 mb-2 flex items-center justify-between flex-shrink-0">
             <h3 className="text-[10px] font-black text-[#94a3b8] tracking-widest uppercase whitespace-nowrap">
               Historial

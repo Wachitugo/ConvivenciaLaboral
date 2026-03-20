@@ -49,8 +49,8 @@ function LoginForm() {
       const firstSchoolSlug = slugs[0];
       const destinationBase = firstSchoolSlug ? `/${firstSchoolSlug}` : '';
 
-      if (userRole === 'Trabajador') {
-        navigate(`${destinationBase}/chat-general`);
+      if (userRole === 'Investigador') {
+        navigate(`${destinationBase}/mis-casos`);
       } else {
         navigate(`${destinationBase}/dashboard`);
       }

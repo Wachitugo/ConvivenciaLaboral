@@ -42,6 +42,15 @@ function CaseTimeline({ caseData, onUpdateCase, isLoading = false }) {
     return () => clearInterval(interval);
   }, [isGenerating]);
 
+  // Determinar si el caso es de acoso sexual
+  const esAcosoSexual = /acoso sexual/i.test(caseData.caseType || caseData.case_type || '');
+
+  // Si el caso no es de acoso sexual, quitar el texto condicional entre paréntesis del título
+  const limpiarTitulo = (titulo) => {
+    if (esAcosoSexual) return titulo;
+    return titulo.replace(/\s*\(en caso de acoso sexual\)/gi, '').trim();
+  };
+
   // Cargar pasos del protocolo
   useEffect(() => {
     if (caseData.protocolSteps && caseData.protocolSteps.length > 0) {
@@ -50,12 +59,13 @@ function CaseTimeline({ caseData, onUpdateCase, isLoading = false }) {
         // Determine status/estado considering both backend (status) and frontend (estado) keys
         const isCompleted = paso.status === 'completed' || paso.estado === 'completado';
         const isInProgress = paso.status === 'in_progress' || paso.estado === 'en_progreso';
+        const tituloRaw = paso.title || paso.titulo || '';
 
         return {
           ...paso, // Preserve original fields (like status, id, etc)
           id: paso.id || `step-${index}`,
-          titulo: paso.title || paso.titulo || paso,
-          descripcion: paso.description || paso.title || paso.titulo || "",
+          titulo: limpiarTitulo(tituloRaw),
+          descripcion: paso.description || limpiarTitulo(tituloRaw) || "",
           estado: isCompleted ? 'completado' : (isInProgress ? 'en_progreso' : 'pendiente'),
           status: isCompleted ? 'completed' : (isInProgress ? 'in_progress' : 'pending'), // Ensure status is kept in sync
           fecha: paso.completed_at || paso.fecha || null,
@@ -67,8 +77,20 @@ function CaseTimeline({ caseData, onUpdateCase, isLoading = false }) {
       setPasosProtocolo(pasosAdaptados);
       setProtocoloAsignado(caseData.protocol || 'Protocolo Inteligente');
     } else if (caseData.pasosProtocolo && caseData.pasosProtocolo.length > 0) {
-      // Si ya existen pasos guardados en el caso
-      setPasosProtocolo(caseData.pasosProtocolo);
+      // Normalizar estado también en la rama pasosProtocolo
+      const pasosNormalizados = caseData.pasosProtocolo.map((paso, index) => {
+        const isCompleted = paso.status === 'completed' || paso.estado === 'completado';
+        const isInProgress = paso.status === 'in_progress' || paso.estado === 'en_progreso';
+        const tituloRaw = paso.titulo || paso.title || '';
+        return {
+          ...paso,
+          id: paso.id || `step-${index}`,
+          titulo: limpiarTitulo(tituloRaw),
+          estado: isCompleted ? 'completado' : (isInProgress ? 'en_progreso' : 'pendiente'),
+          status: isCompleted ? 'completed' : (isInProgress ? 'in_progress' : 'pending'),
+        };
+      });
+      setPasosProtocolo(pasosNormalizados);
       setProtocoloAsignado(caseData.protocol || caseData.protocolo || null);
     }
     // REMOVED automatic fallback logic
@@ -201,7 +223,7 @@ function CaseTimeline({ caseData, onUpdateCase, isLoading = false }) {
   return (
     <div style={{ fontFamily: "'Poppins', sans-serif" }} className="flex flex-col h-full overflow-hidden text-white">
       {/* Header del protocolo */}
-      <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2">
+      <div className="p-3 sm:p-4 border-b border-[#1A71B8]/30 flex items-center justify-between flex-shrink-0 gap-2" data-tour="protocolo-header">
         <div className="min-w-0 flex-1">
           <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
             <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#34B6D8] drop-shadow-[0_0_8px_rgba(52,182,216,0.6)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,6 +243,7 @@ function CaseTimeline({ caseData, onUpdateCase, isLoading = false }) {
           onClick={handleGenerateProtocol}
           disabled={isGenerating}
           title="Regenerar protocolo"
+          data-tour="protocolo-regenerar-btn"
           className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all flex-shrink-0 ${
             isGenerating
               ? 'border-white/10 text-white/30 cursor-not-allowed'
@@ -280,7 +303,7 @@ function CaseTimeline({ caseData, onUpdateCase, isLoading = false }) {
         )}
 
         {protocoloAsignado && pasosProtocolo.length > 0 && (
-          <div className="relative space-y-6 bg-white/5 pl-3 pr-3 pb-3 rounded-2xl border border-white/10 backdrop-blur-sm pt-4">
+          <div className="relative space-y-6 bg-white/5 pl-3 pr-3 pb-3 rounded-2xl border border-white/10 backdrop-blur-sm pt-4" data-tour="protocolo-steps">
             {/* Línea vertical continua */}
             <div className="absolute left-[27px] top-9 bottom-3 w-0.5 bg-white/10"></div>
             {pasosProtocolo.map((paso, index) => (

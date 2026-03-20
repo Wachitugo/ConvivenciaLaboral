@@ -19,6 +19,7 @@ import {
 } from '../features/chat/hooks';
 import { casesService, chatService, API_URL } from '../services/api';
 import ErrorBoundary from '../components/ErrorBoundary';
+import NuevaConsultaTour from '../features/chat/NuevaConsultaTour';
 
 function ChatGeneralPage() {
   const location = useLocation();
@@ -595,6 +596,7 @@ function ChatGeneralPage() {
           />
         )}
       </div>
+      <NuevaConsultaTour />
     </ErrorBoundary>
   );
 }
