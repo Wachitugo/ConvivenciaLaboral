@@ -187,7 +187,7 @@ export default function useChatMessages(initialSessionId = null) {
       const usuario = JSON.parse(localStorage.getItem('usuario'));
       const userId = usuario?.id;
       const colegios = JSON.parse(localStorage.getItem('colegios') || '[]');
-      const schoolName = colegios?.[0]?.nombre || 'Colegio';
+      const schoolName = colegios?.[0]?.nombre || 'la institución';
 
       // Generar título si es el primer mensaje
       let title = null;

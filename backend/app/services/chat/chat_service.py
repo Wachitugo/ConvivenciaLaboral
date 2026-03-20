@@ -1044,9 +1044,34 @@ INSTRUCCIONES:
         # Handle DOCUMENT_ANALYSIS intent but no files -> USE SEARCH APPS (RAG Mode)
         if intent_result['intent'] == intent_router.DOCUMENT_ANALYSIS and not files:
             logger.info(f"🔍 [REMOTE SEARCH] User requested document analysis without attachments. Using Search Apps...")
-            
-            yield json.dumps({"type": "thinking", "content": f"Buscando en documentos del colegio y normativas legales..."}, ensure_ascii=False) + "\n"
-            
+
+            # Detect document listing queries → use direct listing API instead of RAG
+            listing_keywords = [
+                "que documentos", "qué documentos", "cuales documentos", "cuáles documentos",
+                "lista documentos", "listar documentos", "documentos disponibles",
+                "a que documentos", "a qué documentos", "que archivos tienes", "qué archivos tienes",
+                "mostrar documentos", "ver documentos",
+            ]
+            is_listing_query = any(kw in message.lower() for kw in listing_keywords)
+
+            if is_listing_query and data_store_id:
+                logger.info(f"📚 [LIST_DOCS] Listing documents for data_store_id: {data_store_id}")
+                yield json.dumps({"type": "thinking", "content": "Consultando documentos disponibles..."}, ensure_ascii=False) + "\n"
+                docs = search_service.list_indexed_documents(data_store_id)
+                if docs:
+                    doc_names = "\n".join([f"- {d['title']}" for d in docs])
+                    response_text = f"Tengo acceso a los siguientes documentos:\n\n{doc_names}"
+                else:
+                    response_text = "No encontré documentos indexados en este momento."
+                yield json.dumps({"type": "content", "content": response_text}, ensure_ascii=False) + "\n"
+                suggestions = await self._generate_suggestions(message, history, school_name, user_id=user_id)
+                if suggestions:
+                    yield json.dumps({"type": "suggestions", "content": suggestions}, ensure_ascii=False) + "\n"
+                await history_service.append_messages(session_id, [HumanMessage(content=message), AIMessage(content=response_text)])
+                return
+
+            yield json.dumps({"type": "thinking", "content": f"Buscando en documentos y normativas legales..."}, ensure_ascii=False) + "\n"
+
             try:
                 # Get session context for better search
                 session_context = None
@@ -1095,7 +1120,7 @@ INSTRUCCIONES:
 
         # Simular pensamientos iniciales (UI Feedback)
         thoughts = [
-            f"Analizando Información del Colegio {school_name}...",
+            f"Analizando información de {school_name}...",
             "Consultando contexto..."
         ]
         if is_protocol:

@@ -8,11 +8,11 @@ function InterviewConsentTab({ formData, handleSignatureEnd, onUploadSignature, 
     const handleSave = async () => {
         const toUpload = [];
 
-        // Trabajador
+        // Colaborador
         if (studentPadRef.current && typeof studentPadRef.current.isEmpty === 'function' && !studentPadRef.current.isEmpty()) {
             const blob = await studentPadRef.current.getBlob();
             if (blob) {
-                const file = new File([blob], `firma_trabajador_${Date.now()}.png`, { type: 'image/png' });
+                const file = new File([blob], `firma_colaborador_${Date.now()}.png`, { type: 'image/png' });
                 toUpload.push(onUploadSignature?.('student', file));
             }
         }
@@ -42,7 +42,7 @@ function InterviewConsentTab({ formData, handleSignatureEnd, onUploadSignature, 
                         <span className="truncate">Firma de Conformidad</span>
                     </h3>
                     <p className="text-xs sm:text-sm text-white/60 mt-0.5 truncate border-white/10">
-                        <span className="hidden sm:inline">La firma del trabajador es obligatoria para autorizar la entrevista.</span>
+                        <span className="hidden sm:inline">La firma del colaborador es obligatoria para autorizar la entrevista.</span>
                         <span className="sm:hidden">Firmas de autorización</span>
                     </p>
                 </div>
@@ -57,7 +57,7 @@ function InterviewConsentTab({ formData, handleSignatureEnd, onUploadSignature, 
                             <div className="flex justify-between items-center px-1">
                                 <label className="text-sm font-bold text-white/90 uppercase tracking-wider flex items-center gap-1.5">
                                     <PenTool size={14} />
-                                    Firma del Trabajador
+                                    Firma del Colaborador
                                     <span className="text-red-400 ml-1">*</span>
                                     <span className="text-xs font-normal text-white/60 ml-1">(Obligatoria)</span>
                                 </label>

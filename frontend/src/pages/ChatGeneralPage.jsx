@@ -189,27 +189,25 @@ function ChatGeneralPage() {
     loadSessionFiles();
   }, [sessionId, messages, relatedCase]); // Removido chatFiles y setChatFiles para evitar loop infinito
 
-  // Detectar si viene de un caso específico
+  // Detectar si viene de un caso específico.
+  // Se ejecuta al cambiar de sesión para resetear (o setear) el caso asociado.
   useEffect(() => {
     if (location.state?.relatedCase) {
-      if (!relatedCase) {
-        setRelatedCase(location.state.relatedCase);
-      }
+      setRelatedCase(location.state.relatedCase);
 
       // Cargar documentos iniciales si vienen en el estado y no hay archivos cargados aun
       if (location.state.relatedCase.documents && chatFiles.length === 0) {
         logger.debug(" Loading initial documents from case:", location.state.relatedCase.documents);
-        // Formatear al formato esperado por el chat si es necesario
-        // Asumimos que ya vienen con {id, name, content_type, gcs_uri}
         setChatFiles(location.state.relatedCase.documents);
       }
-
-      // Opcional: Cargar historial de chat si se proporcionó chatId
-      if (location.state.chatId) {
-        // Aquí cargarías el historial de la conversación
-      }
+    } else {
+      // Sin caso explícito → limpiar para evitar que el caso anterior
+      // se asocie al nuevo chat. useCaseAssociation re-fetcheará si la sesión
+      // estaba vinculada a un caso en el backend.
+      setRelatedCase(null);
     }
-  }, [location.state, relatedCase, setRelatedCase, chatFiles.length]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state?.sessionId, location.state?.relatedCase?.id]);
 
   // 🆕 VINCULAR SESIÓN AL CASO INMEDIATAMENTE AL ABRIR EL CHAT
   // Esto asegura que el LLM tenga contexto del caso desde el primer mensaje

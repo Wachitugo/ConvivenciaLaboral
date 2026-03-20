@@ -110,33 +110,53 @@ class ProtocolAgent:
     async def _get_rag_context(self, query: str, school_name: str) -> str:
         """
         Obtiene contexto relevante usando Vertex AI Search (RAG).
+        Hace dos búsquedas en paralelo: una para los pasos del protocolo y
+        otra específicamente para los plazos, ya que suelen estar en secciones
+        distintas del documento.
         """
         try:
-            # Obtener la herramienta de búsqueda
             search_tool = search_service.create_search_tool()
-            
+
             if not search_tool:
                 logger.warning("⚠️ [PROTOCOL AGENT] Search tool not available")
                 return "No hay herramienta de búsqueda configurada. Genera un protocolo general según normativa chilena."
-            
-            # Ejecutar búsqueda usando la herramienta existente
-            # La herramienta es una función async decorada con @tool
-            search_result = await search_tool.ainvoke(query)
-            
-            if search_result and "No se encontraron" not in search_result and "Error" not in search_result:
-                logger.info(f"📚 [PROTOCOL AGENT] RAG search successful: {len(search_result)} chars")
-                return f"=== DOCUMENTOS NORMATIVOS ENCONTRADOS ===\n{search_result}"
-            
-            # Si no encuentra resultados, intentar una búsqueda más general
+
+            # Búsqueda 1: pasos del protocolo (query original)
+            # Búsqueda 2: plazos (pueden estar en otra sección del documento)
+            deadlines_query = "plazos días hábiles procedimiento protocolo"
+
+            result_steps, result_deadlines = await asyncio.gather(
+                search_tool.ainvoke(query),
+                search_tool.ainvoke(deadlines_query),
+                return_exceptions=True
+            )
+
+            def _is_valid(r):
+                return (
+                    r and not isinstance(r, Exception)
+                    and "No se encontraron" not in r
+                    and "Error" not in r
+                )
+
+            combined_parts = []
+            if _is_valid(result_steps):
+                combined_parts.append(result_steps)
+                logger.info(f"📚 [PROTOCOL AGENT] Steps search: {len(result_steps)} chars")
+            if _is_valid(result_deadlines):
+                combined_parts.append(result_deadlines)
+                logger.info(f"⏱️ [PROTOCOL AGENT] Deadlines search: {len(result_deadlines)} chars")
+
+            if combined_parts:
+                return "=== DOCUMENTOS NORMATIVOS ENCONTRADOS ===\n" + "\n---\n".join(combined_parts)
+
+            # Fallback: búsqueda más general
             logger.info("🔍 [PROTOCOL AGENT] Trying broader search...")
-            general_query = "protocolo convivencia escolar procedimiento"
-            search_result = await search_tool.ainvoke(general_query)
-            
-            if search_result and "No se encontraron" not in search_result and "Error" not in search_result:
-                return f"=== DOCUMENTOS NORMATIVOS ENCONTRADOS ===\n{search_result}"
-            
+            general_result = await search_tool.ainvoke("protocolo convivencia laboral procedimiento")
+            if _is_valid(general_result):
+                return f"=== DOCUMENTOS NORMATIVOS ENCONTRADOS ===\n{general_result}"
+
             return "No se encontró contexto específico en los documentos. Genera un protocolo general según normativa chilena vigente."
-            
+
         except Exception as e:
             logger.warning(f"Error obteniendo contexto RAG: {e}")
             return "Error obteniendo contexto. Genera un protocolo general según normativa chilena vigente."
@@ -144,65 +164,82 @@ class ProtocolAgent:
     def _build_protocol_prompt(self, school_name: str, rag_context: str, protocol_context: str = None) -> str:
         """
         Construye el prompt del sistema con contexto RAG incluido.
+        Los pasos, títulos y plazos deben extraerse de los documentos del colegio (RAG).
         """
-        prompt = f"""Eres un asistente especializado en protocolos de convivencia escolar para {school_name}.
+        has_school_docs = (
+            rag_context
+            and "No se encontró" not in rag_context
+            and "No hay herramienta" not in rag_context
+            and "Error obteniendo" not in rag_context
+        )
 
-TU TAREA: Generar un protocolo de acción basado en el contexto del caso y los documentos normativos.
+        if has_school_docs:
+            source_instruction = f"""Los pasos, títulos y plazos deben extraerse EXCLUSIVAMENTE de los documentos de {school_name} que aparecen en el CONTEXTO NORMATIVO.
+No agregues pasos que no estén en esos documentos.
+Los plazos deben ser exactamente los que indica el documento (ej: "5 días hábiles", "24 horas", "inmediato").
+Si el documento no especifica un plazo para un paso en particular, usa null en estimated_time."""
+        else:
+            source_instruction = f"""No se encontraron documentos de protocolo para {school_name}.
+Genera un protocolo basado en la normativa chilena vigente (Ley Karin 21.643 / Código del Trabajo).
+Indica claramente en "source_document" que la fuente es "Ley Karin 21.643 - Código del Trabajo".
 
-=== CONTEXTO NORMATIVO (RAG) ===
+Plazos legales obligatorios que DEBES asignar correctamente a cada paso según su función:
+- Recepción / acuse de recibo de la denuncia → "24 horas hábiles"
+- Adopción de medidas de protección para la víctima → "48 horas hábiles"
+- Notificación a la Inspección del Trabajo (en caso de acoso sexual, solo si aplica) → "3 días hábiles" — este paso es CONDICIONAL: inclúyelo SOLO si el caso es de acoso sexual; en su descripción indica que aplica únicamente cuando corresponda
+- Investigación de los hechos → "30 días corridos"
+- Elaboración del informe final → "Al término de la investigación"
+- Comunicación de resultados y sanciones → "3 días hábiles"
+- Seguimiento post-resolución → "Continuo"
+
+IMPORTANTE: Asigna el plazo correcto a CADA paso según su función real, no de forma genérica."""
+
+        prompt = f"""Eres un asistente especializado en protocolos de convivencia laboral para {school_name}.
+
+=== CONTEXTO NORMATIVO DEL COLEGIO ===
 {rag_context}
 
 === INSTRUCCIONES ===
 
-1. ANALIZA el caso descrito en el mensaje del usuario
-2. IDENTIFICA el tipo de protocolo necesario según la normativa
-3. GENERA los pasos del protocolo en formato JSON
+{source_instruction}
 
 FORMATO DE RESPUESTA OBLIGATORIO:
 
-Primero, escribe una breve justificación (2-3 líneas) explicando qué protocolo aplicarás y por qué.
+Primero, escribe una breve justificación (2-3 líneas) explicando qué protocolo aplica y de qué documento proviene.
 
-Luego, incluye el JSON del protocolo en este formato EXACTO:
+Luego, el JSON en este formato EXACTO:
 
 ```json
 {{
   "type": "protocol",
-  "protocol_name": "Nombre del Protocolo",
+  "protocol_name": "Nombre del protocolo tal como aparece en el documento",
   "steps": [
     {{
       "id": 1,
-      "title": "Título del paso",
-      "description": "Descripción detallada de las acciones a realizar",
-      "estimated_time": "24 horas"
-    }},
-    {{
-      "id": 2,
-      "title": "Siguiente paso",
-      "description": "Descripción...",
-      "estimated_time": "5 días hábiles"
+      "title": "Título del paso tal como aparece en el documento",
+      "description": "Descripción con las acciones concretas indicadas en el documento.",
+      "estimated_time": "Plazo exacto, ej: '5 días hábiles'",
+      "deadline_from": "case_creation"
     }}
   ],
-  "source_document": "Nombre del documento de referencia"
+  "source_document": "Nombre exacto del documento de referencia"
 }}
 ```
 
-REGLAS PARA LOS PASOS:
-- Mínimo 4 pasos, máximo 8 pasos
-- Cada paso debe tener descripción clara de acciones concretas
-- Los plazos deben ser específicos (horas, días hábiles)
-- Plazos típicos: Notificación 24h, Investigación 5-10 días, Resolución 3-5 días, Apelación 3-5 días
-
-PLAZOS SEGÚN NORMATIVA CHILENA:
-- Faltas leves: Resolución en 24-48 horas
-- Faltas graves: Investigación 5 días hábiles, resolución 3 días
-- Faltas gravísimas: Notificación inmediata, investigación 10 días, resolución 5 días
-- Denuncia a autoridades (si aplica): Máximo 24 horas
+REGLAS:
+- Incluye todos los pasos que indica el documento para este tipo de caso
+- Siempre incluye el plazo en estimated_time cuando la ley o documento lo especifique
+- No inventes pasos, títulos ni plazos que no estén en el documento o en la ley
+- El paso de "Notificación a la Inspección del Trabajo" es CONDICIONAL: solo aplica en casos de acoso sexual. Si lo incluyes, su título debe indicar "(En caso de acoso sexual)" y su descripción debe aclarar que aplica únicamente cuando el caso lo requiera
+- En "deadline_from" indica desde cuándo se cuenta el plazo de ese paso:
+  * "case_creation" → el plazo corre desde la recepción de la denuncia (ej: medidas de protección, investigación)
+  * "previous_step" → el plazo corre desde que termina el paso anterior (ej: comunicación de resultados después del informe)
 
 NO OLVIDES incluir el bloque ```json en tu respuesta. Es OBLIGATORIO."""
 
         if protocol_context:
             prompt += f"\n\nContexto adicional:\n{protocol_context}"
-        
+
         return prompt
 
     async def _extract_and_save_protocol(self, response: str, case_id: str, session_id: str) -> bool:
@@ -245,16 +282,40 @@ NO OLVIDES incluir el bloque ```json en tu respuesta. Es OBLIGATORIO."""
                 except Exception as e:
                     logger.warning(f"No se pudo obtener fecha del caso: {e}")
             
-            # Convertir a objetos ProtocolStep
+            # Convertir pasos del AI a objetos ProtocolStep.
+            # El LLM indica en "deadline_from" si el plazo corre desde:
+            #   "case_creation"  → desde la creación del caso (base_date)
+            #   "previous_step"  → desde el deadline del paso anterior
+            # Esto funciona para cualquier protocolo sin importar su estructura.
+            from datetime import datetime as _dt
+
             steps = []
+            last_deadline_dt = None  # deadline del paso anterior (para "previous_step")
+
             for s in protocol_data.get('steps', []):
+                estimated_time = s.get('estimated_time') or ''
+                deadline_from = s.get('deadline_from', 'case_creation')
+
+                if deadline_from == 'previous_step' and last_deadline_dt is not None:
+                    step_base = last_deadline_dt
+                else:
+                    step_base = base_date
+
+                deadline = protocol_extractor.calculate_deadline(estimated_time, step_base)
                 steps.append(ProtocolStep(
                     id=s.get('id'),
                     title=s.get('title'),
                     description=s.get('description'),
-                    estimated_time=s.get('estimated_time'),
-                    deadline=protocol_extractor.calculate_deadline(s.get('estimated_time'), base_date)
+                    estimated_time=estimated_time,
+                    deadline=deadline
                 ))
+
+                # Actualizar last_deadline_dt para el próximo paso
+                if deadline:
+                    try:
+                        last_deadline_dt = _dt.strptime(deadline, "%Y-%m-%d %H:%M")
+                    except Exception:
+                        pass
             
             # Crear protocolo
             protocol = ExtractedProtocol(
