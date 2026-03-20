@@ -97,11 +97,22 @@ function InvolvedForm({ onAddParticipant, onCancel }) {
 
   const handleSelectStudent = (student) => {
     const fullName = `${student.nombres || ''} ${student.apellidos || ''}`.trim();
+
+    let antiguedad = '';
+    if (student.fecha_ingreso) {
+      const ingreso = new Date(student.fecha_ingreso);
+      const now = new Date();
+      const years = Math.floor((now - ingreso) / (1000 * 60 * 60 * 24 * 365));
+      antiguedad = years > 0 ? `${years} año${years !== 1 ? 's' : ''}` : 'Menos de 1 año';
+    }
+
     setFormData(prev => ({
       ...prev,
       studentName: fullName,
       rut: student.rut || '',
-      gender: student.genero || ''
+      gender: student.genero || '',
+      cargo: student.cargo || '',
+      antiguedad
     }));
     setSelectedStudentId(student.id);
     setShowSuggestions(false);
