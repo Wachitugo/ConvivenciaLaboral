@@ -102,7 +102,7 @@ function InterviewGeneralInfo({ interview, onUpdate, onDelete, onAssociate }) {
                                 className="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-bold text-white bg-[#1A71B8] hover:bg-[#1A71B8]/80 border border-white/10 rounded-lg transition-colors shadow-md"
                             >
                                 <LinkIcon size={14} className="text-[#34B6D8]" />
-                                <span className="hidden sm:inline">Asociar Caso</span>
+                                <span className="hidden sm:inline">Asociar Expediente</span>
                             </button>
                         )}
                         <button

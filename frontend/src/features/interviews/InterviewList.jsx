@@ -46,7 +46,7 @@ function InterviewList({ interviews, onOpenModal }) {
             await updateInterview(interview.id, { case_id: caseId });
 
             // Show success toast
-            showToast('Entrevista asociada al caso correctamente', 'success');
+            showToast('Entrevista asociada al expediente correctamente', 'success');
 
             handleCloseAssociateModal();
         } catch (error) {

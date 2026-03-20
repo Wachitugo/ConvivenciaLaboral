@@ -1547,8 +1547,17 @@ Genera el análisis estructurado:"""
         if not case:
             raise ValueError("Caso no encontrado")
 
+        # Validar que counter_case no esté en uso por otro caso
+        if "counter_case" in update_data and update_data["counter_case"]:
+            new_counter = update_data["counter_case"].strip()
+            existing = self.db.collection(self.collection_name)\
+                .where("counter_case", "==", new_counter).stream()
+            for doc in existing:
+                if doc.id != case_id:
+                    raise ValueError(f"El ID '{new_counter}' ya está en uso por otro expediente")
+
         # Filtrar solo los campos permitidos
-        allowed_fields = {"title", "status", "description", "involved", "pasosProtocolo", "student_id"}
+        allowed_fields = {"title", "status", "description", "involved", "pasosProtocolo", "student_id", "counter_case"}
         filtered_data = {k: v for k, v in update_data.items() if k in allowed_fields and v is not None}
 
         if not filtered_data:

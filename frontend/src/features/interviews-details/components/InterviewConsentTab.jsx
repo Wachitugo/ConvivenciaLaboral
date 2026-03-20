@@ -1,11 +1,15 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { CheckCircle, PenTool, Trash2, Save } from 'lucide-react';
 import { SignaturePad } from '../../interviews';
 
 function InterviewConsentTab({ formData, handleSignatureEnd, onUploadSignature, studentSignatureUrl, onDeleteSignature }) {
     const studentPadRef = useRef(null);
+    const [isSaving, setIsSaving] = useState(false);
+    const [errorMsg, setErrorMsg] = useState(null);
 
     const handleSave = async () => {
+        setErrorMsg(null);
+
         const toUpload = [];
 
         // Colaborador
@@ -18,15 +22,18 @@ function InterviewConsentTab({ formData, handleSignatureEnd, onUploadSignature, 
         }
 
         if (toUpload.length === 0) {
-            alert('No hay firmas para guardar');
+            setErrorMsg('Dibuja la firma del colaborador antes de guardar');
             return;
         }
 
+        setIsSaving(true);
         try {
             await Promise.all(toUpload);
-            // studentPadRef.current?.clear();
         } catch (e) {
             console.error('Error subiendo firmas', e);
+            setErrorMsg('Ocurrió un error al guardar la firma. Intenta nuevamente.');
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -79,6 +86,16 @@ function InterviewConsentTab({ formData, handleSignatureEnd, onUploadSignature, 
                     </div>
                 </div>
 
+                {/* Mensajes de feedback */}
+                {errorMsg && (
+                    <div className="mt-4 p-3 bg-red-900/30 border border-red-500/50 rounded-xl flex items-center gap-2">
+                        <svg className="w-4 h-4 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-sm text-red-200">{errorMsg}</p>
+                    </div>
+                )}
+
                 {/* Footer Actions */}
                 <div className="mt-auto pt-4 border-t border-white/10 flex justify-end gap-3">
                     <button
@@ -88,17 +105,31 @@ function InterviewConsentTab({ formData, handleSignatureEnd, onUploadSignature, 
                                 await onDeleteSignature('student');
                             }
                         }}
-                        className="px-4 py-2 rounded-lg text-sm font-bold text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors flex items-center gap-2"
+                        disabled={isSaving}
+                        className="px-4 py-2 rounded-lg text-sm font-bold text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <Trash2 size={16} />
                         Limpiar Todo
                     </button>
                     <button
                         onClick={handleSave}
-                        className="px-4 py-2 rounded-lg text-sm font-bold text-white bg-[#1A71B8] hover:bg-[#1A71B8]/80 transition-colors flex items-center gap-2 shadow-[0_4px_12px_rgba(26,113,184,0.3)]"
+                        disabled={isSaving}
+                        className="px-4 py-2 rounded-lg text-sm font-bold text-white bg-[#1A71B8] hover:bg-[#1A71B8]/80 transition-colors flex items-center gap-2 shadow-[0_4px_12px_rgba(26,113,184,0.3)] disabled:opacity-70 disabled:cursor-not-allowed min-w-[148px] justify-center"
                     >
-                        <Save size={16} />
-                        Guardar Firmas
+                        {isSaving ? (
+                            <>
+                                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                </svg>
+                                Guardando...
+                            </>
+                        ) : (
+                            <>
+                                <Save size={16} />
+                                Guardar Firmas
+                            </>
+                        )}
                     </button>
                 </div>
             </div>

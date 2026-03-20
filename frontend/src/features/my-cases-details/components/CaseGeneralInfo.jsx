@@ -32,10 +32,12 @@ function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false, onDeleteCa
   };
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editedData, setEditedData] = useState({
     title: caseData.title || '',
-    status: caseData.status || DEFAULT_CASE_STATUS
+    status: caseData.status || DEFAULT_CASE_STATUS,
+    counterCase: caseData.counterCase || ''
   });
 
   // Formatear fecha de creación (no editable)
@@ -50,6 +52,7 @@ function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false, onDeleteCa
 
   const handleSave = async () => {
     setError(null);
+    setSuccessMsg(null);
     setIsSaving(true);
 
     try {
@@ -63,7 +66,8 @@ function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false, onDeleteCa
       // Preparar datos de actualización (solo title y status)
       const updateData = {
         title: editedData.title.trim(),
-        status: editedData.status
+        status: editedData.status,
+        counter_case: editedData.counterCase.trim()
       };
 
       // Llamar al backend
@@ -73,8 +77,14 @@ function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false, onDeleteCa
         updateData
       );
 
-      // Actualizar el caso localmente
-      onUpdateCase({ ...caseData, ...updatedCase });
+      // Actualizar el caso localmente (mapear counter_case → counterCase)
+      onUpdateCase({
+        ...caseData,
+        ...updatedCase,
+        counterCase: updatedCase.counter_case ?? caseData.counterCase
+      });
+      setSuccessMsg('Información actualizada correctamente');
+      setTimeout(() => setSuccessMsg(null), 3000);
       setIsEditing(false);
     } catch (err) {
       logger.error('Error actualizando caso:', err);
@@ -87,7 +97,8 @@ function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false, onDeleteCa
   const handleCancel = () => {
     setEditedData({
       title: caseData.title || '',
-      status: caseData.status || DEFAULT_CASE_STATUS
+      status: caseData.status || DEFAULT_CASE_STATUS,
+      counterCase: caseData.counterCase || ''
     });
     setError(null);
     setIsEditing(false);
@@ -171,7 +182,10 @@ function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false, onDeleteCa
           // Modo edición
           <div className="space-y-4">
             {error && (
-              <div className="p-3 bg-red-900/30 border border-red-500/50 rounded-lg backdrop-blur-md">
+              <div className="p-3 bg-red-900/30 border border-red-500/50 rounded-lg backdrop-blur-md flex items-center gap-2">
+                <svg className="w-4 h-4 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
                 <p className="text-sm text-red-200">{error}</p>
               </div>
             )}
@@ -184,6 +198,17 @@ function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false, onDeleteCa
                   value={editedData.title}
                   onChange={(e) => setEditedData({ ...editedData, title: e.target.value })}
                   className="w-full px-3 py-2 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#34B6D8] focus:border-[#34B6D8] text-sm bg-black/20 text-white placeholder-white/30 transition-all"
+                  disabled={isSaving}
+                />
+              </div>
+              <div className="bg-white/5 border border-white/10 p-4 rounded-2xl backdrop-blur-md">
+                <label className="text-[10px] font-bold text-white/50 tracking-widest uppercase mb-2 block">ID del Expediente</label>
+                <input
+                  type="text"
+                  value={editedData.counterCase}
+                  onChange={(e) => setEditedData({ ...editedData, counterCase: e.target.value })}
+                  placeholder="Ej: C-001"
+                  className="w-full px-3 py-2 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#34B6D8] focus:border-[#34B6D8] text-sm bg-black/20 text-white placeholder-white/30 font-mono transition-all"
                   disabled={isSaving}
                 />
               </div>
@@ -267,6 +292,16 @@ function CaseGeneralInfo({ caseData, onUpdateCase, isLoading = false, onDeleteCa
           </div>
         )}
       </div>
+
+      {/* Toast de éxito */}
+      {successMsg && (
+        <div className="mx-3 sm:mx-4 mb-3 p-3 bg-emerald-900/30 border border-emerald-500/50 rounded-xl flex items-center gap-2 animate-fade-in">
+          <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          <p className="text-sm text-emerald-200">{successMsg}</p>
+        </div>
+      )}
 
       <ConfirmModal
         isOpen={isDeleteModalOpen}

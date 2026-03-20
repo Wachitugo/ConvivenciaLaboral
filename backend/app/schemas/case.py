@@ -74,6 +74,7 @@ class CaseUpdate(BaseModel):
     involved: Optional[List[InvolvedPerson]] = None
     student_id: Optional[str] = None
     pasosProtocolo: Optional[List[dict]] = None # Para protocolos manuales/predefinidos
+    counter_case: Optional[str] = None  # ID legible por humano (C-001)
 
 class Case(BaseModel):
     # Campos heredados de CaseBase

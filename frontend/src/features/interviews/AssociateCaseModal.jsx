@@ -71,7 +71,7 @@ function AssociateCaseModal({ isOpen, onClose, onAssociate, interview, isAssocia
             setCases(data);
         } catch (err) {
             console.error('Error fetching cases:', err);
-            setError('Error al cargar los casos');
+            setError('Error al cargar los expedientes');
         } finally {
             setLoading(false);
         }
@@ -119,15 +119,15 @@ function AssociateCaseModal({ isOpen, onClose, onAssociate, interview, isAssocia
                         <div>
                             <h2 className="text-lg font-bold text-white flex items-center gap-2">
                                 <LinkIcon size={18} className="text-[#34B6D8] drop-shadow-[0_0_8px_rgba(52,182,216,0.6)]" />
-                                Asociar a un Caso
+                                Asociar a un Expediente
                             </h2>
                             {associatedCount > 0 ? (
                                 <p className="text-xs text-emerald-400 mt-0.5">
-                                    Esta entrevista ya está asociada a {associatedCount} caso{associatedCount > 1 ? 's' : ''}
+                                    Esta entrevista ya está asociada a {associatedCount} expediente{associatedCount > 1 ? 's' : ''}
                                 </p>
                             ) : (
                                 <p className="text-xs text-white/60 mt-0.5">
-                                    Selecciona un caso para vincular la entrevista
+                                    Selecciona un expediente para vincular la entrevista
                                 </p>
                             )}
                         </div>
@@ -154,7 +154,7 @@ function AssociateCaseModal({ isOpen, onClose, onAssociate, interview, isAssocia
 
                         {/* Search */}
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-white/60 uppercase tracking-wide">Buscar Caso</label>
+                            <label className="text-xs font-bold text-white/60 uppercase tracking-wide">Buscar Expediente</label>
                             <div className="relative">
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} />
                                 <input
@@ -169,7 +169,7 @@ function AssociateCaseModal({ isOpen, onClose, onAssociate, interview, isAssocia
 
                         {/* Cases List */}
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-white/60 uppercase tracking-wide">Casos Disponibles</label>
+                            <label className="text-xs font-bold text-white/60 uppercase tracking-wide">Expedientes Disponibles</label>
 
                             <div className="max-h-[320px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
                                 {loading && (
@@ -233,7 +233,7 @@ function AssociateCaseModal({ isOpen, onClose, onAssociate, interview, isAssocia
                                 {!loading && !error && sortedCases.length === 0 && (
                                     <div className="text-center py-8 bg-white/5 border border-dashed border-white/10 rounded-xl">
                                         <p className="text-white/50 text-sm">
-                                            {searchTerm ? 'No se encontraron casos' : 'No tienes casos disponibles'}
+                                            {searchTerm ? 'No se encontraron expedientes' : 'No tienes expedientes disponibles'}
                                         </p>
                                     </div>
                                 )}
@@ -271,7 +271,7 @@ function AssociateCaseModal({ isOpen, onClose, onAssociate, interview, isAssocia
                                 ) : (
                                     <>
                                         <LinkIcon size={16} />
-                                        Asociar a Caso
+                                        Asociar a Expediente
                                     </>
                                 )}
                             </button>
