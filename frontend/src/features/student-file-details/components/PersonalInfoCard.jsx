@@ -3,7 +3,7 @@ import { User, Mail, CreditCard, GraduationCap, Edit, Cake, Briefcase, CalendarD
 import { calcularEdad, parseLocalDate } from '../utils';
 import EditStudentModal from './EditStudentModal';
 
-function PersonalInfoCard({ student, onUpdateStudent, canEdit = true }) {
+function PersonalInfoCard({ student, onUpdateStudent, canEdit = true, schoolId = null }) {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     const fechaNacimiento = student.fecha_nacimiento || student.fechaNacimiento;
@@ -158,6 +158,7 @@ function PersonalInfoCard({ student, onUpdateStudent, canEdit = true }) {
                 onClose={() => setIsEditModalOpen(false)}
                 onSave={handleSaveStudent}
                 student={student}
+                schoolId={schoolId}
             />
         </div>
     );

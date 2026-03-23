@@ -278,5 +278,37 @@ class SchoolService:
             logger.error(f" Error obteniendo colegios por IDs: {e}")
             return []
 
+    def get_areas(self, colegio_id: str) -> List[str]:
+        """Obtiene las áreas de trabajo de un colegio"""
+        try:
+            doc_ref = self.db.collection(self.collection_name).document(colegio_id)
+            doc = doc_ref.get()
+            if doc.exists:
+                data = doc.to_dict()
+                return data.get("areas", [])
+            return []
+        except Exception as e:
+            logger.error(f"Error obteniendo áreas del colegio {colegio_id}: {e}")
+            return []
+
+    def add_area(self, colegio_id: str, area: str) -> List[str]:
+        """Agrega una nueva área de trabajo a un colegio"""
+        try:
+            doc_ref = self.db.collection(self.collection_name).document(colegio_id)
+            doc = doc_ref.get()
+            if not doc.exists:
+                raise ValueError(f"Colegio {colegio_id} no existe")
+            data = doc.to_dict()
+            areas = data.get("areas", [])
+            area_stripped = area.strip()
+            if area_stripped and area_stripped not in areas:
+                areas.append(area_stripped)
+                doc_ref.update({"areas": areas})
+            return areas
+        except Exception as e:
+            logger.error(f"Error agregando área al colegio {colegio_id}: {e}")
+            raise
+
+
 # Instancia singleton
 school_service = SchoolService()

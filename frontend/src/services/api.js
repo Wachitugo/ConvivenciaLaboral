@@ -1125,6 +1125,29 @@ export const schoolsService = {
     }
   },
 
+  // Áreas de trabajo
+  getAreas: async (colegioId) => {
+    try {
+      const response = await axios.get(`${API_URL}/schools/${colegioId}/areas`);
+      return response.data;
+    } catch (error) {
+      logger.error('Error obteniendo áreas:', error);
+      throw error;
+    }
+  },
+
+  addArea: async (colegioId, area) => {
+    try {
+      const response = await axios.post(`${API_URL}/schools/${colegioId}/areas`, null, {
+        params: { area }
+      });
+      return response.data;
+    } catch (error) {
+      logger.error('Error agregando área:', error);
+      throw error;
+    }
+  },
+
   getProxyImage: async (url) => {
     try {
       const response = await axios.get(`${API_URL}/schools/proxy-image/`, {

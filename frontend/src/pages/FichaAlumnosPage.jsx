@@ -139,6 +139,13 @@ function FichaAlumnosPage() {
         onClose={() => setShowCreateModal(false)}
         onSave={handleCreateStudent}
         isSaving={isSaving}
+        schoolId={(() => {
+          try {
+            const u = JSON.parse(localStorage.getItem('usuario'));
+            const id = u?.colegios?.[0];
+            return typeof id === 'object' ? id?.id : id;
+          } catch { return null; }
+        })()}
       />
       <ColaboradoresTour />
     </div>

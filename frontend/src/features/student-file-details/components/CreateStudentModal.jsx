@@ -2,18 +2,14 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Save, User, CreditCard, GraduationCap, Mail, Cake, Briefcase, CalendarDays, UserPlus } from 'lucide-react';
 import BirthDatePicker from '../../../components/BirthDatePicker';
+import AreaSelect from '../../../components/AreaSelect';
 
 const formatRut = (value) => {
-    // Limpiar todo excepto dígitos y K
     const clean = value.replace(/[^0-9kK]/g, '').toUpperCase();
     if (!clean) return '';
-
     const body = clean.slice(0, -1);
     const dv = clean.slice(-1);
-
-    // Agregar puntos al cuerpo
     const bodyFormatted = body.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
     return body.length > 0 ? `${bodyFormatted}-${dv}` : dv;
 };
 
@@ -31,17 +27,11 @@ const EMPTY_FORM = {
 };
 
 const inputClass = (error) =>
-    `w-full px-3 py-2.5 rounded-xl text-sm text-white placeholder-white/40 bg-white/10 border transition-all focus:outline-none focus:ring-2 ${
-        error
-            ? 'border-red-400/70 focus:ring-red-400/30'
-            : 'border-white/20 focus:border-white/50 focus:ring-white/10'
-    }`;
+    `w-full px-4 py-3 rounded-xl border ${error ? 'border-red-400/70' : 'border-white/20'} focus:border-[#34B6D8] focus:ring-4 focus:ring-[#34B6D8]/10 outline-none bg-white/5 text-sm text-white placeholder-white/30 transition-all`;
 
-const selectClass = `w-full px-3 py-2.5 rounded-xl text-sm text-white bg-[#0d3258] border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/10 focus:border-white/50 transition-all`;
+const labelClass = `text-[10px] font-bold text-white/50 uppercase tracking-widest flex items-center gap-1.5 mb-1.5`;
 
-const labelClass = `flex items-center gap-1.5 text-[11px] font-bold text-white/50 uppercase tracking-wider mb-1.5`;
-
-function CreateStudentModal({ isOpen, onClose, onSave, isSaving = false }) {
+function CreateStudentModal({ isOpen, onClose, onSave, isSaving = false, schoolId = null }) {
     const [formData, setFormData] = useState(EMPTY_FORM);
     const [errors, setErrors] = useState({});
 
@@ -86,188 +76,183 @@ function CreateStudentModal({ isOpen, onClose, onSave, isSaving = false }) {
 
     return createPortal(
         <>
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-[60]" onClick={handleClose} />
-            <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 pointer-events-none">
-                <div
-                    className="w-full max-w-2xl pointer-events-auto max-h-[90vh] flex flex-col rounded-3xl overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.5)]"
-                    style={{ background: 'linear-gradient(145deg, #0d3258 0%, #0A2744 100%)' }}
-                >
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60]" onClick={handleClose} />
+            <div className="fixed right-0 top-0 h-full z-[70] pointer-events-none" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                <div className="w-[480px] h-full shadow-[0_0_40px_rgba(0,0,0,0.5)] bg-[#0A3866]/95 backdrop-blur-3xl border-l border-[#1A71B8]/30 flex flex-col overflow-hidden pointer-events-auto animate-slide-in">
+
                     {/* Header */}
-                    <div className="px-7 py-5 flex justify-between items-center border-b border-white/10 flex-shrink-0">
+                    <div className="px-6 py-5 border-b border-white/10 flex justify-between items-center flex-shrink-0">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-2xl bg-[#1A71B8]/40 border border-[#34B6D8]/30 flex items-center justify-center">
                                 <UserPlus size={20} className="text-[#34B6D8]" />
                             </div>
                             <div>
                                 <h2 className="text-base font-bold text-white">Nuevo Colaborador</h2>
-                                <p className="text-xs text-white/40">Completa los datos del trabajador</p>
+                                <p className="text-xs text-white/50">Completa los datos del trabajador</p>
                             </div>
                         </div>
-                        <button
-                            onClick={handleClose}
-                            className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
-                        >
+                        <button onClick={handleClose} className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-xl transition-colors">
                             <X size={18} />
                         </button>
                     </div>
 
-                    {/* Form */}
-                    <form onSubmit={handleSubmit} className="overflow-y-auto p-7 space-y-5 custom-scrollbar">
+                    {/* Body */}
+                    <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
+                        <div className="p-6 space-y-6 flex-1">
 
-                        {/* Sección: Identidad */}
-                        <div>
-                            <p className="text-[11px] font-black text-[#34B6D8] uppercase tracking-widest mb-3">Información Personal</p>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className={labelClass}>
-                                        <User size={11} /> Nombres <span className="text-red-400">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={formData.nombres}
-                                        onChange={(e) => field('nombres', e.target.value)}
-                                        className={inputClass(errors.nombres)}
-                                        placeholder="Ej: Juan Carlos"
-                                    />
-                                    {errors.nombres && <p className="text-xs text-red-400 mt-1">{errors.nombres}</p>}
+                            {/* Sección: Información Personal */}
+                            <div>
+                                <p className="text-[11px] font-black text-[#34B6D8] uppercase tracking-widest mb-4">Información Personal</p>
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className={labelClass}>
+                                                <User size={10} /> Nombres <span className="text-red-400">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.nombres}
+                                                onChange={(e) => field('nombres', e.target.value)}
+                                                className={inputClass(errors.nombres)}
+                                                placeholder="Ej: Juan Carlos"
+                                            />
+                                            {errors.nombres && <p className="text-xs text-red-400 mt-1">{errors.nombres}</p>}
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>
+                                                <User size={10} /> Apellidos <span className="text-red-400">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.apellidos}
+                                                onChange={(e) => field('apellidos', e.target.value)}
+                                                className={inputClass(errors.apellidos)}
+                                                placeholder="Ej: González Pérez"
+                                            />
+                                            {errors.apellidos && <p className="text-xs text-red-400 mt-1">{errors.apellidos}</p>}
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className={labelClass}>
+                                                <CreditCard size={10} /> RUT <span className="text-red-400">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.rut}
+                                                onChange={(e) => field('rut', formatRut(e.target.value))}
+                                                className={inputClass(errors.rut)}
+                                                placeholder="Ej: 12.345.678-9"
+                                                maxLength={12}
+                                            />
+                                            {errors.rut && <p className="text-xs text-red-400 mt-1">{errors.rut}</p>}
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>
+                                                <User size={10} /> Género
+                                            </label>
+                                            <select
+                                                value={formData.genero}
+                                                onChange={(e) => field('genero', e.target.value)}
+                                                className="w-full px-4 py-3 rounded-xl border border-white/20 focus:border-[#34B6D8] outline-none bg-[#071f3a] text-sm text-white transition-all"
+                                            >
+                                                <option value="">Seleccionar género</option>
+                                                <option value="Masculino">Masculino</option>
+                                                <option value="Femenino">Femenino</option>
+                                                <option value="Otro">Otro</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className={labelClass}>
+                                            <Mail size={10} /> Email
+                                        </label>
+                                        <input
+                                            type="email"
+                                            value={formData.email}
+                                            onChange={(e) => field('email', e.target.value)}
+                                            placeholder="Ej: colaborador@empresa.cl"
+                                            className={inputClass(false)}
+                                        />
+                                    </div>
                                 </div>
+                            </div>
 
-                                <div>
-                                    <label className={labelClass}>
-                                        <User size={11} /> Apellidos <span className="text-red-400">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={formData.apellidos}
-                                        onChange={(e) => field('apellidos', e.target.value)}
-                                        className={inputClass(errors.apellidos)}
-                                        placeholder="Ej: González Pérez"
-                                    />
-                                    {errors.apellidos && <p className="text-xs text-red-400 mt-1">{errors.apellidos}</p>}
-                                </div>
+                            <div className="border-t border-white/10" />
 
-                                <div>
-                                    <label className={labelClass}>
-                                        <CreditCard size={11} /> RUT <span className="text-red-400">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={formData.rut}
-                                        onChange={(e) => field('rut', formatRut(e.target.value))}
-                                        className={inputClass(errors.rut)}
-                                        placeholder="Ej: 12.345.678-9"
-                                        maxLength={12}
-                                    />
-                                    {errors.rut && <p className="text-xs text-red-400 mt-1">{errors.rut}</p>}
-                                </div>
+                            {/* Sección: Información Laboral */}
+                            <div>
+                                <p className="text-[11px] font-black text-[#34B6D8] uppercase tracking-widest mb-4">Información Laboral</p>
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className={labelClass}>
+                                                <GraduationCap size={10} /> Área de trabajo
+                                            </label>
+                                            <AreaSelect
+                                                value={formData.curso}
+                                                onChange={(val) => field('curso', val)}
+                                                schoolId={schoolId}
+                                                className="w-full"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>
+                                                <Briefcase size={10} /> Cargo
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.cargo}
+                                                onChange={(e) => field('cargo', e.target.value)}
+                                                placeholder="Ej: Jefe de Área..."
+                                                className={inputClass(false)}
+                                            />
+                                        </div>
+                                    </div>
 
-                                <div>
-                                    <label className={labelClass}>
-                                        <User size={11} /> Género
-                                    </label>
-                                    <select value={formData.genero} onChange={(e) => field('genero', e.target.value)} className={selectClass}>
-                                        <option value="">Seleccionar género</option>
-                                        <option value="Masculino">Masculino</option>
-                                        <option value="Femenino">Femenino</option>
-                                        <option value="Otro">Otro</option>
-                                    </select>
-                                </div>
+                                    <div>
+                                        <label className={labelClass}>
+                                            <Briefcase size={10} /> Profesión u Oficio
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.profesion}
+                                            onChange={(e) => field('profesion', e.target.value)}
+                                            placeholder="Ej: Ingeniero, Técnico..."
+                                            className={inputClass(false)}
+                                        />
+                                    </div>
 
-                                <div className="col-span-2">
-                                    <label className={labelClass}>
-                                        <Mail size={11} /> Email
-                                    </label>
-                                    <input
-                                        type="email"
-                                        value={formData.email}
-                                        onChange={(e) => field('email', e.target.value)}
-                                        placeholder="Ej: colaborador@empresa.cl"
-                                        className={inputClass(false)}
-                                    />
+                                    <div>
+                                        <label className={labelClass}>
+                                            <CalendarDays size={10} /> Fecha de Ingreso
+                                        </label>
+                                        <BirthDatePicker
+                                            value={formData.fecha_ingreso}
+                                            onChange={(date) => field('fecha_ingreso', date)}
+                                            maxYear={new Date().getFullYear()}
+                                            minYear={new Date().getFullYear() - 50}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>
+                                            <Cake size={10} /> Fecha de Nacimiento
+                                        </label>
+                                        <BirthDatePicker
+                                            value={formData.fecha_nacimiento}
+                                            onChange={(date) => field('fecha_nacimiento', date)}
+                                            maxYear={new Date().getFullYear() - 18}
+                                            minYear={1950}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Divider */}
-                        <div className="border-t border-white/10" />
-
-                        {/* Sección: Trabajo */}
-                        <div>
-                            <p className="text-[11px] font-black text-[#34B6D8] uppercase tracking-widest mb-3">Información Laboral</p>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className={labelClass}>
-                                        <GraduationCap size={11} /> Área de trabajo
-                                    </label>
-                                    <select value={formData.curso} onChange={(e) => field('curso', e.target.value)} className={selectClass}>
-                                        <option value="">Seleccionar área</option>
-                                        <option value="Administración">Administración</option>
-                                        <option value="Operaciones">Operaciones</option>
-                                        <option value="Recursos Humanos">Recursos Humanos</option>
-                                        <option value="Finanzas">Finanzas</option>
-                                        <option value="Tecnología">Tecnología</option>
-                                        <option value="Ventas">Ventas</option>
-                                        <option value="Marketing">Marketing</option>
-                                        <option value="Producción">Producción</option>
-                                        <option value="Logística">Logística</option>
-                                        <option value="Atención al Cliente">Atención al Cliente</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className={labelClass}>
-                                        <Briefcase size={11} /> Cargo
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={formData.cargo}
-                                        onChange={(e) => field('cargo', e.target.value)}
-                                        placeholder="Ej: Jefe de Área, Analista..."
-                                        className={inputClass(false)}
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className={labelClass}>
-                                        <Briefcase size={11} /> Profesión u Oficio
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={formData.profesion}
-                                        onChange={(e) => field('profesion', e.target.value)}
-                                        placeholder="Ej: Ingeniero, Técnico..."
-                                        className={inputClass(false)}
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className={labelClass}>
-                                        <CalendarDays size={11} /> Fecha de Ingreso
-                                    </label>
-                                    <BirthDatePicker
-                                        value={formData.fecha_ingreso}
-                                        onChange={(date) => field('fecha_ingreso', date)}
-                                        maxYear={new Date().getFullYear()}
-                                        minYear={new Date().getFullYear() - 50}
-                                    />
-                                </div>
-
-                                <div className="col-span-2">
-                                    <label className={labelClass}>
-                                        <Cake size={11} /> Fecha de Nacimiento
-                                    </label>
-                                    <BirthDatePicker
-                                        value={formData.fecha_nacimiento}
-                                        onChange={(date) => field('fecha_nacimiento', date)}
-                                        maxYear={new Date().getFullYear() - 18}
-                                        minYear={1950}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Footer */}
-                        <div className="flex justify-end gap-3 pt-2">
+                        {/* Footer fijo */}
+                        <div className="px-6 py-4 border-t border-white/10 flex justify-end gap-3 flex-shrink-0">
                             <button
                                 type="button"
                                 onClick={handleClose}

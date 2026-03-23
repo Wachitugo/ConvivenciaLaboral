@@ -376,3 +376,27 @@ async def delete_school_document(
     except Exception as e:
         logger.exception("Error deleting document")
         raise HTTPException(status_code=500, detail=f"Error eliminando documento: {str(e)}")
+
+
+@router.get("/{colegio_id}/areas", response_model=List[str])
+async def get_areas(colegio_id: str):
+    """Obtiene las áreas de trabajo de un colegio"""
+    try:
+        areas = school_service.get_areas(colegio_id)
+        return areas
+    except Exception as e:
+        logger.exception("Error getting areas")
+        raise HTTPException(status_code=500, detail="Error obteniendo áreas")
+
+
+@router.post("/{colegio_id}/areas", response_model=List[str])
+async def add_area(colegio_id: str, area: str = Query(...)):
+    """Agrega una nueva área de trabajo a un colegio"""
+    try:
+        areas = school_service.add_area(colegio_id, area)
+        return areas
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.exception("Error adding area")
+        raise HTTPException(status_code=500, detail="Error agregando área")

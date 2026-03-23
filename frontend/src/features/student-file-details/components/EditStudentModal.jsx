@@ -2,8 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Save, User, CreditCard, GraduationCap, Mail, Cake, Briefcase, CalendarDays } from 'lucide-react';
 import BirthDatePicker from '../../../components/BirthDatePicker';
+import AreaSelect from '../../../components/AreaSelect';
 
-function EditStudentModal({ isOpen, onClose, onSave, student }) {
+const inputClass = `w-full px-4 py-3 rounded-xl border border-white/20 focus:border-[#34B6D8] focus:ring-4 focus:ring-[#34B6D8]/10 outline-none bg-white/5 text-sm text-white placeholder-white/30 transition-all`;
+
+const labelClass = `text-[10px] font-bold text-white/50 uppercase tracking-widest flex items-center gap-1.5 mb-1.5`;
+
+function EditStudentModal({ isOpen, onClose, onSave, student, schoolId = null }) {
     const [formData, setFormData] = useState({
         nombres: '',
         apellidos: '',
@@ -16,6 +21,7 @@ function EditStudentModal({ isOpen, onClose, onSave, student }) {
         profesion: '',
         cargo: ''
     });
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         if (student) {
@@ -26,19 +32,9 @@ function EditStudentModal({ isOpen, onClose, onSave, student }) {
                 curso: student.curso || '',
                 genero: student.genero || '',
                 email: student.email || '',
-                // Backend sends fecha_nacimiento usually, but frontend often maps to fechaNacimiento. 
-                // Let's check what PersonalInfoCard used: student.fechaNacimiento.
-                // If the backend returns camelCase (it doesn't, Pydantic defaults to snake), then PersonalInfoCard is doing mapping or using snake.
-                // PersonalInfoCard uses student.fechaNacimiento. This implies there's a transform somewhere or I missed where it was defined.
-                // Wait, Pydantic by default returns snake_case JSON. 
-                // Let's look at PersonalInfoCard line 117: student.fechaNacimiento. 
-                // If that works, then the student object has camelCase? 
-                // Let's assume the student object passed here has the keys as they come from the API (snake_case) OR standard frontend (camelCase).
-                // API usually returns snake_case. 
-                // Safer to check both.
-
-                fecha_nacimiento: student.fechaNacimiento || student.fecha_nacimiento ?
-                    new Date(student.fechaNacimiento || student.fecha_nacimiento).toISOString().split('T')[0] : '',
+                fecha_nacimiento: student.fechaNacimiento || student.fecha_nacimiento
+                    ? new Date(student.fechaNacimiento || student.fecha_nacimiento).toISOString().split('T')[0]
+                    : '',
                 fecha_ingreso: student.fecha_ingreso || '',
                 profesion: student.profesion || '',
                 cargo: student.cargo || ''
@@ -48,210 +44,233 @@ function EditStudentModal({ isOpen, onClose, onSave, student }) {
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Construct payload matching backend schema
-        onSave({
-            ...student,
-            nombres: formData.nombres,
-            apellidos: formData.apellidos,
-            rut: formData.rut,
-            curso: formData.curso || null,
-            genero: formData.genero || null,
-            email: formData.email || null,
-            fecha_nacimiento: formData.fecha_nacimiento || null,
-            fecha_ingreso: formData.fecha_ingreso || null,
-            profesion: formData.profesion || null,
-            cargo: formData.cargo || null
-        });
-        onClose();
+        setIsSaving(true);
+        try {
+            await onSave({
+                ...student,
+                nombres: formData.nombres,
+                apellidos: formData.apellidos,
+                rut: formData.rut,
+                curso: formData.curso || null,
+                genero: formData.genero || null,
+                email: formData.email || null,
+                fecha_nacimiento: formData.fecha_nacimiento || null,
+                fecha_ingreso: formData.fecha_ingreso || null,
+                profesion: formData.profesion || null,
+                cargo: formData.cargo || null
+            });
+            onClose();
+        } finally {
+            setIsSaving(false);
+        }
     };
+
+    const field = (key, value) => setFormData(prev => ({ ...prev, [key]: value }));
 
     return createPortal(
         <>
-            <div
-                className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[60] transition-opacity"
-                onClick={onClose}
-            />
-            <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 pointer-events-none">
-                <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl pointer-events-auto transform transition-all max-h-[90vh] flex flex-col">
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60]" onClick={onClose} />
+            <div className="fixed right-0 top-0 h-full z-[70] pointer-events-none" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                <div className="w-[480px] h-full shadow-[0_0_40px_rgba(0,0,0,0.5)] bg-[#0A3866]/95 backdrop-blur-3xl border-l border-[#1A71B8]/30 flex flex-col overflow-hidden pointer-events-auto animate-slide-in">
+
                     {/* Header */}
-                    <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                        <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                            <User size={20} className="text-blue-600" />
-                            Editar Información del Trabajador
-                        </h2>
-                        <button
-                            onClick={onClose}
-                            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
-                        >
-                            <X size={20} />
+                    <div className="px-6 py-5 border-b border-white/10 flex justify-between items-center flex-shrink-0">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-[#1A71B8]/40 border border-[#34B6D8]/30 flex items-center justify-center">
+                                <User size={20} className="text-[#34B6D8]" />
+                            </div>
+                            <div>
+                                <h2 className="text-base font-bold text-white">Editar Colaborador</h2>
+                                <p className="text-xs text-white/50">
+                                    {student?.nombres} {student?.apellidos}
+                                </p>
+                            </div>
+                        </div>
+                        <button onClick={onClose} className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-xl transition-colors">
+                            <X size={18} />
                         </button>
                     </div>
 
-                    {/* Form */}
-                    <form onSubmit={handleSubmit} className="overflow-y-auto p-6 custom-scrollbar">
-                        <div className="grid grid-cols-2 gap-6">
-                            {/* Nombres */}
+                    {/* Body */}
+                    <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
+                        <div className="p-6 space-y-6 flex-1">
+
+                            {/* Sección: Información Personal */}
                             <div>
-                                <label className="block text-xs font-medium text-gray-500 uppercase mb-1">Nombres</label>
-                                <input
-                                    type="text"
-                                    value={formData.nombres}
-                                    onChange={(e) => setFormData({ ...formData, nombres: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                    required
-                                />
+                                <p className="text-[11px] font-black text-[#34B6D8] uppercase tracking-widest mb-4">Información Personal</p>
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className={labelClass}>
+                                                <User size={10} /> Nombres
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.nombres}
+                                                onChange={(e) => field('nombres', e.target.value)}
+                                                className={inputClass}
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>
+                                                <User size={10} /> Apellidos
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.apellidos}
+                                                onChange={(e) => field('apellidos', e.target.value)}
+                                                className={inputClass}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className={labelClass}>
+                                                <CreditCard size={10} /> RUT
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.rut}
+                                                onChange={(e) => field('rut', e.target.value)}
+                                                className={inputClass}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>
+                                                <User size={10} /> Género
+                                            </label>
+                                            <select
+                                                value={formData.genero}
+                                                onChange={(e) => field('genero', e.target.value)}
+                                                className="w-full px-4 py-3 rounded-xl border border-white/20 focus:border-[#34B6D8] outline-none bg-[#071f3a] text-sm text-white transition-all"
+                                            >
+                                                <option value="">Seleccionar género</option>
+                                                <option value="Masculino">Masculino</option>
+                                                <option value="Femenino">Femenino</option>
+                                                <option value="Otro">Otro</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className={labelClass}>
+                                            <Mail size={10} /> Email
+                                        </label>
+                                        <input
+                                            type="email"
+                                            value={formData.email}
+                                            onChange={(e) => field('email', e.target.value)}
+                                            className={inputClass}
+                                        />
+                                    </div>
+                                </div>
                             </div>
 
-                            {/* Apellidos */}
-                            <div>
-                                <label className="block text-xs font-medium text-gray-500 uppercase mb-1">Apellidos</label>
-                                <input
-                                    type="text"
-                                    value={formData.apellidos}
-                                    onChange={(e) => setFormData({ ...formData, apellidos: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                    required
-                                />
-                            </div>
+                            <div className="border-t border-white/10" />
 
-                            {/* RUT */}
+                            {/* Sección: Información Laboral */}
                             <div>
-                                <label className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase mb-1">
-                                    <CreditCard size={12} /> RUT
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.rut}
-                                    onChange={(e) => setFormData({ ...formData, rut: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                />
-                            </div>
+                                <p className="text-[11px] font-black text-[#34B6D8] uppercase tracking-widest mb-4">Información Laboral</p>
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className={labelClass}>
+                                                <GraduationCap size={10} /> Área de trabajo
+                                            </label>
+                                            <AreaSelect
+                                                value={formData.curso}
+                                                onChange={(val) => field('curso', val)}
+                                                schoolId={schoolId}
+                                                className="w-full"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>
+                                                <Briefcase size={10} /> Cargo
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.cargo}
+                                                onChange={(e) => field('cargo', e.target.value)}
+                                                placeholder="Ej: Jefe de Área..."
+                                                className={inputClass}
+                                            />
+                                        </div>
+                                    </div>
 
-                            {/* Curso */}
-                            <div>
-                                <label className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase mb-1">
-                                    <GraduationCap size={12} /> Área de trabajo
-                                </label>
-                                <select
-                                    value={formData.curso}
-                                    onChange={(e) => setFormData({ ...formData, curso: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
-                                >
-                                    <option value="">Seleccionar área</option>
-                                    <option value="Administración">Administración</option>
-                                    <option value="Operaciones">Operaciones</option>
-                                    <option value="Recursos Humanos">Recursos Humanos</option>
-                                    <option value="Finanzas">Finanzas</option>
-                                    <option value="Tecnología">Tecnología</option>
-                                    <option value="Ventas">Ventas</option>
-                                    <option value="Marketing">Marketing</option>
-                                    <option value="Producción">Producción</option>
-                                    <option value="Logística">Logística</option>
-                                    <option value="Atención al Cliente">Atención al Cliente</option>
-                                </select>
-                            </div>
+                                    <div>
+                                        <label className={labelClass}>
+                                            <Briefcase size={10} /> Profesión u Oficio
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.profesion}
+                                            onChange={(e) => field('profesion', e.target.value)}
+                                            placeholder="Ej: Ingeniero, Técnico..."
+                                            className={inputClass}
+                                        />
+                                    </div>
 
-                            {/* Género */}
-                            <div>
-                                <label className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase mb-1">
-                                    <User size={12} /> Género
-                                </label>
-                                <select
-                                    value={formData.genero}
-                                    onChange={(e) => setFormData({ ...formData, genero: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
-                                >
-                                    <option value="">Seleccionar género</option>
-                                    <option value="Masculino">Masculino</option>
-                                    <option value="Femenino">Femenino</option>
-                                    <option value="Otro">Otro</option>
-                                </select>
-                            </div>
-
-                            {/* Email */}
-                            <div className="col-span-2">
-                                <label className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase mb-1">
-                                    <Mail size={12} /> Email
-                                </label>
-                                <input
-                                    type="email"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                />
-                            </div>
-
-                            {/* Fecha Nacimiento */}
-                            <div>
-                                <label className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase mb-1">
-                                    <Cake size={12} /> Fecha de Nacimiento
-                                </label>
-                                <BirthDatePicker
-                                    value={formData.fecha_nacimiento}
-                                    onChange={(date) => setFormData({ ...formData, fecha_nacimiento: date })}
-                                    maxYear={new Date().getFullYear() - 18}
-                                    minYear={1950}
-                                />
-                            </div>
-
-                            {/* Fecha Ingreso */}
-                            <div>
-                                <label className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase mb-1">
-                                    <CalendarDays size={12} /> Fecha de Ingreso
-                                </label>
-                                <BirthDatePicker
-                                    value={formData.fecha_ingreso}
-                                    onChange={(date) => setFormData({ ...formData, fecha_ingreso: date })}
-                                    maxYear={new Date().getFullYear()}
-                                    minYear={new Date().getFullYear() - 50}
-                                />
-                            </div>
-
-                            {/* Profesión */}
-                            <div>
-                                <label className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase mb-1">
-                                    <Briefcase size={12} /> Profesión u Oficio
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.profesion}
-                                    onChange={(e) => setFormData({ ...formData, profesion: e.target.value })}
-                                    placeholder="Ej: Ingeniero, Técnico..."
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                />
-                            </div>
-
-                            {/* Cargo */}
-                            <div>
-                                <label className="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase mb-1">
-                                    <Briefcase size={12} /> Cargo
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.cargo}
-                                    onChange={(e) => setFormData({ ...formData, cargo: e.target.value })}
-                                    placeholder="Ej: Jefe de Área, Analista..."
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                />
+                                    <div>
+                                        <label className={labelClass}>
+                                            <Cake size={10} /> Fecha de Nacimiento
+                                        </label>
+                                        <BirthDatePicker
+                                            value={formData.fecha_nacimiento}
+                                            onChange={(date) => field('fecha_nacimiento', date)}
+                                            maxYear={new Date().getFullYear() - 18}
+                                            minYear={1950}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>
+                                            <CalendarDays size={10} /> Fecha de Ingreso
+                                        </label>
+                                        <BirthDatePicker
+                                            value={formData.fecha_ingreso}
+                                            onChange={(date) => field('fecha_ingreso', date)}
+                                            maxYear={new Date().getFullYear()}
+                                            minYear={new Date().getFullYear() - 50}
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="mt-8 flex justify-end gap-3">
+                        {/* Footer fijo */}
+                        <div className="px-6 py-4 border-t border-white/10 flex justify-end gap-3 flex-shrink-0">
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                                disabled={isSaving}
+                                className="px-5 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-xl font-medium transition-all disabled:opacity-40"
                             >
                                 Cancelar
                             </button>
                             <button
                                 type="submit"
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 shadow-sm flex items-center gap-2 transition-colors"
+                                disabled={isSaving}
+                                className="px-6 py-2.5 bg-[#1A71B8] hover:bg-[#155d96] text-white text-sm font-bold rounded-xl shadow-lg flex items-center gap-2 transition-colors disabled:opacity-60"
                             >
-                                <Save size={16} />
-                                Guardar Cambios
+                                {isSaving ? (
+                                    <>
+                                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                                        </svg>
+                                        Guardando...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save size={15} />
+                                        Guardar Cambios
+                                    </>
+                                )}
                             </button>
                         </div>
                     </form>

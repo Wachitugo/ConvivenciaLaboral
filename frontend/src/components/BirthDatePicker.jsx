@@ -101,7 +101,7 @@ export default function BirthDatePicker({ value, onChange, disabled = false, cla
                     handleChange(day, e.target.value, year);
                 }}
                 disabled={disabled}
-                className={`${selectClass} flex-1`}
+                className={`${selectClass} w-32`}
             >
                 <option value="">Mes</option>
                 {months.map(m => (

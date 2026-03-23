@@ -105,10 +105,21 @@ function StudentDetailPage() {
             <StudentDetailPageSkeleton />
           ) : (
             <>
-        
+
 
               {/* Información Personal */}
-              <PersonalInfoCard student={student} onUpdateStudent={handleUpdateStudent} canEdit={true} />
+              <PersonalInfoCard
+                student={student}
+                onUpdateStudent={handleUpdateStudent}
+                canEdit={true}
+                schoolId={(() => {
+                  try {
+                    const u = JSON.parse(localStorage.getItem('usuario'));
+                    const id = u?.colegios?.[0];
+                    return typeof id === 'object' ? id?.id : id;
+                  } catch { return null; }
+                })()}
+              />
 
               {/* Tabs Container - Estilo CaseDetailTabs */}
               <div className="flex flex-col rounded-3xl border border-[#1A71B8]/30 bg-[#0A3866]/30 backdrop-blur-3xl overflow-hidden">
