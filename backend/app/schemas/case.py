@@ -10,6 +10,8 @@ class InvolvedPerson(BaseModel):
     grade: Optional[str] = None   # área de trabajo
     gender: Optional[str] = None
     studentId: Optional[str] = None
+    cargo: Optional[str] = None
+    antiguedad: Optional[str] = None
 
 # ============ PERMISOS ============
 

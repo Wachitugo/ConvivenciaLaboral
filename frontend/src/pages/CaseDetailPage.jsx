@@ -28,7 +28,9 @@ function CaseDetailPage() {
       grade: person.grade,
       rut: person.rut,
       gender: person.gender,
-      studentId: person.studentId
+      studentId: person.studentId,
+      cargo: person.cargo || '',
+      antiguedad: person.antiguedad || ''
     }));
 
     let protocolSteps = data.protocolSteps || [];
