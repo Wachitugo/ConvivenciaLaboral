@@ -261,6 +261,18 @@ class StorageService:
             logger.error(f"Error streaming document upload: {e}")
             raise
 
+    def generate_download_signed_url(self, blob, expiration_minutes: int = 60) -> str:
+        """Genera una signed URL de descarga (GET) para un blob privado."""
+        try:
+            return blob.generate_signed_url(
+                version="v4",
+                expiration=timedelta(minutes=expiration_minutes),
+                method="GET",
+            )
+        except Exception as e:
+            logger.error(f"Error generating download signed URL for {blob.name}: {e}")
+            return blob.public_url  # fallback (puede fallar si bucket es privado)
+
     def list_school_documents(self, school_bucket_name: str) -> list:
         """
         Lista los documentos en la carpeta 'documentos/' del bucket del colegio
@@ -268,21 +280,21 @@ class StorageService:
         try:
             bucket = self.client.bucket(school_bucket_name)
             blobs = bucket.list_blobs(prefix="documentos/")
-            
+
             documents = []
             for blob in blobs:
                 # Ignorar el objeto carpeta en sí mismo
                 if blob.name == "documentos/":
                     continue
-                    
+
                 documents.append({
                     "filename": blob.name.replace("documentos/", ""),
-                    "url": blob.public_url,
+                    "url": self.generate_download_signed_url(blob),
                     "size": blob.size,
                     "content_type": blob.content_type,
                     "updated_at": blob.updated
                 })
-                
+
             return documents
         except Exception as e:
             logger.error(f"Error listing documents: {e}")
