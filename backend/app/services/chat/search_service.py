@@ -5,7 +5,7 @@ from google.cloud.discoveryengine import SearchServiceClient, DocumentServiceCli
 from google.api_core.client_options import ClientOptions
 from langchain_core.tools import tool
 from app.core.config import get_settings
-from app.core.context import current_school_id, current_data_store_id
+from app.core.context import current_school_id, current_data_store_id, current_rag_corpus_id
 
 
 logger = logging.getLogger(__name__)
@@ -88,11 +88,19 @@ Responde SOLO con la query reformulada, sin explicaciones."""
 
         def _search_sync(query: str):
             try:
+                # Cambio 3: Routing — RAG Engine tiene prioridad sobre Discovery Engine
+                if settings.USE_VERTEX_RAG:
+                    rag_corpus = current_rag_corpus_id.get()
+                    if rag_corpus:
+                        from app.services.chat.rag_service import rag_service
+                        logger.info(f"🔍 [RAG] Using Vertex AI RAG Engine for query: {query[:60]}")
+                        return rag_service.query(rag_corpus, query)
+
                 # Determinar Data Store ID estrictamente desde contexto
                 target_data_store_id = current_data_store_id.get()
-                
+
                 # STRICT ISOLATION: No fallback to global self.data_store_id to prevent leakage
-                
+
                 logger.debug(f" Buscando en Data Store: {target_data_store_id} Query: {query}")
                 
                 # Validar configuración
@@ -342,12 +350,24 @@ Responde SOLO con la query reformulada, sin explicaciones."""
         """Crea una herramienta para listar todos los documentos disponibles"""
 
         def _list_documents_sync():
+            # Cambio 3: Routing — RAG Engine tiene prioridad
+            if settings.USE_VERTEX_RAG:
+                rag_corpus = current_rag_corpus_id.get()
+                if rag_corpus:
+                    from app.services.chat.rag_service import rag_service
+                    logger.info(f"📚 [RAG] Listando documentos desde Vertex AI RAG Engine")
+                    files = rag_service.list_files(rag_corpus)
+                    if not files:
+                        return "No se encontraron documentos indexados."
+                    lines = [f"- {f['title']}" for f in files]
+                    return "Documentos disponibles:\n" + "\n".join(lines)
+
             def try_list_docs(location_to_try):
                 try:
                     # Determinar Data Store ID estrictamente desde contexto
                     target_data_store_id = current_data_store_id.get()
                     # STRICT ISOLATION: No fallback to global self.data_store_id
-                    
+
                     logger.info(f"📚 Intentando listar documentos en {target_data_store_id} ({location_to_try})")
                     
                     if not target_data_store_id or target_data_store_id == "tu-datastore-id":

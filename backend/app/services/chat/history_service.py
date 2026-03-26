@@ -753,4 +753,30 @@ class HistoryService:
             logger.error(f"Error getting session context: {e}")
             return None
 
+    # ── Memoria dinámica por capas ──────────────────────────────────
+
+    def get_case_memory(self, case_id: str) -> dict:
+        """Obtiene los hechos clave almacenados para un caso."""
+        try:
+            doc = self.db.collection("case_memory").document(case_id).get()
+            if doc.exists:
+                return doc.to_dict().get("facts", {})
+            return {}
+        except Exception as e:
+            logger.error(f"[MEMORY] Error getting case memory for {case_id}: {e}")
+            return {}
+
+    def update_case_memory(self, case_id: str, facts: dict) -> bool:
+        """Guarda los hechos clave actualizados para un caso."""
+        try:
+            self.db.collection("case_memory").document(case_id).set(
+                {"facts": facts, "updated_at": firestore.SERVER_TIMESTAMP},
+                merge=True,
+            )
+            logger.info(f"🧠 [MEMORY] Case memory saved for {case_id}: {list(facts.keys())}")
+            return True
+        except Exception as e:
+            logger.error(f"[MEMORY] Error updating case memory for {case_id}: {e}")
+            return False
+
 history_service = HistoryService()

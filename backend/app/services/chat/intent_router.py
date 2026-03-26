@@ -113,11 +113,17 @@ class IntentRouter:
                 "que documentos tienes", "qué documentos tienes",
                 "cuales documentos", "cuáles documentos",
                 "lista documentos", "listar documentos",
-                "documentos disponibles", "documentos tienes",
+                "lista de documentos", "lista completa de documentos",
+                "lista completa", "documentos disponibles", "documentos tienes",
                 "a que documentos", "a qué documentos",
                 "que archivos tienes", "qué archivos tienes",
                 "cuales son los documentos", "cuáles son los documentos",
                 "mostrar documentos", "ver documentos",
+                "cual es la lista", "cuál es la lista",
+                "lista de archivos", "todos los documentos",
+                "tu lista", "tus documentos", "tus archivos",
+                "listado de documentos", "listado de archivos", "el listado",
+                "cuál es el listado", "cual es el listado",
             ]
             if any(phrase in message_lower for phrase in listing_phrases):
                 logger.info("🎯 [INTENT] Fast-path: DOCUMENT_ANALYSIS (document listing request)")
@@ -137,13 +143,15 @@ class IntentRouter:
                     if hasattr(m, 'content') and isinstance(m.content, str)
                 ])
                 
-                # Indicadores de caso activo (Laboral)
+                # Indicadores de caso activo REAL (requieren persona concreta, no solo normativa)
                 case_indicators = [
-                    "tengo una denuncia", "trabajador", "denunciado", "denunciante",
-                    "testigos", "fecha del incidente", "acoso laboral", "acoso sexual",
-                    "violencia", "hostigamiento", "jefe", "supervisor"
+                    "tengo una denuncia", "denunciado", "denunciante",
+                    "testigos", "fecha del incidente",
+                    "agredió", "agredido",
+                    "me acosaron", "me hostigaron", "fue despedido",
+                    "ocurrió el incidente", "registrar el caso", "documentar el caso"
                 ]
-                
+
                 if any(indicator in recent_text for indicator in case_indicators):
                     logger.info("🎯 [INTENT] Fast-path: CASE_CREATION (active conversation)")
                     return {

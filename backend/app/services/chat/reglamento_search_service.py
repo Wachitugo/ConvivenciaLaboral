@@ -10,6 +10,7 @@ laboral para encontrar los protocolos pertinentes.
 """
 
 import logging
+import re
 from typing import List, Dict, Optional
 from google.cloud import discoveryengine_v1beta
 from google.api_core.client_options import ClientOptions
@@ -94,11 +95,102 @@ class ReglamentoSearchService:
         """
         try:
             logger.info(f"🔍 [REGLAMENTO_SEARCH] Query: '{query}' | Type: {case_type}")
-            
+
+            # RAG Engine tiene prioridad cuando está activo
+            if settings.USE_VERTEX_RAG:
+                from app.core.context import current_rag_corpus_id
+                rag_corpus = current_rag_corpus_id.get()
+                if rag_corpus:
+                    from app.services.chat.rag_service import rag_service
+                    import asyncio as _asyncio
+
+                    enriched_query = await self._build_enriched_query(query, case_type)
+                    doc_identifiers = self._extract_doc_identifiers(query)
+                    named_doc_keyword = self._extract_named_doc_keyword(query)
+
+                    if doc_identifiers or named_doc_keyword:
+                        # Estrategia 1: buscar el archivo exacto en el corpus y usar rag_file_ids
+                        corpus_files = await _asyncio.to_thread(rag_service.list_files, rag_corpus)
+                        matching_file_name = None  # full resource name: projects/.../ragFiles/...
+                        matching_file_title = None
+                        for f in corpus_files:
+                            fname_norm = f["title"].replace(' ', '').replace('.', '').replace('°', '').lower()
+                            # Match by numeric identifiers OR by named doc keyword
+                            num_match = doc_identifiers and any(ident in fname_norm for ident in doc_identifiers)
+                            name_match = named_doc_keyword and named_doc_keyword in fname_norm
+                            if num_match or name_match:
+                                matching_file_name = f["name"]
+                                matching_file_title = f["title"]
+                                break
+
+                        if matching_file_name:
+                            logger.info(f"🎯 [REGLAMENTO_SEARCH] Found exact file: '{matching_file_title}' — using rag_file_ids filter")
+                            # Generar queries diversas para mayor cobertura del documento
+                            file_queries = [query, enriched_query]
+                            # Para RIOHS: agregar queries con terminología disciplinaria específica
+                            if named_doc_keyword == "riohs":
+                                file_queries.append("amonestación multa terminación contrato faltas graves disciplina trabajador")
+                                file_queries.append("conductas prohibidas infracciones sanciones procedimiento disciplinario")
+                            # Deduplicar queries
+                            file_queries = list(dict.fromkeys(q.strip() for q in file_queries if q.strip()))
+                            tasks = [
+                                _asyncio.to_thread(rag_service.query_by_file, rag_corpus, q, matching_file_name, 15)
+                                for q in file_queries
+                            ]
+                            results_list = await _asyncio.gather(*tasks)
+                            seen_c = set()
+                            rag_results = []
+                            for res in results_list:
+                                for r in res:
+                                    k = (r['title'], r['content'][:100])
+                                    if k not in seen_c:
+                                        seen_c.add(k)
+                                        rag_results.append(r)
+                            logger.info(f"✅ [REGLAMENTO_SEARCH] File queries merged: {len(rag_results)} unique chunks from '{matching_file_title}' ({len(file_queries)} queries)")
+                        else:
+                            # Estrategia 2 (fallback): dual-query + post-filter por título
+                            logger.warning(f"⚠️ [REGLAMENTO_SEARCH] File not found in corpus for {doc_identifiers} — falling back to semantic search")
+                            doc_name_query = enriched_query
+                            name_only_query = " ".join(
+                                w for w in query.split()
+                                if any(c.isdigit() or c in 'NnÑñ°.,' for c in w)
+                                or w.lower() in ('circular', 'ley', 'decreto', 'dictamen', 'convenio', 'suseso', 'oit', 'riohs', 'dfl')
+                            ) or enriched_query
+
+                            results_a, results_b = await _asyncio.gather(
+                                _asyncio.to_thread(rag_service.query_structured, rag_corpus, name_only_query, 20),
+                                _asyncio.to_thread(rag_service.query_structured, rag_corpus, doc_name_query, 10),
+                            )
+                            seen_contents = set()
+                            rag_results = []
+                            for r in results_a + results_b:
+                                key = (r['title'], r['content'][:100])
+                                if key not in seen_contents:
+                                    seen_contents.add(key)
+                                    rag_results.append(r)
+
+                            matched = [r for r in rag_results if any(
+                                ident in r['title'].replace(' ', '').replace('.', '').lower()
+                                for ident in doc_identifiers
+                            )]
+                            logger.info(f"🔎 [REGLAMENTO_SEARCH] Fallback filter: {len(matched)}/{len(rag_results)} chunks matched {doc_identifiers}")
+                            rag_results = matched  # empty if none found — don't invent from wrong docs
+                    else:
+                        logger.info(f"🔍 [REGLAMENTO_SEARCH] Using Vertex AI RAG corpus, enriched: '{enriched_query}'")
+                        rag_results = rag_service.query_structured(rag_corpus, enriched_query, top_k=10)
+
+                    logger.info(f"✅ [REGLAMENTO_SEARCH] RAG returning {len(rag_results)} results")
+                    total_tokens = self._estimate_tokens(rag_results)
+                    return {
+                        "reglamento_results": rag_results,
+                        "ley_karin_results": [],
+                        "total_tokens": total_tokens
+                    }
+
             # 1. Construir query inteligente usando LLM
             enriched_query = await self._build_enriched_query(query, case_type)
             logger.info(f"🔍 [REGLAMENTO_SEARCH] Enriched query: '{enriched_query}'")
-            
+
             # 2. Búsqueda en Reglamento Interno de la empresa
             reglamento_results = await self._search_in_app(
                 app_id=company_search_app_id,
@@ -106,19 +198,18 @@ class ReglamentoSearchService:
                 max_results=3
             )
             logger.info(f"✅ [REGLAMENTO_SEARCH] Found {len(reglamento_results)} results from Company Rules")
-            
+
             # 3. Búsqueda SIEMPRE en Ley Karin / Normativa Laboral
-            # En Ley Karin, la normativa siempre es relevante para contrastar
             ley_karin_results = await self._search_in_app(
                 app_id=self.LEY_KARIN_APP_ID,
                 query=enriched_query,
                 max_results=2
             )
             logger.info(f"✅ [REGLAMENTO_SEARCH] Found {len(ley_karin_results)} results from Ley Karin App")
-            
+
             # 4. Calcular tokens aproximados
             total_tokens = self._estimate_tokens(reglamento_results) + self._estimate_tokens(ley_karin_results)
-            
+
             return {
                 "reglamento_results": reglamento_results,
                 "ley_karin_results": ley_karin_results,
@@ -262,25 +353,45 @@ class ReglamentoSearchService:
         
         # Fast-path: Detectar si el usuario menciona un documento específico
         doc_patterns = [
-            r"(ley|decreto|código|circular|reglamento)\s+n?[°º]?\s*\d+",  # "ley 21.643", "Decreto 170"
-            r"(la|el)\s+(ley|decreto|código)\s+n?[°º]?\s*\d+",  # "la ley 21.643"
-            r"ley\s+karin",  # "ley karin"
+            r"(ley|decreto|código|circular|reglamento)\s+n?[°º]?\s*\d+",  # "ley 21.643"
+            r"(la|el)\s+(ley|decreto|código)\s+n?[°º]?\s*\d+",            # "la ley 21.643"
+            r"ley\s+karin",                                                 # "ley karin"
+            r"circular\s+suseso\s+[n°º]*\s*\d+",                          # "Circular SUSESO 3.828"
+            r"dictamen\s+\w*\s*\d+",                                       # "Dictamen DT 515"
+            r"convenio\s+(oit|ilo)\s+[n°º]*\s*\d+",                       # "Convenio OIT 190"
+            r"\b\d{1,4}[\.\-]\d{3,}\b",                                   # número standalone "3.828", "21.643"
         ]
-        
+
         has_specific_doc = any(re.search(pattern, original_query, re.IGNORECASE) for pattern in doc_patterns)
-        
-        # Si menciona documento específico, preservar query original
+
+        # Si menciona documento específico, usar query original directamente (sin modificar)
         if has_specific_doc:
-            logger.info(f"🔍 [REGLAMENTO_SEARCH] Specific document detected, using original query")
-            enriched = original_query.lower()
-            
-            # Agregar "protocolo" si no está presente
-            if "protocolo" not in enriched:
-                enriched += " protocolo"
-            
-            logger.info(f"🔍 [REGLAMENTO_SEARCH] Enriched (specific doc): '{enriched}'")
+            logger.info(f"🔍 [REGLAMENTO_SEARCH] Specific document detected, preserving original query")
+            return original_query
+
+        # ════════════════════════════════════════════════════════════
+        # TERM MAPPINGS: añadir sinónimos/nombres técnicos antes del LLM
+        # ════════════════════════════════════════════════════════════
+        query_lower = original_query.lower()
+        extra_terms = []
+
+        # "Reglamento Interno" → RIOHS + medidas disciplinarias
+        if any(t in query_lower for t in ["reglamento interno", "riohs"]):
+            extra_terms.append("RIOHS medidas disciplinarias")
+
+        # "sanciones" en contexto laboral → medidas disciplinarias infracciones
+        if any(t in query_lower for t in ["sanción", "sanciones", "sancionatorio", "sancionatoria"]):
+            extra_terms.append("medidas disciplinarias infracciones conducta")
+
+        # "plazos" de investigación → ley 21.643 karin procedimiento
+        if any(t in query_lower for t in ["plazo", "plazos", "días hábiles", "días corridos", "tiempo", "término"]):
+            extra_terms.append("ley 21.643 karin procedimiento investigación días")
+
+        if extra_terms:
+            enriched = f"{original_query} {' '.join(extra_terms)}"
+            logger.info(f"🗺️ [REGLAMENTO_SEARCH] Term-mapped query: '{enriched}'")
             return enriched
-        
+
         # Caso general: Usar LLM para extraer keywords relevantes
         logger.info(f"🔍 [REGLAMENTO_SEARCH] Using LLM to extract keywords from query")
         
@@ -293,6 +404,44 @@ class ReglamentoSearchService:
             # Fallback: query original + "protocolo trabajadores"
             return f"protocolo {original_query.lower()} trabajadores"
     
+    def _extract_doc_identifiers(self, query: str) -> list:
+        """
+        Extrae identificadores numéricos de documentos específicos en la query.
+        Ej: "Circular SUSESO 3.828" → ["3828"], "Dictamen 515" → ["515"], "Ley 21.643" → ["21643"]
+        Usados para post-filtrar resultados RAG por título de documento.
+        """
+        identifiers = []
+        # Extraer todos los números con punto o guión (ej: 3.828, 21.643, 21-643)
+        for m in re.finditer(r'\b(\d{1,4})[.\-](\d{3,})\b', query):
+            identifiers.append(m.group(1) + m.group(2))  # "3828", "21643"
+            identifiers.append(m.group(1) + '.' + m.group(2))  # "3.828" con punto
+        # Extraer números simples cortos que parezcan identificadores (ej: 515, 190, 362)
+        for m in re.finditer(r'\b(\d{3,4})\b', query):
+            num = m.group(1)
+            if num not in identifiers:
+                identifiers.append(num)
+        return [i.lower() for i in identifiers] if identifiers else []
+
+    def _extract_named_doc_keyword(self, query: str) -> str:
+        """
+        Detecta referencias a documentos conocidos por nombre (sin número).
+        Retorna un keyword parcial del título para buscar en list_files().
+
+        Ej: "Reglamento Interno" → "riohs"
+        """
+        q = query.lower()
+        # Map de frases de usuario → fragmento del nombre del archivo en el corpus
+        NAMED_DOCS = [
+            (["reglamento interno", "riohs"], "riohs"),
+            (["protocolo psicosocial", "protocolo psico"], "psicosocial"),
+            (["convenio oit", "convenio ilo"], "oit"),
+            (["ley karin"], "21.643"),
+        ]
+        for triggers, keyword in NAMED_DOCS:
+            if any(t in q for t in triggers):
+                return keyword
+        return None
+
     async def _extract_keywords_llm(
         self,
         original_query: str,
@@ -375,28 +524,35 @@ Responde SOLO con las keywords separadas por espacios (no markdown, no explicaci
         Formatea resultados RAG para el prompt.
         Asegura un balance entre Reglamento y Normativa (50/50 del presupuesto de tokens).
         """
-        # Extraer segmentos planos
-        reg_segments = []
-        for result in (reglamento_results or []):
-            for seg in result.get('segments', []):
-                reg_segments.append({
-                    "source": "reglamento",
-                    "title": result.get('title', 'Documento'),
-                    "content": seg.get('content', ''),
-                    "score": seg.get('score', 0.5),
-                    "page": seg.get('page_number', '')
-                })
-        
-        ley_segments = []
-        for result in (ley_karin_results or []):
-            for seg in result.get('segments', []):
-                ley_segments.append({
-                    "source": "ley_karin",
-                    "title": result.get('title', 'Documento'),
-                    "content": seg.get('content', ''),
-                    "score": seg.get('score', 0.5),
-                    "page": seg.get('page_number', '')
-                })
+        from app.services.chat.reference_builder import _clean_document_title
+
+        def _extract_segments(results, source_label):
+            segments = []
+            for result in (results or []):
+                title = _clean_document_title(result.get('title', 'Documento'))
+                # Formato RAG directo: {"title", "content", "score"}
+                if 'content' in result and 'segments' not in result:
+                    segments.append({
+                        "source": source_label,
+                        "title": title,
+                        "content": result.get('content', ''),
+                        "score": result.get('score', 0.5),
+                        "page": ''
+                    })
+                else:
+                    # Formato Discovery Engine: {"title", "segments": [...]}
+                    for seg in result.get('segments', []):
+                        segments.append({
+                            "source": source_label,
+                            "title": title,
+                            "content": seg.get('content', ''),
+                            "score": seg.get('score', 0.5),
+                            "page": seg.get('page_number', '')
+                        })
+            return segments
+
+        reg_segments = _extract_segments(reglamento_results, "reglamento")
+        ley_segments = _extract_segments(ley_karin_results, "ley_karin")
         
         if not reg_segments and not ley_segments:
             return ""

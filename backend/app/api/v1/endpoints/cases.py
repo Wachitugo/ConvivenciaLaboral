@@ -339,6 +339,21 @@ async def analyze_file(
 
 
 
+@router.post("/{case_id}/suggest-involved")
+async def suggest_involved_endpoint(case_id: str):
+    """
+    Sugiere involucrados automáticamente desde el student_id del caso y los documentos adjuntos (IA).
+    """
+    try:
+        suggestions = await case_service.suggest_involved(case_id)
+        return {"suggestions": suggestions}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.exception("Error suggesting involved persons")
+        raise HTTPException(status_code=500, detail="Error interno al sugerir involucrados")
+
+
 @router.post("/{case_id}/summary")
 async def generate_case_summary_endpoint(
     case_id: str,

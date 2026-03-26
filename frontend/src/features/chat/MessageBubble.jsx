@@ -238,10 +238,25 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
     // ... (implementation of renderFormattedText) ...
     if (!text) return null;
 
-    const lines = text.split('\n');
+    // Extraer sección de referencias para renderizarla como chips horizontales
+    const refSeparatorPattern = /\n\n---\n###\s*📚\s*Referencias\n([\s\S]*?)$/;
+    const refMatch = text.match(refSeparatorPattern);
+    let mainText = text;
+    let refItems = [];
+
+    if (refMatch) {
+      mainText = text.slice(0, text.indexOf('\n\n---\n### 📚 Referencias'));
+      refItems = refMatch[1]
+        .split('\n')
+        .filter(l => l.trim().startsWith('-') || l.trim().startsWith('*'))
+        .map(l => l.replace(/^[\s\-*]+/, '').replace(/\*\*/g, '').replace(/⭐/g, '').trim())
+        .filter(Boolean);
+    }
+
+    const lines = mainText.split('\n');
     let inRefSection = false;
 
-    return lines.map((line, lineIndex) => {
+    const renderedLines = lines.map((line, lineIndex) => {
       if (line.trim() === '') return <span key={lineIndex} className="block h-2" />;
 
       const isTitle = line.trim().endsWith(':') && line.trim().length < 100;
@@ -344,6 +359,29 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
         </span>
       );
     });
+
+    if (refItems.length === 0) return renderedLines;
+
+    return (
+      <>
+        {renderedLines}
+        <div className="mt-4 pt-3 border-t border-white/10">
+          <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+            <span>📚</span> Referencias
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {refItems.map((ref, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#1A71B8]/15 border border-[#1A71B8]/30 text-[#34B6D8] hover:bg-[#1A71B8]/25 transition-colors"
+              >
+                {ref}
+              </span>
+            ))}
+          </div>
+        </div>
+      </>
+    );
   };
 
   return (

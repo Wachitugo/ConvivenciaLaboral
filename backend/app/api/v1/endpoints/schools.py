@@ -280,15 +280,22 @@ async def upload_school_document(
             school_bucket_name=colegio.bucket_name
         )
         
-        # Indexar en segundo plano
         gcs_uri = f"gs://{colegio.bucket_name}/documentos/{file.filename}"
+
+        # Indexar en Discovery Engine (legado)
         background_tasks.add_task(
-            discovery_service.index_document, 
-            gcs_uri, 
-            colegio_id, 
+            discovery_service.index_document,
+            gcs_uri,
+            colegio_id,
             colegio.data_store_id
         )
-        
+
+        # Cambio 3: Indexar también en RAG Engine si está configurado
+        from app.core.config import get_settings as _get_settings
+        if _get_settings().USE_VERTEX_RAG and colegio.rag_corpus_id:
+            from app.services.chat.rag_service import rag_service
+            background_tasks.add_task(rag_service.add_file, colegio.rag_corpus_id, gcs_uri)
+
         return result
 
     except HTTPException:
@@ -378,6 +385,25 @@ async def delete_school_document(
         raise HTTPException(status_code=500, detail=f"Error eliminando documento: {str(e)}")
 
 
+@router.get("/{colegio_id}/riohs-summary")
+async def get_riohs_summary(colegio_id: str):
+    """Obtiene el resumen del RIOHS de un colegio."""
+    summary = school_service.get_riohs_summary(colegio_id)
+    return {"riohs_summary": summary}
+
+
+@router.put("/{colegio_id}/riohs-summary")
+async def update_riohs_summary(colegio_id: str, body: dict):
+    """Actualiza el resumen ejecutivo del RIOHS de un colegio (máx ~800 tokens)."""
+    summary = body.get("riohs_summary", "").strip()
+    if not summary:
+        raise HTTPException(status_code=400, detail="El campo riohs_summary no puede estar vacío")
+    ok = school_service.update_riohs_summary(colegio_id, summary)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Colegio no encontrado o error al guardar")
+    return {"ok": True, "riohs_summary": summary}
+
+
 @router.get("/{colegio_id}/areas", response_model=List[str])
 async def get_areas(colegio_id: str):
     """Obtiene las áreas de trabajo de un colegio"""
@@ -387,6 +413,53 @@ async def get_areas(colegio_id: str):
     except Exception as e:
         logger.exception("Error getting areas")
         raise HTTPException(status_code=500, detail="Error obteniendo áreas")
+
+
+@router.post("/{colegio_id}/sync-rag")
+async def sync_rag_corpus(colegio_id: str, background_tasks: BackgroundTasks):
+    """
+    Crea (si no existe) el corpus RAG del colegio y lo sincroniza con todos
+    los documentos actuales del bucket GCS.
+    Resuelve el problema de documentos subidos directamente a GCS sin indexar.
+    """
+    from app.core.config import get_settings as _get_settings
+    from app.services.chat.rag_service import rag_service
+    from app.schemas.user import ColegioUpdate
+
+    if not _get_settings().USE_VERTEX_RAG:
+        raise HTTPException(status_code=400, detail="USE_VERTEX_RAG está desactivado en la configuración")
+
+    try:
+        colegio = school_service.get_colegio_by_id(colegio_id)
+        if not colegio:
+            raise HTTPException(status_code=404, detail="Colegio no encontrado")
+
+        if not colegio.bucket_name:
+            raise HTTPException(status_code=400, detail="El colegio no tiene bucket configurado")
+
+        # Crear corpus si no existe
+        corpus_name = colegio.rag_corpus_id
+        if not corpus_name:
+            logger.info(f"[RAG SYNC] Creando corpus para {colegio.nombre}...")
+            corpus_name = rag_service.create_corpus(colegio_id, colegio.nombre)
+            school_service.update_colegio(colegio_id, ColegioUpdate(rag_corpus_id=corpus_name))
+            logger.info(f"[RAG SYNC] Corpus creado: {corpus_name}")
+
+        # Importar todos los documentos del bucket en background
+        gcs_folder = f"gs://{colegio.bucket_name}/documentos/"
+        background_tasks.add_task(rag_service.import_files_from_gcs, corpus_name, gcs_folder)
+
+        return {
+            "ok": True,
+            "corpus": corpus_name,
+            "message": f"Sincronización iniciada desde {gcs_folder}. Puede tardar varios minutos."
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Error en sync-rag")
+        raise HTTPException(status_code=500, detail=f"Error sincronizando RAG: {str(e)}")
 
 
 @router.post("/{colegio_id}/areas", response_model=List[str])

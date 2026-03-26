@@ -6,6 +6,7 @@ para las respuestas del sistema de chat.
 """
 
 import logging
+import re
 from typing import List, Dict, Optional
 
 logger = logging.getLogger(__name__)
@@ -54,7 +55,7 @@ def build_references_section(
                 rice_docs.append(title)
         
         if rice_docs:
-            for doc in rice_docs[:3]:  # Limitar a 3 documentos RICE
+            for doc in rice_docs:
                 # Marcar si es el documento objetivo
                 if target_document and target_document.upper() in doc.upper():
                     lines.append(f"- **{doc}** ⭐")
@@ -75,7 +76,7 @@ def build_references_section(
                 legal_docs.append(title)
         
         if legal_docs:
-            for doc in legal_docs[:3]:  # Limitar a 3 documentos legales
+            for doc in legal_docs:
                 if target_document and target_document.upper() in doc.upper():
                     lines.append(f"- **{doc}** ⭐")
                 else:
@@ -103,13 +104,25 @@ def _clean_document_title(title: str) -> str:
         return "Documento"
     
     # Remover extensiones de archivo
-    title = title.replace('.pdf', '').replace('.PDF', '')
-    title = title.replace('.docx', '').replace('.DOCX', '')
-    
+    for ext in ['.pdf', '.PDF', '.docx', '.DOCX', '.pptx', '.PPTX', '.xlsx', '.XLSX']:
+        title = title.replace(ext, '')
+
     # Remover prefijos de bucket si existen
     if '/' in title:
         title = title.split('/')[-1]
-    
+
+    # Remover sufijo OCR (ej: "Dictamen DT N 515 21 OCR" → "Dictamen DT N 515 21")
+    title = re.sub(r'\s+OCR$', '', title, flags=re.IGNORECASE)
+
+    # Detectar y eliminar prefijo de fecha YYYY-MM-DD_ o YYYY-MM-DD-
+    date_prefix = re.match(r'^(\d{4}[-_]\d{2}[-_]\d{2})[-_ ]', title)
+    if date_prefix:
+        year = date_prefix.group(1)[:4]
+        title = title[date_prefix.end():].strip()
+        # Añadir año al final entre paréntesis si no está ya en el título
+        if year not in title:
+            title = f"{title} ({year})"
+
     # Remover caracteres problemáticos
     title = title.replace('_', ' ').replace('-', ' ')
     

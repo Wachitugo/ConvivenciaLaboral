@@ -2,17 +2,46 @@ import { useState, useEffect, useRef } from 'react';
 import InvolvedForm from './InvolvedForm';
 import InvolvedTable from './InvolvedTable';
 import EmptyInvolvedState from './EmptyInvolvedState';
-import { Users, Plus } from 'lucide-react';
+import { Users, Plus, Loader2 } from 'lucide-react';
+import { casesService } from '../../../services/api';
 
 function CaseInvolved({ caseData, onUpdateCase, isLoading = false }) {
   const [involved, setInvolved] = useState(caseData.involved || []);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isSuggesting, setIsSuggesting] = useState(false);
   const formPopupRef = useRef(null);
   const buttonRef = useRef(null);
+  const suggestRanRef = useRef(false);
 
   useEffect(() => {
     setInvolved(caseData.involved || []);
   }, [caseData.involved]);
+
+  // Auto-cargar involucrados si la lista está vacía
+  useEffect(() => {
+    if (suggestRanRef.current) return;
+    if (!caseData.id) return;
+    if ((caseData.involved || []).length > 0) return;
+
+    suggestRanRef.current = true;
+    const autoSuggest = async () => {
+      setIsSuggesting(true);
+      try {
+        const suggestions = await casesService.suggestInvolved(caseData.id);
+        if (suggestions.length > 0) {
+          // Asignar IDs únicos basados en timestamp
+          const withIds = suggestions.map((p, i) => ({ ...p, id: Date.now() + i }));
+          setInvolved(withIds);
+          onUpdateCase({ ...caseData, involved: withIds }, true);
+        }
+      } catch (e) {
+        // Fallo silencioso — el usuario puede agregar manualmente
+      } finally {
+        setIsSuggesting(false);
+      }
+    };
+    autoSuggest();
+  }, [caseData.id]);
 
   // Close popup when clicking outside
   useEffect(() => {
@@ -130,7 +159,12 @@ function CaseInvolved({ caseData, onUpdateCase, isLoading = false }) {
 
         {/* Contenido - ya no muestra el formulario aquí */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-4 custom-scrollbar" data-tour="involucrados-content">
-          {involved.length > 0 ? (
+          {isSuggesting ? (
+            <div className="flex flex-col items-center justify-center h-40 gap-3 text-white/50">
+              <Loader2 size={24} className="animate-spin text-[#34B6D8]" />
+              <p className="text-sm">Detectando personas involucradas...</p>
+            </div>
+          ) : involved.length > 0 ? (
             <InvolvedTable
               involved={involved}
               onRemoveParticipants={handleRemoveParticipants}

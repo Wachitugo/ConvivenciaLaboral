@@ -16,6 +16,7 @@ from app.services.chat.prompt_service import prompt_service
 from app.services.chat.case_file_tool import case_file_tool
 from app.services.chat.response_sanitizer import response_sanitizer
 from app.services.chat.intent_router import intent_router
+from app.services.chat.memory_manager import memory_manager
 from app.services.chat.document_analyzer import document_analyzer
 from app.schemas.chat import ChatResponse, ChatMetadata
 # user_service_simple imported lazily to avoid circular imports
@@ -317,9 +318,9 @@ INSTRUCCIONES IMPORTANTES:
         message_lower = message.lower()
         return any(k in message_lower for k in keywords)
 
-    def _prepare_analysis_messages(self, message: str, history: List, school_name: str, files: List[str] = None, session_id: str = None, bucket_name: str = None) -> List[BaseMessage]:
+    def _prepare_analysis_messages(self, message: str, history: List, school_name: str, files: List[str] = None, session_id: str = None, bucket_name: str = None, riohs_summary: str = None) -> List[BaseMessage]:
         """Prepara los mensajes para el análisis de caso."""
-        system_prompt = prompt_service.get_case_analysis_prompt(school_name)
+        system_prompt = prompt_service.get_case_analysis_prompt(school_name, riohs_summary=riohs_summary)
         messages = [SystemMessage(content=system_prompt)]
         
         # Agregar historial reciente (últimos 3 mensajes para contexto)
@@ -482,7 +483,10 @@ INSTRUCCIONES IMPORTANTES:
         # 0. Determinar bucket de almacenamiento y Data Store
         current_bucket = self.bucket_name
         data_store_id = None
-        search_app_id = None  # Initialize to avoid UnboundLocalError
+        search_app_id = None
+        riohs_summary = None
+        rag_corpus_id = None   # Cambio 3: RAG Engine corpus
+        memory_context = ""    # Cambio 2: memoria dinámica del caso
         
         # FALLBACK: Si user_id no viene en la request, intentar recuperarlo de los metadatos de la sesión
         if not user_id and session_id:
@@ -526,13 +530,29 @@ INSTRUCCIONES IMPORTANTES:
                      if colegio:
                          data_store_id = colegio.data_store_id
                          search_app_id = colegio.search_app_id
+                         riohs_summary = colegio.riohs_summary  # Para prompts por capas
+                         rag_corpus_id = colegio.rag_corpus_id  # Cambio 3: RAG Engine
                          
             except Exception as e:
                 logger.warning(f"Error resolving school bucket/datastore for user {user_id}: {e}")
-        
+
+        # Cambio 2: Cargar memoria del caso (si flag activo y hay caso)
+        if settings.USE_LAYERED_MEMORY and case_id:
+            try:
+                memory_facts = history_service.get_case_memory(case_id)
+                memory_context = memory_manager.format_memory_context(memory_facts)
+                if memory_context:
+                    logger.info(f"🧠 [MEMORY] Loaded case memory for {case_id}: {list(memory_facts.keys())}")
+            except Exception as e:
+                logger.warning(f"⚠️ [MEMORY] Error loading case memory: {e}")
+
         # Set Context
-        from app.core.context import current_data_store_id, current_user_email
+        from app.core.context import current_data_store_id, current_user_email, current_rag_corpus_id
         current_data_store_id.set(data_store_id)
+        # Cambio 3: propagar corpus RAG (ya cargado desde colegio)
+        if settings.USE_VERTEX_RAG and rag_corpus_id:
+            current_rag_corpus_id.set(rag_corpus_id)
+            logger.info(f"🔍 [RAG] Corpus set in context: {rag_corpus_id}")
         
         # Set user email for email tools
         if user_id:
@@ -634,6 +654,7 @@ INSTRUCCIONES IMPORTANTES:
 
 
         # NUEVO: Cargar e inyectar contexto del caso (Siempre, ya que no se persiste en BD)
+        case_context = None  # Inicializar para evitar NameError si has_context=True
         if case_id:
             # Verificar si ya tenemos un mensaje de sistema con el contexto
             has_context = any(isinstance(m, SystemMessage) and "CONTEXTO DEL CASO" in str(m.content) for m in history)
@@ -653,7 +674,13 @@ INSTRUCCIONES IMPORTANTES:
                     current_case_context.set(case_context["summary"])
                 else:
                     logger.warning(f"⚠️ [STREAM CONTEXT] Could not load case context for {case_id}")
-            
+
+            # Cambio 2: Inyectar memoria del caso en el historial
+            if settings.USE_LAYERED_MEMORY and memory_context:
+                insert_idx = 1 if history and isinstance(history[0], SystemMessage) else 0
+                history.insert(insert_idx, SystemMessage(content=memory_context))
+                logger.info(f"🧠 [MEMORY] Memory injected into history at index {insert_idx}")
+
             # Import case_service (needed for add_session_to_case later)
             from app.services.case_service import case_service
 
@@ -707,14 +734,15 @@ INSTRUCCIONES IMPORTANTES:
             
             # Use already-loaded context (no reload needed!)
             # Simple prompt to answer from context
-            system_prompt = f"""Eres CONI, asistente de Prevención y Cumplimiento Normativo (Ley Karin) para {school_name}.
-Mantén un tono estrictamente profesional, objetivo y confidencial.
+            base_prompt = prompt_service.get_general_prompt(school_name, riohs_summary=riohs_summary)
+            system_prompt = f"""{base_prompt}
+{f"{chr(10)}{memory_context}" if memory_context else ""}
 
-CONTEXTO DEL CASO ACTIVO:
+## CONTEXTO DEL CASO ACTIVO
 {case_context['summary']}
 
-INSTRUCCIONES:
-1. Responde basándote exclusivamente en la información registrada en el caso.
+INSTRUCCIONES ADICIONALES:
+1. Responde basándote en la información registrada en el caso y en el RIOHS de la empresa.
 2. Si falta información relevante, indícalo con precisión utilizando términos técnicos adecuados.
 3. Evita especulaciones o juicios de valor.
 4. NO menciones IDs técnicos del sistema."""
@@ -757,8 +785,14 @@ INSTRUCCIONES:
             # Save history
             new_messages = [HumanMessage(content=message), AIMessage(content=full_response)]
             await history_service.append_messages(session_id, new_messages)
+
+            # Cambio 2: Actualizar memoria en background
+            if settings.USE_LAYERED_MEMORY and case_id:
+                asyncio.create_task(
+                    self._update_memory_background(case_id, history + new_messages)
+                )
             return
-        
+
         # FAST PATH: DOCUMENT_ANALYSIS - Direct analysis
         if intent_result['intent'] == intent_router.DOCUMENT_ANALYSIS and files:
             logger.info(f"⚡ [FAST PATH STREAM] DOCUMENT_ANALYSIS - direct processing")
@@ -1048,22 +1082,78 @@ INSTRUCCIONES:
             # Detect document listing queries → use direct listing API instead of RAG
             listing_keywords = [
                 "que documentos", "qué documentos", "cuales documentos", "cuáles documentos",
+                "cuales son los documentos", "cuáles son los documentos",
                 "lista documentos", "listar documentos", "documentos disponibles",
+                "lista de documentos", "lista completa", "todos los documentos",
                 "a que documentos", "a qué documentos", "que archivos tienes", "qué archivos tienes",
-                "mostrar documentos", "ver documentos",
+                "mostrar documentos", "ver documentos", "tu lista", "tus documentos", "tus archivos",
+                "cual es la lista", "cuál es la lista", "lista de archivos",
+                "listado de documentos", "listado de archivos", "el listado",
+                "cuál es el listado", "cual es el listado",
             ]
-            is_listing_query = any(kw in message.lower() for kw in listing_keywords)
+            _msg_lower = message.lower()
+            # Compound check: doc/archive noun + availability verb
+            _has_doc_noun = any(w in _msg_lower for w in ["documentos", "archivos"])
+            _has_avail_verb = any(w in _msg_lower for w in ["tienes", "disponibles", "acceso", "cuales", "cuáles", "lista", "listado", "todos"])
+            is_listing_query = any(kw in _msg_lower for kw in listing_keywords) or (_has_doc_noun and _has_avail_verb)
 
-            if is_listing_query and data_store_id:
-                logger.info(f"📚 [LIST_DOCS] Listing documents for data_store_id: {data_store_id}")
+            if is_listing_query:
                 yield json.dumps({"type": "thinking", "content": "Consultando documentos disponibles..."}, ensure_ascii=False) + "\n"
-                docs = search_service.list_indexed_documents(data_store_id)
+                from app.services.chat.reference_builder import _clean_document_title
+                from app.core.context import current_rag_corpus_id
+                from app.core.config import get_settings as _gs
+
+                docs = []
+                rag_corpus = current_rag_corpus_id.get()
+                if _gs().USE_VERTEX_RAG and rag_corpus:
+                    logger.info(f"📚 [LIST_DOCS] Listing from RAG corpus: {rag_corpus}")
+                    from app.services.chat.rag_service import rag_service as _rag_svc
+                    raw_files = _rag_svc.list_files(rag_corpus)
+                    docs = [{"title": _clean_document_title(f["title"])} for f in raw_files]
+                elif data_store_id:
+                    logger.info(f"📚 [LIST_DOCS] Listing from Discovery Engine: {data_store_id}")
+                    raw_docs = search_service.list_indexed_documents(data_store_id)
+                    docs = [{"title": _clean_document_title(d["title"])} for d in raw_docs]
+
                 if docs:
-                    doc_names = "\n".join([f"- {d['title']}" for d in docs])
-                    response_text = f"Tengo acceso a los siguientes documentos:\n\n{doc_names}"
+                    from langchain_google_vertexai import ChatVertexAI as _CVai
+                    from langchain_core.messages import SystemMessage as _SM, HumanMessage as _HM
+                    doc_names_str = "\n".join([f"- {d['title']}" for d in docs])
+                    chips_list = doc_names_str
+                    list_prompt = f"""Eres CONI, asistente de convivencia laboral. El usuario pregunta qué documentos tienes disponibles.
+
+Tienes acceso a estos {len(docs)} documentos:
+{doc_names_str}
+
+INSTRUCCIONES:
+- Preséntate brevemente y menciona que tienes {len(docs)} documentos disponibles.
+- Lista cada documento con una breve descripción de su propósito (1 línea por doc).
+- Usa formato: **Nombre del documento** — descripción breve.
+- Agrupa por categoría si tiene sentido (Leyes, Circulares, Protocolos, etc.).
+- NO inventes contenido que no esté implícito en el nombre del documento.
+- NO incluyas sección de "Referencias" al final (se agrega automáticamente)."""
+
+                    _flash = _CVai(
+                        model_name=settings.VERTEX_MODEL_FLASH or "gemini-2.5-flash-lite",
+                        temperature=0.3,
+                        project=settings.PROJECT_ID,
+                        location=self.model_location,
+                        streaming=True,
+                    )
+                    full_response_text = ""
+                    async for chunk in _flash.astream([_SM(content=list_prompt), _HM(content=message)]):
+                        if chunk.content:
+                            full_response_text += chunk.content
+                            yield json.dumps({"type": "content", "content": chunk.content}, ensure_ascii=False) + "\n"
+
+                    # Append chips section
+                    chips_section = f"\n\n---\n### 📚 Referencias\n{chips_list}"
+                    full_response_text += chips_section
+                    yield json.dumps({"type": "content", "content": chips_section}, ensure_ascii=False) + "\n"
+                    response_text = full_response_text
                 else:
                     response_text = "No encontré documentos indexados en este momento."
-                yield json.dumps({"type": "content", "content": response_text}, ensure_ascii=False) + "\n"
+                    yield json.dumps({"type": "content", "content": response_text}, ensure_ascii=False) + "\n"
                 suggestions = await self._generate_suggestions(message, history, school_name, user_id=user_id)
                 if suggestions:
                     yield json.dumps({"type": "suggestions", "content": suggestions}, ensure_ascii=False) + "\n"
@@ -1143,7 +1233,7 @@ INSTRUCCIONES:
                     ]
                 else:
                     # Si es SOLO ANÁLISIS, usar prompt de análisis normal
-                    messages = self._prepare_analysis_messages(message, history, school_name, files, session_id, bucket_name=current_bucket)
+                    messages = self._prepare_analysis_messages(message, history, school_name, files, session_id, bucket_name=current_bucket, riohs_summary=riohs_summary)
                 
                 stream_generator = self.llm.astream(messages)
             
@@ -1232,6 +1322,16 @@ INSTRUCCIONES:
             logger.info(f"   ⚠️ Error generando sugerencias: {e}")
 
        
+    async def _update_memory_background(self, case_id: str, messages_snapshot: List[BaseMessage]):
+        """Tarea background: extrae hechos clave y actualiza la memoria del caso."""
+        try:
+            existing_facts = history_service.get_case_memory(case_id)
+            new_facts = await memory_manager.extract_and_update_facts(messages_snapshot, existing_facts)
+            if new_facts:
+                history_service.update_case_memory(case_id, new_facts)
+        except Exception as e:
+            logger.warning(f"⚠️ [MEMORY] Background update failed for {case_id}: {e}")
+
     async def _generate_suggestions(self, message: str, history: List[BaseMessage], school_name: str, user_id: str = None) -> List[str]:
         """Genera 3 preguntas sugeridas breves basadas en el mensaje del usuario y contexto."""
         try:

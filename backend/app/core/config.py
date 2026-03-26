@@ -46,6 +46,17 @@ class Settings(BaseSettings):
     MAX_FILE_SIZE_MB: int = 500  # Increased for Chunked Uploads
     MAX_TOTAL_SIZE_MB: int = 1000  # Total upload size limit
 
+    RAG_LOCATION: Optional[str] = None  # Región específica para Vertex AI RAG Engine (puede diferir de VERTEX_LOCATION)
+
+    # Feature flags — agente IA
+    USE_LAYERED_PROMPTS: bool = True   # Prompts por capas con contexto RIOHS por empresa
+    USE_LAYERED_MEMORY: bool = False   # Memoria dinámica por capas (pendiente implementar)
+    USE_VERTEX_RAG: bool = False       # Migración de Discovery Engine a Vertex AI RAG Engine
+
+    # Límites de contexto
+    RIOHS_CONTEXT_MAX_TOKENS: int = 800  # Tokens máx del resumen RIOHS a inyectar
+    MEMORY_WINDOW_SIZE: int = 10         # Últimos N mensajes a pasar al LLM (Capa 3)
+
     class Config:
         env_file = ".env"
         extra = "ignore"

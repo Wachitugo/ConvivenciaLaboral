@@ -742,6 +742,12 @@ export const casesService = {
     }
   },
 
+  // Sugerir involucrados automáticamente (student_id + IA sobre documentos)
+  suggestInvolved: async (caseId) => {
+    const response = await axios.post(`${API_URL}/cases/${caseId}/suggest-involved`);
+    return response.data.suggestions || [];
+  },
+
   // Guardar documento en un caso
   saveCaseDocument: async (caseId, fileData) => {
     try {

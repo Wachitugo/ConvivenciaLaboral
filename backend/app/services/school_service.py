@@ -58,7 +58,19 @@ class SchoolService:
                 school_name=colegio_data.nombre
             )
 
-            # --- NUEVO: Crear Data Store y Search App en Discovery Engine ---
+            # --- Cambio 3: Crear Corpus en Vertex AI RAG Engine (si flag activo) ---
+            rag_corpus_id = None
+            from app.core.config import get_settings as _get_settings
+            _settings = _get_settings()
+            if _settings.USE_VERTEX_RAG:
+                try:
+                    from app.services.chat.rag_service import rag_service
+                    rag_corpus_id = rag_service.create_corpus(colegio_id, colegio_data.nombre)
+                    logger.info(f"✅ [RAG] Corpus creado para {colegio_data.nombre}: {rag_corpus_id}")
+                except Exception as e:
+                    logger.error(f"Failed to create RAG corpus for {colegio_data.nombre}: {e}")
+
+            # --- Crear Data Store y Search App en Discovery Engine ---
             from app.services.discovery_service import discovery_service
             data_store_id = None
             search_app_id = None
@@ -86,6 +98,7 @@ class SchoolService:
             colegio_dict["bucket_name"] = bucket_name
             colegio_dict["data_store_id"] = data_store_id
             colegio_dict["search_app_id"] = search_app_id
+            colegio_dict["rag_corpus_id"] = rag_corpus_id
             colegio_dict["created_at"] = now
             colegio_dict["updated_at"] = now
 
@@ -277,6 +290,29 @@ class SchoolService:
         except Exception as e:
             logger.error(f" Error obteniendo colegios por IDs: {e}")
             return []
+
+    def get_riohs_summary(self, colegio_id: str) -> str | None:
+        """Obtiene el resumen ejecutivo del RIOHS de un colegio."""
+        try:
+            doc_ref = self.db.collection(self.collection_name).document(colegio_id)
+            doc = doc_ref.get()
+            if doc.exists:
+                return doc.to_dict().get("riohs_summary")
+            return None
+        except Exception as e:
+            logger.error(f"Error obteniendo riohs_summary del colegio {colegio_id}: {e}")
+            return None
+
+    def update_riohs_summary(self, colegio_id: str, summary: str) -> bool:
+        """Actualiza el resumen ejecutivo del RIOHS de un colegio."""
+        try:
+            doc_ref = self.db.collection(self.collection_name).document(colegio_id)
+            doc_ref.update({"riohs_summary": summary, "updated_at": datetime.utcnow()})
+            logger.info(f"riohs_summary actualizado para colegio {colegio_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error actualizando riohs_summary del colegio {colegio_id}: {e}")
+            return False
 
     def get_areas(self, colegio_id: str) -> List[str]:
         """Obtiene las áreas de trabajo de un colegio"""

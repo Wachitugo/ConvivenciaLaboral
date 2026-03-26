@@ -142,17 +142,25 @@ class CaseService:
 
         Instrucciones:
         1.  **Título**: Crea un título profesional y descriptivo (ej: "Denuncia por acoso laboral - Área Bodega"). No incluyas nombres de personas.
-        2.  **Descripción**: Redacta un resumen cronológico y objetivo de los hechos mencionados. Incluye qué pasó, dónde, cuándo y los roles de quienes participaron (ej: "trabajador del área de finanzas", "jefatura directa"), pero NO nombres propios.
+        2.  **Descripción**: Redacta un resumen cronológico y objetivo de los hechos mencionados. Incluye qué pasó, dónde, cuándo y los roles de quienes participaron (ej: "trabajador del área de finanzas", "jefatura directa"), pero NO nombres propios en este campo.
         3.  **Tipo de Caso**: Clasifícalo en una de estas categorías: "Acoso laboral", "Acoso sexual", "Violencia en el trabajo", "Discriminación", "Maltrato laboral", "Conflicto entre trabajadores". Si no estás seguro, usa "Otro".
-        4.  **Protocolo**: Si en la conversación se mencionó o sugirió un protocolo específico (ej: "Protocolo de Maltrato", "Protocolo de Retención"), indícalo. Si no, pon "Por definir".
+        4.  **Protocolo**: Si en la conversación se mencionó o sugirió un protocolo específico, indícalo. Si no, pon "Por definir".
+        5.  **Involucrados**: Extrae TODAS las personas mencionadas con su rol en el caso.
+            - Usa EXACTAMENTE uno de estos roles: "afectado" (persona afectada/denunciante), "agresor" (persona denunciada/acusada), "testigo", "otro".
+            - Incluye nombre completo y cargo/posición si se menciona.
+            - Si solo se menciona el cargo sin nombre, usa el cargo como nombre (ej: "Jefe de Bodega").
+            - NO inventes personas que no estén explícitamente mencionadas.
 
         IMPORTANTE: No inventes información. Si algo no se menciona, usa "No especificado" o déjalo vacío.
-        PRIVACIDAD: No extraigas ni menciones nombres propios de personas en ningún campo.
         """)
 
-        # Usar with_structured_output temporal sin owner_id y colegio_id
-        # Ya que el LLM solo extrae info del chat, no conoce estos datos
         from pydantic import BaseModel
+        from typing import List as _List
+
+        class _InvolvedExtract(BaseModel):
+            name: str
+            role: str  # "afectado", "agresor", "testigo", "otro"
+            cargo: Optional[str] = None
 
         class TempCaseExtract(BaseModel):
             title: str
@@ -160,6 +168,7 @@ class CaseService:
             case_type: str
             status: str = "active"
             protocol: Optional[str] = None
+            involved: _List[_InvolvedExtract] = []
 
         structured_llm = self.llm.with_structured_output(TempCaseExtract)
         chain = prompt | structured_llm
@@ -170,17 +179,41 @@ class CaseService:
             logger.exception(f"Error extracting case data from conversation")
             raise ValueError("Failed to extract case data from conversation")
 
+        # Mapear involucrados extraídos a InvolvedPerson
+        from app.schemas.case import InvolvedPerson
+        valid_roles = {"afectado", "agresor", "testigo", "otro"}
+        involved_list = []
+        for p in (extracted_data.involved or []):
+            role = p.role.lower().strip() if p.role else "otro"
+            if role not in valid_roles:
+                # Normalizar variantes
+                if any(w in role for w in ["afect", "víctima", "victima", "denunciante"]):
+                    role = "afectado"
+                elif any(w in role for w in ["agres", "denunciado", "acusado"]):
+                    role = "agresor"
+                elif "testigo" in role:
+                    role = "testigo"
+                else:
+                    role = "otro"
+            name = p.name.strip() if p.name else ""
+            if p.cargo:
+                name = f"{name} ({p.cargo.strip()})" if name else p.cargo.strip()
+            if name:
+                involved_list.append(InvolvedPerson(name=name, role=role))
+
+        logger.info(f"👥 [CASE_FROM_SESSION] Extracted {len(involved_list)} involucrados from conversation")
+
         # 3. Crear CaseCreate con owner_id y colegio_id
         case_data = CaseCreate(
             title=extracted_data.title,
             description=extracted_data.description,
             case_type=extracted_data.case_type,
             status=extracted_data.status,
-            involved=[],  # No se extraen involucrados por privacidad
+            involved=involved_list,
             protocol=extracted_data.protocol,
             owner_id=owner_id,
             colegio_id=colegio_id,
-            related_sessions=[session_id] # Vincular sesión origen
+            related_sessions=[session_id]
         )
 
         # 4. Guardar en Firestore
@@ -419,6 +452,123 @@ Extrae:
 
 
 
+
+    async def suggest_involved(self, case_id: str) -> List[dict]:
+        """
+        Sugiere personas involucradas combinando:
+        1. El colaborador vinculado al caso (student_id) → rol "afectado"
+        2. Análisis IA de los documentos del caso → roles detectados automáticamente
+        Retorna lista deduplicada lista para guardar como `involved`.
+        """
+        suggestions: List[dict] = []
+        seen_names: set = set()
+
+        # 1. Obtener el caso
+        case = self.get_case_by_id(case_id)
+        if not case:
+            raise ValueError(f"Caso {case_id} no encontrado")
+
+        # 2. Colaborador vinculado (student_id)
+        if case.student_id:
+            try:
+                student_doc = self.db.collection("students").document(case.student_id).get()
+                if student_doc.exists:
+                    s = student_doc.to_dict()
+                    nombre = f"{s.get('nombres', '')} {s.get('apellidos', '')}".strip()
+                    if nombre:
+                        import math
+                        fecha_ingreso = s.get("fecha_ingreso")
+                        antiguedad = ""
+                        if fecha_ingreso:
+                            try:
+                                ingreso = datetime.fromisoformat(str(fecha_ingreso)) if isinstance(fecha_ingreso, str) else fecha_ingreso
+                                years = math.floor((datetime.utcnow() - ingreso.replace(tzinfo=None)).days / 365)
+                                antiguedad = f"{years} año{'s' if years != 1 else ''}" if years > 0 else "Menos de 1 año"
+                            except Exception:
+                                pass
+                        person = {
+                            "id": case.student_id,
+                            "name": nombre,
+                            "role": "afectado",
+                            "rut": s.get("rut", ""),
+                            "gender": s.get("genero", ""),
+                            "grade": s.get("curso", ""),
+                            "cargo": s.get("cargo", ""),
+                            "antiguedad": antiguedad,
+                            "studentId": case.student_id,
+                        }
+                        suggestions.append(person)
+                        seen_names.add(nombre.lower())
+                        logger.info(f"👤 [SUGGEST_INVOLVED] Added student_id collaborator: {nombre}")
+            except Exception as e:
+                logger.warning(f"⚠️ [SUGGEST_INVOLVED] Could not fetch student {case.student_id}: {e}")
+
+        # 3. Análisis IA de documentos del caso
+        documents = self.get_case_documents(case_id)
+        import mimetypes
+
+        file_parts = []
+        for doc in documents:
+            gcs_uri = doc.get("gcs_uri")
+            if not gcs_uri or not gcs_uri.startswith("gs://"):
+                continue
+            content_type = doc.get("content_type", "")
+            name = doc.get("name", "").lower()
+            is_supported = (
+                content_type.startswith("image/") or
+                content_type == "application/pdf" or
+                content_type.startswith("text/") or
+                name.endswith(".pdf") or
+                name.endswith(".txt")
+            )
+            if is_supported:
+                mime = content_type or mimetypes.guess_type(name)[0] or "application/pdf"
+                if mime.startswith("image/"):
+                    file_parts.append({"type": "image_url", "image_url": {"url": gcs_uri}})
+                else:
+                    file_parts.append({"type": "media", "mime_type": mime, "file_uri": gcs_uri})
+
+        if file_parts:
+            try:
+                from pydantic import BaseModel as PydanticBaseModel, Field as PydanticField
+
+                class _Person(PydanticBaseModel):
+                    name: str = PydanticField(description="Nombre completo")
+                    role: str = PydanticField(description="Rol: afectado, agresor, testigo u otro")
+
+                class _Extraction(PydanticBaseModel):
+                    involved: List[_Person] = PydanticField(description="Personas mencionadas en los documentos")
+
+                prompt_text = """Analiza los documentos adjuntos de este expediente laboral.
+Extrae TODAS las personas mencionadas con su rol en el caso.
+Usa roles en español: afectado (denunciante), agresor (denunciado), testigo, otro."""
+
+                content = [{"type": "text", "text": prompt_text}] + file_parts
+                structured_llm = self.llm.with_structured_output(_Extraction)
+                result = await structured_llm.ainvoke([HumanMessage(content=content)])
+
+                for p in result.involved:
+                    name_lower = p.name.lower()
+                    if name_lower not in seen_names and len(p.name.strip()) > 2:
+                        seen_names.add(name_lower)
+                        suggestions.append({
+                            "id": len(suggestions),
+                            "name": p.name,
+                            "role": p.role,
+                            "rut": "",
+                            "gender": "",
+                            "grade": "",
+                            "cargo": "",
+                            "antiguedad": "",
+                            "studentId": None,
+                        })
+
+                logger.info(f"🤖 [SUGGEST_INVOLVED] AI extracted {len(result.involved)} persons from {len(file_parts)} docs")
+            except Exception as e:
+                logger.warning(f"⚠️ [SUGGEST_INVOLVED] AI extraction failed: {e}")
+
+        logger.info(f"✅ [SUGGEST_INVOLVED] Total suggestions for case {case_id}: {len(suggestions)}")
+        return suggestions
 
     async def analyze_file_for_create(self, file_uri: str) -> dict:
         """

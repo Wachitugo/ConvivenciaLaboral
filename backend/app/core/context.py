@@ -17,3 +17,6 @@ current_session_id: ContextVar[Optional[str]] = ContextVar("current_session_id",
 
 # Store user email for tools that need to send emails on behalf of the user
 current_user_email: ContextVar[Optional[str]] = ContextVar("current_user_email", default=None)
+
+# Cambio 3: Vertex AI RAG Engine corpus resource name por request
+current_rag_corpus_id: ContextVar[Optional[str]] = ContextVar("current_rag_corpus_id", default=None)

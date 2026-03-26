@@ -18,7 +18,8 @@ class ColegioBase(BaseModel):
     logo_url: Optional[str] = None
     data_store_id: Optional[str] = None  # ID del Data Store de Discovery Engine
     search_app_id: Optional[str] = None  # ID de la Search App/Engine para RAG
-    search_app_id: Optional[str] = None  # ID de la Search App/Engine para RAG
+    rag_corpus_id: Optional[str] = None  # ID del Corpus en Vertex AI RAG Engine
+    riohs_summary: Optional[str] = None  # Resumen ejecutivo del RIOHS de la empresa (≤800 tokens)
     token_limit: Optional[int] = None # Deprecated
     input_token_limit: Optional[int] = None
     output_token_limit: Optional[int] = None
@@ -34,7 +35,8 @@ class ColegioUpdate(BaseModel):
     logo_url: Optional[str] = None
     data_store_id: Optional[str] = None
     search_app_id: Optional[str] = None
-    search_app_id: Optional[str] = None
+    rag_corpus_id: Optional[str] = None
+    riohs_summary: Optional[str] = None
     token_limit: Optional[int] = None # Deprecated
     input_token_limit: Optional[int] = None
     output_token_limit: Optional[int] = None

@@ -116,12 +116,11 @@ class CaseCreationService:
             
             answer = response.content if hasattr(response, 'content') else str(response)
             
-            # 🛑 FAILSAFE: Eliminar sección de referencias alucinada por el LLM para evitar duplicados
-            if "REFERENCIAS Y ANEXOS" in answer:
-                logger.warning("⚠️ [CASE_CREATION] LLM generated hallucinated references, stripping them.")
-                answer = answer.split("REFERENCIAS Y ANEXOS")[0].strip()
-            elif "### REFERENCIAS" in answer:
-                answer = answer.split("### REFERENCIAS")[0].strip()
+            # 🛑 FAILSAFE: Eliminar sección de referencias generada por el LLM para evitar duplicados
+            for ref_marker in ["REFERENCIAS Y ANEXOS", "### REFERENCIAS", "### 📚 Referencias", "📚 Referencias", "### Referencias"]:
+                if ref_marker in answer:
+                    answer = answer.split(ref_marker)[0].strip()
+                    break
             
             # Limpiar artifacts de markdown al final (ej: "###" sueltos)
             import re
@@ -147,7 +146,7 @@ class CaseCreationService:
                 should_include_references = True
                 logger.info(f"✅ [CASE_CREATION] Including references: Explicit verification requested by user")
 
-            if should_include_references and rag_context and (rag_context.get("rice_results") or rag_context.get("legal_results")):
+            if should_include_references and rag_context and (rag_context.get("reglamento_results") or rag_context.get("ley_karin_results")):
                 from app.services.chat.reference_builder import build_references_section
                 
                 # LÓGICA DINÁMICA: Si el LLM mencionó explícitamente un documento en su respuesta,

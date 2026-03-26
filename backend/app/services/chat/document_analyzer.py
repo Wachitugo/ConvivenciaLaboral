@@ -404,11 +404,31 @@ FORMATO DE RESPUESTA:
             
             if is_listing_query:
                 logger.info(f"📋 [DOC_ANALYZER_RAG_STREAM] Listing query detected, performing broad search")
-                reglamento_results = await reglamento_search_service._search_in_app(
-                    app_id=search_app_id,
-                    query="protocolo reglamento documento manual",
-                    max_results=15
-                )
+
+                # Cambio 3: Si RAG Engine está activo, listar desde corpus RAG
+                from app.core.config import get_settings as _get_settings
+                _settings = _get_settings()
+                _used_rag = False
+                if _settings.USE_VERTEX_RAG:
+                    try:
+                        from app.core.context import current_rag_corpus_id
+                        from app.services.chat.rag_service import rag_service
+                        rag_corpus = current_rag_corpus_id.get()
+                        if rag_corpus:
+                            logger.info(f"📚 [DOC_ANALYZER_RAG_STREAM] Using Vertex AI RAG corpus for listing")
+                            files = rag_service.list_files(rag_corpus)
+                            reglamento_results = [{"title": f["title"], "content": "", "score": 1.0} for f in files]
+                            _used_rag = True
+                    except Exception as e:
+                        logger.warning(f"⚠️ [DOC_ANALYZER_RAG_STREAM] RAG listing failed, falling back to Discovery: {e}")
+
+                if not _used_rag:
+                    reglamento_results = await reglamento_search_service._search_in_app(
+                        app_id=search_app_id,
+                        query="protocolo reglamento documento manual",
+                        max_results=15
+                    )
+
                 rag_results = {
                     "reglamento_results": reglamento_results,
                     "ley_karin_results": [],
@@ -445,14 +465,16 @@ SITUACIÓN: El usuario te está consultando sobre protocolos, documentación o c
 
 INSTRUCCIONES:
 1. Analiza los fragmentos de documentos proporcionados
-2. Proporciona una respuesta clara y estructurada
-3. CITA los documentos cuando sea relevante
-4. Si no hay información suficiente, indícalo claramente
-5. NO inventes información
+2. Cita exactamente lo que dicen los documentos — incluyendo el número de artículo y el nombre del documento
+3. Si un fragmento menciona un plazo, indica de qué plazo específico se trata (ej: plazo de investigación, plazo de notificación, plazo de resolución) según el contexto del artículo
+4. NO mezcles plazos de distintos artículos ni los atribuyas a un proceso diferente al que corresponden
+5. Si los fragmentos no contienen la información solicitada, indícalo explícitamente
+6. Cuando cites un documento, usa su nombre en negrita: **Nombre del Documento** — NO uses backticks
 
 FORMATO:
-- Sé conciso pero completo
-- Usa bullet points para mayor claridad"""
+- Lista cada plazo por separado con su contexto (a qué etapa corresponde)
+- Usa bullet points para mayor claridad
+- Citas de fuente: escribe **(Fuente: Nombre del Documento, Art. X)** al final, nunca con backticks"""
 
             if case_context:
                 system_prompt += f"\n\nCONTEXTO DEL CASO:\n{case_context.get('summary', '')}"

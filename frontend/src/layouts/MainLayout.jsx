@@ -237,7 +237,7 @@ function MainLayout() {
         {/* Mobile Header */}
         <Outlet
           key={
-            location.pathname === '/chat-general'
+            location.pathname.endsWith('/chat-general')
               ? `chat-${location.state?.sessionId || 'new'}-${location.state?.newConsultaTimestamp || ''}`
               : location.pathname
           }
