@@ -69,12 +69,77 @@ class CaseService:
             }
 
 
+    @staticmethod
+    def _extract_involved_student_ids(involved: list) -> list:
+        """Extrae los studentId únicos del array involved."""
+        ids = []
+        for p in (involved or []):
+            sid = None
+            if isinstance(p, dict):
+                sid = p.get("studentId")
+            elif hasattr(p, "studentId"):
+                sid = p.studentId
+            if sid and sid not in ids:
+                ids.append(sid)
+        return ids
+
     def get_cases_by_student(self, student_id: str) -> List[dict]:
-        """Obtiene lista completa de casos de un estudiante"""
+        """Obtiene casos asociados a un trabajador por student_id O por involved_student_ids.
+        Incluye backfill automático para casos legacy que no tienen involved_student_ids."""
         try:
-            cases_ref = self.db.collection(self.collection_name).where(filter=FieldFilter("student_id", "==", student_id))
-            docs = list(cases_ref.stream())
-            return [doc.to_dict() | {"id": doc.id} for doc in docs]
+            seen = set()
+            results = []
+
+            # 1. Casos con vínculo directo (student_id)
+            for doc in self.db.collection(self.collection_name).where(
+                filter=FieldFilter("student_id", "==", student_id)
+            ).stream():
+                if doc.id not in seen:
+                    seen.add(doc.id)
+                    results.append(doc.to_dict() | {"id": doc.id})
+
+            # 2. Casos indexados con involved_student_ids (nuevos)
+            for doc in self.db.collection(self.collection_name).where(
+                filter=FieldFilter("involved_student_ids", "array_contains", student_id)
+            ).stream():
+                if doc.id not in seen:
+                    seen.add(doc.id)
+                    results.append(doc.to_dict() | {"id": doc.id})
+
+            # 3. Backfill: buscar en casos legacy (sin involved_student_ids) por colegio_id
+            # Obtener colegio_id del trabajador para limitar el scan
+            try:
+                student_doc = self.db.collection("students").document(student_id).get()
+                if student_doc.exists:
+                    colegio_id = student_doc.to_dict().get("colegio_id")
+                    if colegio_id:
+                        for doc in self.db.collection(self.collection_name).where(
+                            filter=FieldFilter("colegio_id", "==", colegio_id)
+                        ).stream():
+                            if doc.id in seen:
+                                continue
+                            data = doc.to_dict()
+                            # Solo procesar si NO tiene involved_student_ids (legacy)
+                            if "involved_student_ids" in data:
+                                continue
+                            # Buscar en involved si el studentId coincide
+                            for p in data.get("involved", []):
+                                if isinstance(p, dict) and p.get("studentId") == student_id:
+                                    seen.add(doc.id)
+                                    results.append(data | {"id": doc.id})
+                                    # Backfill: calcular y guardar involved_student_ids
+                                    ids = self._extract_involved_student_ids(data.get("involved", []))
+                                    if ids:
+                                        self.db.collection(self.collection_name).document(doc.id).update(
+                                            {"involved_student_ids": ids}
+                                        )
+                                        logger.info(f"🔄 [BACKFILL] Caso {doc.id} → involved_student_ids={ids}")
+                                    break
+            except Exception as _bf_err:
+                logger.warning(f"⚠️ Backfill scan failed: {_bf_err}")
+
+            logger.info(f"📂 get_cases_by_student({student_id}): {len(results)} casos encontrados")
+            return results
         except Exception as e:
             logger.error(f"Error getting student cases: {e}")
             return []
@@ -179,14 +244,58 @@ class CaseService:
             logger.exception(f"Error extracting case data from conversation")
             raise ValueError("Failed to extract case data from conversation")
 
-        # Mapear involucrados extraídos a InvolvedPerson
+        # Mapear involucrados extraídos a InvolvedPerson + enriquecer desde colaboradores
         from app.schemas.case import InvolvedPerson
+        from app.services.student_service import student_service
+
+        # Cargar trabajadores de la empresa para enriquecer los involucrados
+        workers = []
+        if colegio_id:
+            try:
+                workers = student_service.get_students_by_colegio(colegio_id)
+            except Exception as _we:
+                logger.warning(f"⚠️ No se pudieron cargar trabajadores para enriquecer involucrados: {_we}")
+
+        def _find_worker(name: str):
+            """Busca trabajador por nombre exacto o parcial."""
+            if not workers or not name:
+                return None
+            name_lower = name.lower().strip()
+            name_parts = name_lower.split()
+            # 1. Exacto
+            for w in workers:
+                full = f"{w.nombres or ''} {w.apellidos or ''}".lower().strip()
+                if full == name_lower:
+                    return w
+            # 2. Parcial: todos los tokens del nombre están en el nombre completo
+            for w in workers:
+                full = f"{w.nombres or ''} {w.apellidos or ''}".lower()
+                if all(part in full for part in name_parts):
+                    return w
+            return None
+
+        def _calc_antiguedad(fecha_ingreso: str) -> str:
+            """Calcula antigüedad a partir de fecha de ingreso (YYYY-MM-DD o DD/MM/YYYY)."""
+            try:
+                from datetime import datetime
+                fecha = fecha_ingreso.strip()
+                if "-" in fecha:
+                    # Formato ISO: YYYY-MM-DD
+                    ingreso = datetime.strptime(fecha.split("T")[0], "%Y-%m-%d")
+                else:
+                    # Formato legacy: DD/MM/YYYY
+                    d, m, y = fecha.split("/")
+                    ingreso = datetime(int(y), int(m), int(d))
+                years = (datetime.now() - ingreso).days // 365
+                return f"{years} año{'s' if years != 1 else ''}" if years > 0 else "Menos de 1 año"
+            except Exception:
+                return ""
+
         valid_roles = {"afectado", "agresor", "testigo", "otro"}
         involved_list = []
         for p in (extracted_data.involved or []):
             role = p.role.lower().strip() if p.role else "otro"
             if role not in valid_roles:
-                # Normalizar variantes
                 if any(w in role for w in ["afect", "víctima", "victima", "denunciante"]):
                     role = "afectado"
                 elif any(w in role for w in ["agres", "denunciado", "acusado"]):
@@ -195,11 +304,31 @@ class CaseService:
                     role = "testigo"
                 else:
                     role = "otro"
+
             name = p.name.strip() if p.name else ""
-            if p.cargo:
-                name = f"{name} ({p.cargo.strip()})" if name else p.cargo.strip()
-            if name:
-                involved_list.append(InvolvedPerson(name=name, role=role))
+            if not name:
+                continue
+
+            # Buscar trabajador coincidente para enriquecer
+            worker = _find_worker(name)
+            cargo = p.cargo or (worker.cargo if worker else None) or ""
+            antiguedad = _calc_antiguedad(worker.fecha_ingreso) if worker and worker.fecha_ingreso else ""
+            rut = worker.rut if worker else None
+            grade = worker.curso if worker else None
+            student_id = worker.id if worker else None
+
+            if worker:
+                logger.info(f"✅ [CASE_FROM_SESSION] Matched '{name}' → trabajador '{worker.nombres} {worker.apellidos}' (id={worker.id})")
+
+            involved_list.append(InvolvedPerson(
+                name=name,
+                role=role,
+                cargo=cargo,
+                antiguedad=antiguedad,
+                rut=rut,
+                grade=grade,
+                studentId=student_id,
+            ))
 
         logger.info(f"👥 [CASE_FROM_SESSION] Extracted {len(involved_list)} involucrados from conversation")
 
@@ -1421,14 +1550,16 @@ Genera el análisis estructurado:"""
         case_id = str(uuid.uuid4())
         now = datetime.utcnow()
         case_dict = case_data.model_dump()
+        involved_dicts = [p.model_dump() for p in case_data.involved]
         case_dict.update({
             "id": case_id, "created_at": now, "updated_at": now,
             "is_active": True, "is_shared": False, "owner_name": owner_name,
             "related_sessions": [],
             "counter_case": self._generate_next_counter_case(case_data.owner_id),
-            "involved": [p.model_dump() for p in case_data.involved]
+            "involved": involved_dicts,
+            "involved_student_ids": self._extract_involved_student_ids(case_data.involved),
         })
-        
+
         # Generar ai_summary
         ai_summary = await self._generate_ai_summary_with_llm(case_data, search_app_id)
         if ai_summary:
@@ -1449,12 +1580,14 @@ Genera el análisis estructurado:"""
         case_id = str(uuid.uuid4())
         now = datetime.utcnow()
         case_dict = case_data.model_dump()
+        involved_dicts = [p.model_dump() for p in case_data.involved]
         case_dict.update({
             "id": case_id, "created_at": now, "updated_at": now,
             "is_active": True, "is_shared": False, "owner_name": owner_name,
             "related_sessions": [],
             "counter_case": self._generate_next_counter_case(case_data.owner_id),
-            "involved": [p.model_dump() for p in case_data.involved]
+            "involved": involved_dicts,
+            "involved_student_ids": self._extract_involved_student_ids(case_data.involved),
         })
         
         ai_summary = self._generate_basic_ai_summary(case_data)
@@ -1713,6 +1846,10 @@ Genera el análisis estructurado:"""
         if not filtered_data:
             raise ValueError("No hay campos válidos para actualizar")
 
+        # Recalcular involved_student_ids si se actualiza involved
+        if "involved" in filtered_data:
+            filtered_data["involved_student_ids"] = self._extract_involved_student_ids(filtered_data["involved"])
+
         # Agregar timestamp de actualización
         filtered_data["updated_at"] = datetime.utcnow()
 
@@ -1840,6 +1977,10 @@ Genera el análisis estructurado:"""
 
         if not filtered_data:
             raise ValueError("No hay campos válidos para actualizar")
+
+        # Recalcular involved_student_ids si se actualiza involved
+        if "involved" in filtered_data:
+            filtered_data["involved_student_ids"] = self._extract_involved_student_ids(filtered_data["involved"])
 
         # Agregar timestamp de actualización
         filtered_data["updated_at"] = datetime.utcnow()

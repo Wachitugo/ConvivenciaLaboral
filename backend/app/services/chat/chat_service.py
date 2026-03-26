@@ -1016,7 +1016,17 @@ INSTRUCCIONES ADICIONALES:
         # FAST PATH: CASE_CREATION - Guided case documentation
         if intent_result['intent'] == intent_router.CASE_CREATION:
             logger.info(f"🚀 [FAST PATH STREAM] CASE_CREATION - Using Case Creation Service")
-            
+
+            def _calc_antiguedad_chat(fecha_ingreso: str) -> str:
+                try:
+                    from datetime import datetime as _dt
+                    fecha = fecha_ingreso.strip()
+                    ingreso = _dt.strptime(fecha.split("T")[0], "%Y-%m-%d") if "-" in fecha else _dt(int(fecha.split("/")[2]), int(fecha.split("/")[1]), int(fecha.split("/")[0]))
+                    years = (_dt.now() - ingreso).days // 365
+                    return f"{years} año{'s' if years != 1 else ''}" if years > 0 else "Menos de 1 año"
+                except Exception:
+                    return ""
+
             from app.services.chat.case_creation_service import case_creation_service
             from app.services.users.user_service_simple import user_service_simple
             
@@ -1048,19 +1058,44 @@ INSTRUCCIONES ADICIONALES:
                                 logger.warning(f"⚠️ [CASE_CREATION] No search_app_id in colegio, using demo: {search_app_id}")
                 except Exception as e:
                     logger.warning(f"⚠️ [CASE_CREATION] Could not load user context: {e}")
-            
+
+            # Cargar trabajadores de la empresa para contexto jerárquico
+            workers_context = []
+            try:
+                if user_id:
+                    from app.services.users.user_service_simple import user_service_simple as _uss
+                    from app.services.student_service import student_service as _ss
+                    _ud = user_service_simple.get_user_by_id(user_id)
+                    if _ud and _ud.colegios:
+                        _school_id = _ud.colegios[0]
+                        _workers = _ss.get_students_by_colegio(_school_id)
+                        workers_context = [
+                            {
+                                "nombre": f"{w.nombres or ''} {w.apellidos or ''}".strip(),
+                                "cargo": w.cargo or "",
+                                "area": w.curso or "",
+                                "antiguedad": _calc_antiguedad_chat(w.fecha_ingreso) if w.fecha_ingreso else "",
+                            }
+                            for w in _workers
+                            if w.nombres or w.apellidos
+                        ]
+                        logger.info(f"👥 [CASE_CREATION] Loaded {len(workers_context)} workers for context")
+            except Exception as _we:
+                logger.warning(f"⚠️ [CASE_CREATION] Could not load workers context: {_we}")
+
             # Stream thinking message
             yield json.dumps({"type": "thinking", "content": "Analizando descripción del caso..."}, ensure_ascii=False) + "\n"
             await asyncio.sleep(0.1)
-            
+
             # Get guided response from Case Creation Service
             ai_response = await case_creation_service.analyze_case_description(
                 message=message,
                 school_name=school_name,
                 history=history,
                 user_context=user_context,
-                search_app_id=search_app_id,  # Pass Search App ID for RAG
-                case_id=case_id  # Pass case_id to update ai_summary
+                search_app_id=search_app_id,
+                case_id=case_id,
+                workers_context=workers_context,
             )
             
             # Stream the response content
@@ -1122,13 +1157,14 @@ INSTRUCCIONES ADICIONALES:
                     chips_list = doc_names_str
                     list_prompt = f"""Eres CONI, asistente de convivencia laboral. El usuario pregunta qué documentos tienes disponibles.
 
-Tienes acceso a estos {len(docs)} documentos:
+Tienes acceso a EXACTAMENTE estos {len(docs)} documentos (ni más ni menos):
 {doc_names_str}
 
-INSTRUCCIONES:
-- Preséntate brevemente y menciona que tienes {len(docs)} documentos disponibles.
-- Lista cada documento con una breve descripción de su propósito (1 línea por doc).
-- Usa formato: **Nombre del documento** — descripción breve.
+INSTRUCCIONES OBLIGATORIAS:
+- Menciona que tienes {len(docs)} documentos disponibles.
+- DEBES listar TODOS Y CADA UNO de los {len(docs)} documentos sin omitir ninguno, independientemente del tema previo de la conversación.
+- NO filtres ni priorices documentos por tema — el usuario quiere ver el listado completo.
+- Usa formato: **Nombre del documento** — descripción breve de su propósito (1 línea por doc).
 - Agrupa por categoría si tiene sentido (Leyes, Circulares, Protocolos, etc.).
 - NO inventes contenido que no esté implícito en el nombre del documento.
 - NO incluyas sección de "Referencias" al final (se agrega automáticamente)."""
@@ -1141,7 +1177,9 @@ INSTRUCCIONES:
                         streaming=True,
                     )
                     full_response_text = ""
-                    async for chunk in _flash.astream([_SM(content=list_prompt), _HM(content=message)]):
+                    # Use fixed HumanMessage — never pass the original user message here,
+                    # as it may contain topic context that causes the LLM to filter the document list.
+                    async for chunk in _flash.astream([_SM(content=list_prompt), _HM(content="Por favor, lista todos los documentos disponibles.")]):
                         if chunk.content:
                             full_response_text += chunk.content
                             yield json.dumps({"type": "content", "content": chunk.content}, ensure_ascii=False) + "\n"

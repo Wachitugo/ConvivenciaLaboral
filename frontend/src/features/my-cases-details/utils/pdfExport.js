@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { getImageAsBase64, getCombinedChronology } from './exportHelpers';
-import { interviewsService, studentsService } from '../../../services/api';
+import { interviewsService, studentsService, casesService } from '../../../services/api';
 import { createLogger } from '../../../utils/logger';
 
 const logger = createLogger('pdfExport');
@@ -46,6 +46,17 @@ export const exportToPDF = async (caseData, schoolData, documents = []) => {
                 interviews = (all || []).filter(i => i.case_id === caseData.id);
             } catch (e) { logger.warn('No se pudieron cargar entrevistas:', e); }
         }
+
+        // Cargar timeline completo (incluye correos y agendamientos)
+        let timelineEvents = [];
+        try {
+            const tlResult = await casesService.getCaseTimeline(caseData.id, usuarioData.id);
+            // Convertir timestamp string → Date, ordenar más antiguo primero
+            timelineEvents = (tlResult.events || [])
+                .map(ev => ({ ...ev, date: new Date(ev.timestamp) }))
+                .filter(ev => !isNaN(ev.date.getTime()))
+                .sort((a, b) => a.date - b.date);
+        } catch (e) { logger.warn('No se pudo cargar timeline:', e); }
 
         // Enriquecer involucrados con datos de trabajadores si rut/grade están vacíos
         let workers = [];
@@ -166,8 +177,12 @@ export const exportToPDF = async (caseData, schoolData, documents = []) => {
             doc.setFontSize(10);
             doc.setFont(undefined, 'bold');
             doc.setTextColor(...C_HEADER_BG);
-            doc.text(`${num}.- ${title.toUpperCase()}`, ML, y);
-            y += 2;
+            const sectionLines = doc.splitTextToSize(`${num}.- ${title.toUpperCase()}`, TW);
+            sectionLines.forEach(line => {
+                doc.text(line, ML, y);
+                y += 5;
+            });
+            y -= 3; // ajuste para mantener espaciado con la línea divisoria
             doc.setDrawColor(...C_BORDER);
             doc.setLineWidth(0.5);
             doc.line(ML, y, PW - MR, y);
@@ -224,11 +239,14 @@ export const exportToPDF = async (caseData, schoolData, documents = []) => {
         drawCell(ML + cw4*3,  y, cw4, 8, '');
         y += 8;
 
-        drawCell(ML,          y, cw4, 8, 'Caso N°',  { bgColor: C_LABEL_BG, txtColor: C_LABEL_TXT, bold: true });
-        drawCell(ML + cw4,    y, cw4, 8, caseData.counterCase || caseData.counter_case || '—');
-        drawCell(ML + cw4*2,  y, cw4, 8, 'Protocolo', { bgColor: C_LABEL_BG, txtColor: C_LABEL_TXT, bold: true });
-        drawCell(ML + cw4*3,  y, cw4, 8, caseData.protocol || '—');
-        y += 8;
+        const protocolText = caseData.protocol || '—';
+        const row2H = cellHeight(protocolText, cw4, 8.5, 8);
+        checkPage(row2H + 1);
+        drawCell(ML,          y, cw4, row2H, 'Caso N°',  { bgColor: C_LABEL_BG, txtColor: C_LABEL_TXT, bold: true });
+        drawCell(ML + cw4,    y, cw4, row2H, caseData.counterCase || caseData.counter_case || '—');
+        drawCell(ML + cw4*2,  y, cw4, row2H, 'Protocolo', { bgColor: C_LABEL_BG, txtColor: C_LABEL_TXT, bold: true });
+        drawCell(ML + cw4*3,  y, cw4, row2H, protocolText, { multiline: true, maxLines: 5 });
+        y += row2H;
         y += 4;
 
         // ── 1. INFORMACIÓN DE LA EMPRESA ────────────────────────
@@ -320,15 +338,18 @@ export const exportToPDF = async (caseData, schoolData, documents = []) => {
         y += 4;
 
         // ── 6. NOTIFICACIONES (CRONOLOGÍA) ───────────────────────
+        // Usar timeline de la API si está disponible (incluye correos/agendamientos),
+        // si no, usar la cronología local como fallback.
+        const cronologiaFinal = timelineEvents.length > 0 ? timelineEvents : cronologia;
 
         drawSection('6', 'Notificaciones');
         drawHeaderRow([{ text: 'FECHA', w: TW * 0.22 }, { text: 'NOTIFICACIÓN / EVENTO', w: TW * 0.78 }]);
-        if (cronologia.length > 0) {
-            cronologia.forEach(event => {
+        if (cronologiaFinal.length > 0) {
+            cronologiaFinal.forEach(event => {
                 const dateStr = event.date.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                const desc = event.description !== event.title
+                const desc = event.description && event.description !== event.title
                     ? `${event.title}: ${event.description}`
-                    : event.title;
+                    : (event.title || '—');
                 const h = cellHeight(desc, TW * 0.78);
                 checkPage(h + 1);
                 drawCell(ML,              y, TW * 0.22, h, dateStr);

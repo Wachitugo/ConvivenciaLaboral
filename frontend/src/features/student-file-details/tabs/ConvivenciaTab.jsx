@@ -1,14 +1,32 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { ExternalLink, FolderOpen, Shield, Link2 } from 'lucide-react';
 import { studentsService } from '../../../services/api';
 import { AssociateCaseModal, AssociateInterviewModal } from '../components/convivencia-modals';
 
+const STATUS_LABELS = {
+    active:       'Activo',
+    abierto:      'Abierto',
+    pendiente:    'Pendiente',
+    resuelto:     'Resuelto',
+    no_resuelto:  'No resuelto',
+    cerrado:      'Cerrado',
+};
+
+const ROLE_LABELS = {
+    afectado: { label: 'Denunciante', classes: 'bg-red-900/40 text-red-300 border-red-800/50' },
+    agresor:  { label: 'Denunciado',  classes: 'bg-orange-900/40 text-orange-300 border-orange-800/50' },
+    testigo:  { label: 'Testigo',     classes: 'bg-blue-900/40 text-blue-300 border-blue-800/50' },
+    otro:     { label: 'Otro',        classes: 'bg-white/10 text-white/70 border-white/20' },
+};
+
 function ConvivenciaTab({ student, canEdit = true }) {
+    const { schoolSlug } = useParams();
     const [casosAsociados, setCasosAsociados] = React.useState([]);
     const [entrevistasAsociadas, setEntrevistasAsociadas] = React.useState([]);
     const [showCaseModal, setShowCaseModal] = React.useState(false);
     const [showInterviewModal, setShowInterviewModal] = React.useState(false);
+    const [isLoading, setIsLoading] = React.useState(false);
 
     React.useEffect(() => {
         if (student?.id) {
@@ -17,6 +35,7 @@ function ConvivenciaTab({ student, canEdit = true }) {
     }, [student?.id]);
 
     const loadStudentData = async () => {
+        setIsLoading(true);
         try {
             const [cases, interviews] = await Promise.all([
                 studentsService.getStudentCases(student.id),
@@ -27,7 +46,8 @@ function ConvivenciaTab({ student, canEdit = true }) {
                 id: c.id,
                 titulo: c.title,
                 fecha: c.created_at ? new Date(c.created_at).toISOString().split('T')[0] : 'Sin fecha',
-                estado: c.status || 'active'
+                estado: c.status || 'active',
+                rol: c.student_role || null,
             })));
 
             setEntrevistasAsociadas(interviews.map(i => ({
@@ -39,6 +59,8 @@ function ConvivenciaTab({ student, canEdit = true }) {
 
         } catch (error) {
             console.error("Error loading student cases/interviews:", error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -77,28 +99,48 @@ function ConvivenciaTab({ student, canEdit = true }) {
                         {/* Casos */}
                         <div className="bg-white/5 rounded-lg p-3 border border-white/10">
                             <div className="flex items-center justify-between mb-2">
-                                <p className="text-xs font-medium text-white/50 uppercase">Casos ({casosAsociados.length})</p>
-                                <Link to="/mis-casos" className="text-xs text-[#34B6D8] hover:underline flex items-center gap-1">
+                                <p className="text-xs font-medium text-white/50 uppercase">Casos ({isLoading ? '…' : casosAsociados.length})</p>
+                                <Link to={`/${schoolSlug}/mis-casos`} className="text-xs text-[#34B6D8] hover:underline flex items-center gap-1">
                                     Ver todos <ExternalLink size={10} />
                                 </Link>
                             </div>
                             <div className="space-y-2">
-                                {casosAsociados.length > 0 ? (
-                                    casosAsociados.map((caso) => (
-                                        <Link
-                                            key={caso.id}
-                                            to={`/mis-casos/${caso.id}`}
-                                            className="block p-2 bg-white/5 rounded-lg border border-white/10 hover:border-[#34B6D8]/30 hover:bg-white/10 transition-all"
-                                        >
-                                            <p className="text-sm font-medium text-white truncate">{caso.titulo}</p>
-                                            <div className="flex items-center justify-between mt-1">
-                                                <span className="text-xs text-white/50">{caso.fecha}</span>
-                                                <span className={`px-1.5 py-0.5 rounded text-xs font-medium bg-white/10 text-white/70`}>
-                                                    {caso.estado}
-                                                </span>
+                                {isLoading ? (
+                                    [1, 2].map(n => (
+                                        <div key={n} className="p-2 bg-white/5 rounded-lg border border-white/10 animate-pulse">
+                                            <div className="h-3 bg-white/10 rounded w-3/4 mb-2" />
+                                            <div className="flex items-center justify-between">
+                                                <div className="h-2.5 bg-white/10 rounded w-1/4" />
+                                                <div className="h-2.5 bg-white/10 rounded w-1/5" />
                                             </div>
-                                        </Link>
+                                        </div>
                                     ))
+                                ) : casosAsociados.length > 0 ? (
+                                    casosAsociados.map((caso) => {
+                                        const roleInfo = caso.rol ? ROLE_LABELS[caso.rol] || ROLE_LABELS.otro : null;
+                                        return (
+                                            <Link
+                                                key={caso.id}
+                                                to={`/${schoolSlug}/mis-casos/${caso.id}`}
+                                                className="block p-2 bg-white/5 rounded-lg border border-white/10 hover:border-[#34B6D8]/30 hover:bg-white/10 transition-all"
+                                            >
+                                                <div className="flex items-start justify-between gap-1 mb-1">
+                                                    <p className="text-sm font-medium text-white truncate flex-1">{caso.titulo}</p>
+                                                    {roleInfo && (
+                                                        <span className={`flex-shrink-0 px-1.5 py-0.5 rounded border text-[10px] font-bold ${roleInfo.classes}`}>
+                                                            {roleInfo.label}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center justify-between mt-1">
+                                                    <span className="text-xs text-white/50">{caso.fecha}</span>
+                                                    <span className={`px-1.5 py-0.5 rounded text-xs font-medium bg-white/10 text-white/70`}>
+                                                        {STATUS_LABELS[caso.estado] || caso.estado}
+                                                    </span>
+                                                </div>
+                                            </Link>
+                                        );
+                                    })
                                 ) : (
                                     <p className="text-xs text-white/40 text-center py-2">Sin casos asociados</p>
                                 )}
@@ -117,17 +159,27 @@ function ConvivenciaTab({ student, canEdit = true }) {
                         {/* Entrevistas */}
                         <div className="bg-white/5 rounded-lg p-3 border border-white/10">
                             <div className="flex items-center justify-between mb-2">
-                                <p className="text-xs font-medium text-white/50 uppercase">Entrevistas ({entrevistasAsociadas.length})</p>
-                                <Link to="/entrevistas" className="text-xs text-[#34B6D8] hover:underline flex items-center gap-1">
+                                <p className="text-xs font-medium text-white/50 uppercase">Entrevistas ({isLoading ? '…' : entrevistasAsociadas.length})</p>
+                                <Link to={`/${schoolSlug}/entrevistas`} className="text-xs text-[#34B6D8] hover:underline flex items-center gap-1">
                                     Ver todas <ExternalLink size={10} />
                                 </Link>
                             </div>
                             <div className="space-y-2">
-                                {entrevistasAsociadas.length > 0 ? (
+                                {isLoading ? (
+                                    [1, 2].map(n => (
+                                        <div key={n} className="p-2 bg-white/5 rounded-lg border border-white/10 animate-pulse">
+                                            <div className="h-3 bg-white/10 rounded w-1/2 mb-2" />
+                                            <div className="flex items-center justify-between">
+                                                <div className="h-2.5 bg-white/10 rounded w-1/3" />
+                                                <div className="h-2.5 bg-white/10 rounded w-1/5" />
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : entrevistasAsociadas.length > 0 ? (
                                     entrevistasAsociadas.map((entrevista) => (
                                         <Link
                                             key={entrevista.id}
-                                            to={`/entrevistas/${entrevista.id}`}
+                                            to={`/${schoolSlug}/entrevistas/${entrevista.id}`}
                                             className="block p-2 bg-white/5 rounded-lg border border-white/10 hover:border-[#34B6D8]/30 hover:bg-white/10 transition-all"
                                         >
                                             <p className="text-sm font-medium text-white">{entrevista.fecha}</p>

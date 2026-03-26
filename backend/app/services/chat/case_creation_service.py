@@ -54,7 +54,8 @@ class CaseCreationService:
         history: List,
         user_context: dict = None,
         search_app_id: str = None,
-        case_id: str = None  # ID del caso para actualizar ai_summary
+        case_id: str = None,
+        workers_context: list = None,
     ) -> str:
         """
         Analiza descripción de caso y guía al usuario en la documentación.
@@ -91,13 +92,17 @@ class CaseCreationService:
                         except Exception as e:
                             logger.warning(f"⚠️ [CASE_CREATION] Error updating ai_summary: {e}")
 
-            # 3. Construir prompt del sistema (con RAG context + datos conocidos)
+            # 3. Construir prompt del sistema (con RAG context + datos conocidos + trabajadores)
             system_prompt = self._build_enhanced_prompt(
                 school_name=school_name,
                 user_context=user_context,
                 rag_context=rag_context,
                 case_info=case_info,
-                known_data=known_data
+                known_data=known_data,
+                workers_context=workers_context or [],
+                conversation_text=" ".join([
+                    m.content for m in (history or []) if hasattr(m, 'content') and isinstance(m.content, str)
+                ] + [message]),
             )
             
             # 3. Preparar mensajes (historial + mensaje actual)
@@ -200,11 +205,13 @@ class CaseCreationService:
     
     def _build_enhanced_prompt(
         self,
-        school_name: str, # Mantenemos nombre variable por compatibilidad, pero es Company Name
+        school_name: str,
         user_context: dict = None,
         rag_context: dict = None,
         case_info: dict = None,
-        known_data: dict = None
+        known_data: dict = None,
+        workers_context: list = None,
+        conversation_text: str = "",
     ) -> str:
         """
         Construye prompt enfocado para documentación de casos laborales (Ley Karin).
@@ -334,8 +341,55 @@ INSTRUCCIONES:
 NO preguntes nuevamente por ellos. Solo pregunta por datos que FALTAN.
 """
             base_prompt += known_section
-        
+
+        # NUEVO: Inyectar perfiles de trabajadores mencionados en la conversación
+        if workers_context and conversation_text:
+            mentioned = self._find_mentioned_workers(conversation_text, workers_context)
+            if mentioned:
+                lines = []
+                for w in mentioned:
+                    parts = [f"**{w['nombre']}**"]
+                    if w.get('cargo'):
+                        parts.append(f"Cargo: {w['cargo']}")
+                    if w.get('area'):
+                        parts.append(f"Área: {w['area']}")
+                    if w.get('antiguedad'):
+                        parts.append(f"Antigüedad: {w['antiguedad']}")
+                    lines.append("- " + " | ".join(parts))
+
+                workers_section = f"""
+
+═══════════════════════════════════════════════════════════════════
+👤 PERFILES DE TRABAJADORES MENCIONADOS (datos del sistema)
+═══════════════════════════════════════════════════════════════════
+
+{chr(10).join(lines)}
+
+⚠️ INSTRUCCIÓN: Usa estos datos para inferir la relación jerárquica (cargo más alto = superior).
+NO preguntes por información que ya está disponible arriba (cargo, área, antigüedad).
+Si se trata de un caso de acoso, la relación jerárquica ya puede determinarse a partir de los cargos.
+"""
+                base_prompt += workers_section
+
         return base_prompt
+
+    def _find_mentioned_workers(self, text: str, workers: list) -> list:
+        """Retorna los trabajadores cuyos tokens de nombre aparecen en el texto."""
+        text_lower = text.lower()
+        found = []
+        seen = set()
+        for w in workers:
+            nombre = w.get("nombre", "").strip()
+            if not nombre or nombre in seen:
+                continue
+            tokens = nombre.lower().split()
+            # Considerar mencionado si al menos apellido (último token) está en el texto
+            # o si 2+ tokens del nombre están presentes
+            matches = sum(1 for t in tokens if t in text_lower)
+            if matches >= min(2, len(tokens)):
+                found.append(w)
+                seen.add(nombre)
+        return found
     
     async def _classify_case_quick(self, message: str, history: List) -> dict:
         """

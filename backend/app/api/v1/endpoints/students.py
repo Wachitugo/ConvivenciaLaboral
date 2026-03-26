@@ -92,7 +92,16 @@ async def get_student_cases(student_id: str):
     try:
         from app.services.case_service import CaseService
         case_service = CaseService()
-        return case_service.get_cases_by_student(student_id)
+        cases = case_service.get_cases_by_student(student_id)
+        # Adjuntar el rol del trabajador en cada caso
+        for case in cases:
+            role = None
+            for p in case.get("involved", []):
+                if isinstance(p, dict) and p.get("studentId") == student_id:
+                    role = p.get("role")
+                    break
+            case["student_role"] = role
+        return cases
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

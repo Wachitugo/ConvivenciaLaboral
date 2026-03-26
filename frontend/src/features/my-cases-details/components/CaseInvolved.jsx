@@ -3,7 +3,7 @@ import InvolvedForm from './InvolvedForm';
 import InvolvedTable from './InvolvedTable';
 import EmptyInvolvedState from './EmptyInvolvedState';
 import { Users, Plus, Loader2 } from 'lucide-react';
-import { casesService } from '../../../services/api';
+import { casesService, studentsService } from '../../../services/api';
 
 function CaseInvolved({ caseData, onUpdateCase, isLoading = false }) {
   const [involved, setInvolved] = useState(caseData.involved || []);
@@ -13,8 +13,82 @@ function CaseInvolved({ caseData, onUpdateCase, isLoading = false }) {
   const buttonRef = useRef(null);
   const suggestRanRef = useRef(false);
 
+  // Enriquecer involucrados con cargo/antigüedad desde la base de trabajadores
   useEffect(() => {
-    setInvolved(caseData.involved || []);
+    const enrich = async () => {
+      const raw = caseData.involved || [];
+      if (raw.length === 0) return;
+      // Si todos ya tienen ambos campos, no es necesario enriquecer
+      if (raw.every(p => p.cargo && p.antiguedad)) {
+        setInvolved(raw);
+        return;
+      }
+      try {
+        const userStr = localStorage.getItem('usuario');
+        const user = userStr ? JSON.parse(userStr) : null;
+        const colegioId = user?.colegios?.[0]?.id || user?.colegios?.[0] || null;
+        const idToUse = typeof colegioId === 'object' ? colegioId?.id : colegioId;
+        if (!idToUse) { setInvolved(raw); return; }
+
+        const workers = await studentsService.getStudents(idToUse) || [];
+
+        const enriched = raw.map(person => {
+          // Si ya tiene cargo Y antigüedad, no sobreescribir
+          if (person.cargo && person.antiguedad) return person;
+
+          // Buscar trabajador: 1) por studentId, 2) nombre exacto, 3) nombre parcial
+          let worker = null;
+          if (person.studentId) {
+            worker = workers.find(w => w.id === person.studentId);
+          }
+          if (!worker && person.name) {
+            const nameLower = person.name.toLowerCase().trim();
+            const nameParts = nameLower.split(/\s+/);
+
+            // Exacto
+            worker = workers.find(w => {
+              const full = `${w.nombres || ''} ${w.apellidos || ''}`.toLowerCase().trim();
+              return full === nameLower;
+            });
+
+            // Parcial: todos los tokens del nombre buscado aparecen en el nombre completo del trabajador
+            if (!worker) {
+              worker = workers.find(w => {
+                const full = `${w.nombres || ''} ${w.apellidos || ''}`.toLowerCase();
+                return nameParts.every(part => full.includes(part));
+              });
+            }
+          }
+          if (!worker) return person;
+
+          let antiguedad = person.antiguedad || '';
+          if (!antiguedad && worker.fecha_ingreso) {
+            // fecha_ingreso está en formato YYYY-MM-DD; parsear con hora fija para evitar offset UTC
+            const parts = worker.fecha_ingreso.split('T')[0].split('-');
+            const ingreso = parts.length === 3
+              ? new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]))
+              : new Date(worker.fecha_ingreso);
+            if (!isNaN(ingreso.getTime())) {
+              const years = Math.floor((Date.now() - ingreso.getTime()) / (1000 * 60 * 60 * 24 * 365));
+              antiguedad = years > 0 ? `${years} año${years !== 1 ? 's' : ''}` : 'Menos de 1 año';
+            }
+          }
+
+          return {
+            ...person,
+            cargo: person.cargo || worker.cargo || '',
+            antiguedad,
+            rut: person.rut || worker.rut || '',
+            grade: person.grade || worker.curso || '',
+          };
+        });
+
+        setInvolved(enriched);
+      } catch (e) {
+        setInvolved(raw);
+      }
+    };
+    enrich();
   }, [caseData.involved]);
 
   // Auto-cargar involucrados si la lista está vacía
