@@ -1202,7 +1202,8 @@ export const schoolsService = {
       logger.error('Error eliminando documento:', error);
       throw error;
     }
-  }
+  },
+
 };
 
 // ============ DASHBOARD ============

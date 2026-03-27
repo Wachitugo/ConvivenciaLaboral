@@ -246,7 +246,7 @@ class RagService:
             self._init_vertexai()
             from vertexai.preview import rag
 
-            files = list(rag.list_files(corpus_name=corpus_name))
+            files = list(rag.list_files(corpus_name=corpus_name, page_size=200))
             result = []
             for f in files:
                 name = getattr(f, "display_name", "") or f.name.split("/")[-1]
