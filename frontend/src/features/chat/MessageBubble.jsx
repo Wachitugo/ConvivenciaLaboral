@@ -4,6 +4,7 @@ import ProtocolView from './ProtocolView';
 import { API_URL } from '../../services/api';
 import EmailComposer from './EmailComposer';
 import CalendarEventComposer from './CalendarEventComposer';
+import DocumentComposer from './DocumentComposer';
 import { createLogger } from '../../utils/logger';
 import AvatarChat from '../../assets/avatar-chat.svg';
 
@@ -65,6 +66,10 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
           if (!data.type) data.type = 'calendar_draft';
           return { type: 'calendar_draft', draft: data, textBefore: '', textAfter: '' };
         }
+
+        if (data.type === 'document_draft') {
+          return { type: 'document_draft', draft: data, textBefore: '', textAfter: '' };
+        }
       } catch (e) {
         // Not valid JSON, continue with other checks
       }
@@ -113,6 +118,16 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
 
             return {
               type: 'calendar_draft',
+              draft: data,
+              textBefore: text.substring(0, match.index).trim(),
+              textAfter: text.substring(match.index + match[0].length).trim()
+            };
+          }
+
+          // Detectar Documento legal
+          if (data.type === 'document_draft') {
+            return {
+              type: 'document_draft',
               draft: data,
               textBefore: text.substring(0, match.index).trim(),
               textAfter: text.substring(match.index + match[0].length).trim()
@@ -437,7 +452,7 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
             {(messageContent?.trim() || contentData.type !== 'none') && (
               <div
                 className={`text-[1rem] font-[450] text-[#E8EDF5] leading-[1.75] tracking-[0.008em] space-y-0.5 text-justify
-                          ${(contentData.type === 'email_draft' || contentData.type === 'calendar_draft') ? 'p-0 overflow-hidden' : 'px-5 py-4'}
+                          ${(contentData.type === 'email_draft' || contentData.type === 'calendar_draft' || contentData.type === 'document_draft') ? 'p-0 overflow-hidden' : 'px-5 py-4'}
                           rounded-2xl rounded-tl-none bg-gray-800 backdrop-blur-sm border border-white/10
                           shadow-sm hover:shadow-md hover:shadow-black/20 transition-shadow duration-200 max-w-full`}
               >
@@ -497,6 +512,17 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
                       />
                     )}
                     {contentData.textAfter && <div className="mt-2">{renderFormattedText(contentData.textAfter)}</div>}
+                  </>
+                ) : contentData.type === 'document_draft' ? (
+                  <>
+                    {contentData.textBefore && <div className="mb-2 px-5 pt-4">{renderFormattedText(contentData.textBefore)}</div>}
+                    {composerCancelled ? (
+                      <div className="p-4 mx-0 bg-white/5 border border-white/10 rounded-lg text-white/40 text-sm italic">
+                        Documento cerrado
+                      </div>
+                    ) : (
+                      <DocumentComposer draft={contentData.draft} onDismiss={() => setComposerCancelled(true)} />
+                    )}
                   </>
                 ) : contentData.type === 'email_success' ? (
                   // Email success card

@@ -62,15 +62,16 @@ async def prepare_email_content(to: str, subject: str, body: str, cc: List[str] 
     USA ESTA HERRAMIENTA cuando el usuario pida: redactar, enviar, escribir, elaborar, mandar, o notificar por correo.
     
     Args:
-        to: Dirección de correo del destinatario (ej: "ejemplo@correo.com")
+        to: Dirección de correo del destinatario. Usa el nombre o correo real mencionado en la conversación. Si no se conoce, deja vacío y pregunta al usuario.
         subject: Asunto del correo
         body: Cuerpo del correo (puede incluir saludo, contenido, y despedida)
         cc: Lista opcional de correos en copia
-    
+
     Returns:
         JSON con el borrador que el frontend mostrará al usuario para revisión y envío
-    
+
     IMPORTANTE: Esta herramienta NO envía el correo directamente. Muestra el borrador al usuario para que lo revise y confirme el envío.
+    IMPORTANTE: NO inventes destinatarios de ejemplo. Usa solo nombres/correos reales mencionados en la conversación.
     """
     import json
     logger.info(f"📧 TOOL CALLED: prepare_email_content(to={to}, subject={subject}, cc={cc})")
@@ -547,8 +548,10 @@ INSTRUCCIONES IMPORTANTES:
                 logger.warning(f"⚠️ [MEMORY] Error loading case memory: {e}")
 
         # Set Context
-        from app.core.context import current_data_store_id, current_user_email, current_rag_corpus_id
+        from app.core.context import current_data_store_id, current_user_email, current_rag_corpus_id, current_case_id
         current_data_store_id.set(data_store_id)
+        if case_id:
+            current_case_id.set(case_id)
         # Cambio 3: propagar corpus RAG (ya cargado desde colegio)
         if settings.USE_VERTEX_RAG and rag_corpus_id:
             current_rag_corpus_id.set(rag_corpus_id)
@@ -925,16 +928,29 @@ INSTRUCCIONES ADICIONALES:
                 user_id=user_id,
                 case_id=case_id,
                 history=history,
-                school_name=school_name
+                school_name=school_name,
+                session_id=session_id
             )
             
+            # Si el workflow creó un caso, emitir evento case_linked primero
+            if isinstance(ai_response, dict) and ai_response.get("type") == "workflow":
+                yield json.dumps({
+                    "type": "case_linked",
+                    "case_id": ai_response["case_id"],
+                    "case_title": ai_response["case_title"],
+                    "case_type": ai_response.get("case_type", ""),
+                }, ensure_ascii=False) + "\n"
+                content_text = ai_response["content"]
+            else:
+                content_text = ai_response
+
             # Stream the response content
-            yield json.dumps({"type": "content", "content": ai_response}, ensure_ascii=False) + "\n"
-            
+            yield json.dumps({"type": "content", "content": content_text}, ensure_ascii=False) + "\n"
+
             # Save history
-            new_messages = [HumanMessage(content=message), AIMessage(content=ai_response)]
+            new_messages = [HumanMessage(content=message), AIMessage(content=content_text)]
             await history_service.append_messages(session_id, new_messages)
-            
+
             # Send empty suggestions for tool requests
             yield json.dumps({"type": "suggestions", "content": []}, ensure_ascii=False) + "\n"
             return
@@ -1155,7 +1171,7 @@ INSTRUCCIONES ADICIONALES:
                     from langchain_core.messages import SystemMessage as _SM, HumanMessage as _HM
                     doc_names_str = "\n".join([f"- {d['title']}" for d in docs])
                     chips_list = doc_names_str
-                    list_prompt = f"""Eres CONI, asistente de convivencia laboral. El usuario pregunta qué documentos tienes disponibles.
+                    list_prompt = f"""Eres LÍA, asistente de convivencia laboral. El usuario pregunta qué documentos tienes disponibles.
 
 Tienes acceso a EXACTAMENTE estos {len(docs)} documentos (ni más ni menos):
 {doc_names_str}
@@ -1288,7 +1304,13 @@ INSTRUCCIONES OBLIGATORIAS:
                 # FIX: Replaced obsolete self.chat() call with direct model streaming
                 
                 # Basic system prompt for general chat
-                system_prompt = f"""Eres CONI, asistente experto en Prevención y Ley Karin para la empresa {school_name}. Responde de manera profesional, empática y precisa.
+                system_prompt = f"""Eres LÍA, asistente experto en Prevención y Ley Karin para la empresa {school_name}. Responde de manera profesional, empática y precisa.
+
+PRESUNCIÓN DE INOCENCIA — REGLA ABSOLUTA:
+- NUNCA afirmes ni insinúes la culpabilidad de la persona denunciada. La investigación determina los hechos, no tú.
+- Usa siempre lenguaje neutro: "la persona denunciada", "los hechos descritos", "de comprobarse los hechos", "según lo relatado".
+- NUNCA uses "el agresor", "el acosador" para referirte a la persona denunciada antes de concluir la investigación.
+- Describe hechos con: "se denuncia que...", "según los antecedentes...", "de ser efectivos los hechos...".
 
 INSTRUCCIÓN OBLIGATORIA SOBRE REFERENCIAS:
 - Cuando menciones o cites información de leyes, reglamentos, circulares, protocolos o cualquier normativa, SIEMPRE agrega al final de tu respuesta una sección con el siguiente formato exacto:

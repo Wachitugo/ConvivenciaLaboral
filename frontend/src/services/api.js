@@ -80,7 +80,7 @@ export const chatService = {
     return response.data;
   },
 
-  streamMessage: async (message, sessionId, schoolName, files = [], caseId = null, userId = null, onChunk, signal = null, title = null, onThinking, onSuggestions) => {
+  streamMessage: async (message, sessionId, schoolName, files = [], caseId = null, userId = null, onChunk, signal = null, title = null, onThinking, onSuggestions, onCaseLinked) => {
     try {
       const requestBody = {
         message,
@@ -137,6 +137,12 @@ export const chatService = {
                 if (onSuggestions) {
                   onSuggestions(data.content);
                 }
+              } else if (data.type === 'case_linked' && onCaseLinked) {
+                onCaseLinked({
+                  id: data.case_id,
+                  title: data.case_title,
+                  caseType: data.case_type,
+                });
               } else {
                 onChunk(data.content || data.response || '');
               }

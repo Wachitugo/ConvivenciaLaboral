@@ -268,7 +268,10 @@ function ChatGeneralPage() {
   */
 
   const handleSendMessage = async (messageText, files = []) => {
-    const message = await sendMessage(messageText, files, relatedCase?.id);
+    const message = await sendMessage(messageText, files, relatedCase?.id, (newCase) => {
+      // Auto-vincular el expediente creado por el workflow al chat
+      associateCase(newCase);
+    });
 
     if (message && files.length > 0) {
       addFiles(files);

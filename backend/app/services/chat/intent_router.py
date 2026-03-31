@@ -106,6 +106,70 @@ class IntentRouter:
                 }
             
             # ════════════════════════════════════════════════════════════════════
+            # FAST-PATH #2.1: Case workflow requests → TOOL_REQUIRED
+            # ════════════════════════════════════════════════════════════════════
+            workflow_phrases = [
+                "crear caso", "crear expediente", "registrar caso", "registrar expediente",
+                "abrir caso", "abrir expediente", "nuevo expediente", "nuevo caso",
+                "crear denuncia", "registrar denuncia", "ingresar denuncia",
+                "iniciar expediente", "levantar expediente", "levantar caso",
+                "crear caso ley karin", "crear caso de acoso", "registrar acoso",
+                "tengo una denuncia y quiero", "quiero crear un caso",
+                "quiero registrar un caso", "quiero abrir un expediente",
+            ]
+            if any(phrase in message_lower for phrase in workflow_phrases):
+                logger.info("🎯 [INTENT] Fast-path: TOOL_REQUIRED (case workflow request)")
+                return {
+                    "intent": self.TOOL_REQUIRED,
+                    "confidence": 0.96,
+                    "reasoning": "Case workflow request detected"
+                }
+
+            # ════════════════════════════════════════════════════════════════════
+            # FAST-PATH #2.2: Document drafting requests → TOOL_REQUIRED
+            # ════════════════════════════════════════════════════════════════════
+            document_phrases = [
+                "redactar resolución", "redacta resolución", "generar resolución",
+                "resolución de apertura", "resolución que activa",
+                "redactar medida de resguardo", "generar medida de resguardo",
+                "elaborar medida de resguardo", "crear medida de resguardo",
+                "notificar al denunciado", "notificación al denunciado",
+                "notificar al denunciante", "acuse de recibo",
+                "carta de notificación", "carta al denunciado",
+                "redactar documento", "generar documento",
+                "resolución karin",
+            ]
+            if any(phrase in message_lower for phrase in document_phrases):
+                logger.info("🎯 [INTENT] Fast-path: TOOL_REQUIRED (document drafting request)")
+                return {
+                    "intent": self.TOOL_REQUIRED,
+                    "confidence": 0.96,
+                    "reasoning": "Document drafting request detected"
+                }
+
+            # ════════════════════════════════════════════════════════════════════
+            # FAST-PATH #2.3: Protocol guide queries → TOOL_REQUIRED
+            # ════════════════════════════════════════════════════════════════════
+            protocol_phrases = [
+                "estado del protocolo", "paso del protocolo",
+                "siguiente paso del protocolo", "siguiente paso del caso",
+                "completar paso", "marcar paso", "avanzar protocolo", "avanzar paso",
+                "protocolo ley karin", "plazos del protocolo", "plazos ley karin",
+                "en qué paso del protocolo", "en que paso del protocolo",
+                "qué paso sigue del protocolo", "que paso sigue del protocolo",
+                "protocolo activo", "paso actual del protocolo",
+                "activar protocolo", "iniciar protocolo", "activar ley karin",
+                "aplicar protocolo", "apertura de protocolo", "iniciar investigación formal",
+            ]
+            if any(phrase in message_lower for phrase in protocol_phrases):
+                logger.info("🎯 [INTENT] Fast-path: TOOL_REQUIRED (protocol guide request)")
+                return {
+                    "intent": self.TOOL_REQUIRED,
+                    "confidence": 0.95,
+                    "reasoning": "Protocol guide request detected"
+                }
+
+            # ════════════════════════════════════════════════════════════════════
             # FAST-PATH #2.5: Document listing queries → DOCUMENT_ANALYSIS
             # Must be before CASE_CREATION fast-path to avoid being swallowed
             # ════════════════════════════════════════════════════════════════════

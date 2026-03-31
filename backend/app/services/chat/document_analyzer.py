@@ -86,7 +86,7 @@ class DocumentAnalyzer:
             from datetime import datetime
             current_date_str = datetime.now().strftime("%A %d de %B de %Y")
             
-            system_prompt = f"""Eres CONI, asistente de prevención y convivencia laboral para {school_name}.
+            system_prompt = f"""Eres LÍA, asistente de prevención y convivencia laboral para {school_name}.
 
 FECHA ACTUAL DEL SISTEMA: {current_date_str}
 (Usa esta fecha como referencia. Si un documento menciona fechas futuras respecto a hoy, es probable que sea un error tipográfico o el documento es antiguo)
@@ -227,7 +227,7 @@ FORMATO DE RESPUESTA:
             from datetime import datetime
             current_date_str = datetime.now().strftime("%A %d de %B de %Y")
             
-            system_prompt = f"""Eres CONI, asistente de prevención y convivencia laboral para {school_name}.
+            system_prompt = f"""Eres LÍA, asistente de prevención y convivencia laboral para {school_name}.
 
 FECHA ACTUAL DEL SISTEMA: {current_date_str}
 (Usa esta fecha como referencia. Si un documento menciona fechas futuras respecto a hoy, es probable que sea un error tipográfico o el documento es antiguo)
@@ -457,7 +457,7 @@ FORMATO DE RESPUESTA:
             from datetime import datetime
             current_date_str = datetime.now().strftime("%A %d de %B de %Y")
             
-            system_prompt = f"""Eres CONI, asistente de prevención y convivencia laboral para {school_name}.
+            system_prompt = f"""Eres LÍA, asistente de prevención y convivencia laboral para {school_name}.
 
 FECHA ACTUAL DEL SISTEMA: {current_date_str}
 

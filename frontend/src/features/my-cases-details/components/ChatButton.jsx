@@ -23,7 +23,7 @@ function ChatButton({ caseData, documents = [] }) {
     <button
       onClick={handleOpenChat}
       className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 rounded-xl shadow-md hover:shadow-lg hover:bg-blue-700 text-white text-sm transition-all duration-300"
-      title="Chat con Coni sobre este caso"
+      title="Chat con LÍA sobre este caso"
       style={{ fontFamily: "'Poppins', sans-serif" }}
     >
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

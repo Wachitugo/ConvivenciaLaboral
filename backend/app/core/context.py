@@ -20,3 +20,6 @@ current_user_email: ContextVar[Optional[str]] = ContextVar("current_user_email",
 
 # Cambio 3: Vertex AI RAG Engine corpus resource name por request
 current_rag_corpus_id: ContextVar[Optional[str]] = ContextVar("current_rag_corpus_id", default=None)
+
+# Caso activo en la conversación actual
+current_case_id: ContextVar[Optional[str]] = ContextVar("current_case_id", default=None)

@@ -92,7 +92,7 @@ export default function useChatMessages(initialSessionId = null) {
     initSession();
   }, [initialSessionId]);
 
-  const sendMessage = async (messageText, files = [], caseId = null) => {
+  const sendMessage = async (messageText, files = [], caseId = null, onCaseLinked = null) => {
     if (!messageText.trim() && files.length === 0) return null;
     if (!sessionIdRef.current) {
       logger.error('No session ID available');
@@ -227,14 +227,14 @@ export default function useChatMessages(initialSessionId = null) {
           setIsThinking(true); // Asegurar que se muestre
         },
         (suggestions) => {
-          // Callback para sugerencias
           setMessages(prev => prev.map(msg => {
             if (msg.id === botMessageId) {
               return { ...msg, suggestions };
             }
             return msg;
           }));
-        }
+        },
+        onCaseLinked  // propagar callback al streaming
       );
 
       // Stream finished successfully

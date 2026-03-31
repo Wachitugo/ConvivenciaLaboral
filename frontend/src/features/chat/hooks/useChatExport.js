@@ -182,7 +182,7 @@ export default function useChatExport() {
         yPosition = checkPageSpace(yPosition, 20);
 
         // Etiqueta del emisor con fondo
-        const senderLabel = message.sender === 'user' ? usuarioNombre : 'Coni';
+        const senderLabel = message.sender === 'user' ? usuarioNombre : 'LÍA';
         const bgColor = message.sender === 'user' ? [219, 234, 254] : [243, 244, 246];
         const textColor = message.sender === 'user' ? [30, 64, 175] : [55, 65, 81];
 
@@ -449,7 +449,7 @@ export default function useChatExport() {
 
       // Mensajes
       messages.forEach((message, index) => {
-        const senderLabel = message.sender === 'user' ? usuarioNombre : 'Coni';
+        const senderLabel = message.sender === 'user' ? usuarioNombre : 'LÍA';
         const senderColor = message.sender === 'user' ? '1E40AF' : '374151';
         const bgColor = message.sender === 'user' ? 'DBEAFE' : 'F3F4F6';
 

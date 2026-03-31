@@ -128,7 +128,7 @@ class SimpleQAService:
             user_context: Diccionario con información del usuario
             rag_context: Contexto RAG formateado (opcional)
         """
-        base_prompt = f"""Eres CONI, tu asistente de prevención y convivencia laboral para {school_name}.
+        base_prompt = f"""Eres LÍA, tu asistente de prevención y convivencia laboral para {school_name}.
 Estás aquí para responder preguntas y ayudar de forma práctica y cercana.
 Hablas con el Encargado de Prevención / RRHH - trátalo como un colega de confianza.
 
