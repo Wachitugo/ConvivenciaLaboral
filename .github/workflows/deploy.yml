@@ -70,7 +70,7 @@ jobs:
             --allow-unauthenticated \
             --port 8000 \
             --service-account laboralaccount@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
-            --set-env-vars "PROJECT_ID=${{ env.PROJECT_ID }},DOCLEGALES_APP_ID=${{ secrets.DOCLEGALES_APP_ID }},FIRESTORE_DATABASE=convivencia-laboral,VERTEX_MODEL=gemini-2.5-pro,VERTEX_MODEL_REASON=gemini-2.5-pro,VERTEX_MODEL_FLASH=gemini-2.5-flash-lite,VERTEX_LOCATION=us-central1,LOCATION=global,CLIENT_ORIGIN=${{ secrets.CLIENT_ORIGIN }},GOOGLE_APPLICATION_CREDENTIALS=/secrets/service-account-key.json" \
+            --set-env-vars "PROJECT_ID=${{ env.PROJECT_ID }},DOCLEGALES_APP_ID=${{ secrets.DOCLEGALES_APP_ID }},FIRESTORE_DATABASE=convivencia-laboral,VERTEX_MODEL=gemini-2.5-pro,VERTEX_MODEL_REASON=gemini-2.5-pro,VERTEX_MODEL_FLASH=gemini-2.5-flash-lite,VERTEX_LOCATION=us-central1,LOCATION=global,CLIENT_ORIGIN=${{ secrets.CLIENT_ORIGIN }},GOOGLE_APPLICATION_CREDENTIALS=/secrets/service-account-key.json,USE_VERTEX_RAG=true, RAG_LOCATION=us-west1" \
             --update-secrets "/secrets/service-account-key.json=service-account-key:latest"
 
       - name: Deploy Frontend to Cloud Run
