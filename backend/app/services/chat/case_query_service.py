@@ -55,7 +55,8 @@ class CaseQueryService:
         self,
         message: str,
         case_id: str,
-        school_name: str
+        school_name: str,
+        riohs_summary: Optional[str] = None
     ) -> str:
         """
         Responde una pregunta sobre el caso activo.
@@ -79,7 +80,7 @@ class CaseQueryService:
                        "Por favor verifica que el caso esté activo y correctamente configurado.")
             
             # 2. Construir prompt con información del caso
-            system_prompt = self._build_system_prompt(school_name, case_data)
+            system_prompt = self._build_system_prompt(school_name, case_data, riohs_summary)
             
             # 3. Obtener respuesta del LLM
             messages = [
@@ -153,7 +154,7 @@ class CaseQueryService:
             logger.error(f"❌ [CASE_QUERY] Error loading case data: {e}")
             return None
     
-    def _build_system_prompt(self, school_name: str, case_data: Dict) -> str:
+    def _build_system_prompt(self, school_name: str, case_data: Dict, riohs_summary: Optional[str] = None) -> str:
         """
         Construye el prompt del sistema con información del caso.
         
@@ -201,6 +202,14 @@ PAUTAS:
 4. Usa listas cuando sea apropiado para claridad
 
 NO INVENTES información que no esté en los datos del caso."""
+
+        if riohs_summary:
+            prompt += f"""
+
+REGLAMENTO INTERNO DE LA EMPRESA ({school_name}):
+{riohs_summary}
+
+Cuando respondas preguntas sobre procedimientos, normas internas o políticas de la empresa, prioriza la información del REGLAMENTO INTERNO por sobre el conocimiento general."""
 
         return prompt
 

@@ -35,39 +35,58 @@ class ReglamentoSearchService:
         self,
         query: str,
         company_search_app_id: str,
+        rag_corpus_id: Optional[str] = None,
     ) -> Dict[str, any]:
         """
         Busca información general en Reglamento Interno y Ley Karin (para SIMPLE_QA).
+        Soporta tanto Discovery Engine (company_search_app_id) como Vertex RAG (rag_corpus_id).
         """
         try:
             logger.info(f"🔍 [GENERAL_SEARCH] Query: '{query}'")
-            
-            # 1. Enriquecer query mínimamente
-            enriched_query = f"{query} protocolo prevención"
-            if "ley" in query.lower() or "decreto" in query.lower() or "karin" in query.lower():
-                enriched_query = query 
-                
-            # 2. Búsqueda en paralelo (Reglamento + Ley Karin)
             import asyncio
-            
+
+            # Si hay corpus RAG disponible, usarlo con prioridad
+            if settings.USE_VERTEX_RAG and rag_corpus_id:
+                try:
+                    from app.services.chat.rag_service import rag_service
+                    enriched_query = await self._build_enriched_query(query, None)
+                    rag_results = await asyncio.to_thread(
+                        rag_service.query_structured, rag_corpus_id, enriched_query, 10
+                    )
+                    logger.info(f"✅ [GENERAL_SEARCH] Vertex RAG returned {len(rag_results)} results")
+                    total_tokens = self._estimate_tokens(rag_results)
+                    return {
+                        "reglamento_results": rag_results,
+                        "ley_karin_results": [],
+                        "total_tokens": total_tokens
+                    }
+                except Exception as rag_err:
+                    logger.warning(f"⚠️ [GENERAL_SEARCH] Vertex RAG failed, falling back to Discovery Engine: {rag_err}")
+
+            # Discovery Engine: query sin sufijos genéricos que contaminan la búsqueda
+            enriched_query = query
+            if not any(w in query.lower() for w in ["ley", "decreto", "karin", "circular", "dictamen"]):
+                enriched_query = f"{query} reglamento interno"
+
+            # Búsqueda en paralelo (Reglamento empresa + Ley Karin), más resultados que antes
             tasks = [
-                self._search_in_app(company_search_app_id, enriched_query, max_results=2),
-                self._search_in_app(self.LEY_KARIN_APP_ID, enriched_query, max_results=2)
+                self._search_in_app(company_search_app_id, enriched_query, max_results=4),
+                self._search_in_app(self.LEY_KARIN_APP_ID, enriched_query, max_results=3)
             ]
-            
+
             results = await asyncio.gather(*tasks)
             reglamento_results, ley_karin_results = results[0], results[1]
-            
+
             logger.info(f"✅ [GENERAL_SEARCH] Found {len(reglamento_results)} Reglamento docs + {len(ley_karin_results)} Ley Karin docs")
-            
+
             total_tokens = self._estimate_tokens(reglamento_results) + self._estimate_tokens(ley_karin_results)
-            
+
             return {
                 "reglamento_results": reglamento_results,
                 "ley_karin_results": ley_karin_results,
                 "total_tokens": total_tokens
             }
-            
+
         except Exception as e:
             logger.error(f"❌ [GENERAL_SEARCH] Error: {e}")
             return {"reglamento_results": [], "ley_karin_results": [], "total_tokens": 0}

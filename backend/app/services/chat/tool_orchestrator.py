@@ -57,7 +57,8 @@ class ToolOrchestrator:
         case_id: Optional[str],
         history: List,
         school_name: str,
-        session_id: Optional[str] = None
+        session_id: Optional[str] = None,
+        riohs_summary: Optional[str] = None
     ) -> str:
         """
         Ejecuta una solicitud de herramienta (email/calendar/protocolo).
@@ -106,10 +107,10 @@ class ToolOrchestrator:
             elif tool_type == "protocolo":
                 return await self._execute_protocol_guide(message, case_id, session_id)
             elif tool_type == "documento":
-                return await self._execute_document_draft(message, user_context, case_context, school_name, history)
+                return await self._execute_document_draft(message, user_context, case_context, school_name, history, riohs_summary)
             elif tool_type == "workflow":
                 return await self._execute_case_workflow(
-                    message, user_id, user_context, case_id, session_id, school_name, history
+                    message, user_id, user_context, case_id, session_id, school_name, history, riohs_summary
                 )
             else:
                 logger.warning(f"⚠️ [TOOL_ORCH] Unknown tool type: {tool_type}")
@@ -459,7 +460,8 @@ Responde SOLO con: email, calendar, protocolo, documento, workflow, o unknown"""
         user_context: Dict,
         case_context: Optional[Dict],
         school_name: str,
-        history: List
+        history: List,
+        riohs_summary: Optional[str] = None
     ) -> str:
         """
         Genera un documento legal formal (resolución, medida de resguardo, notificación).
@@ -477,7 +479,7 @@ Responde SOLO con: email, calendar, protocolo, documento, workflow, o unknown"""
 
             # 2. Generar el contenido del documento con LLM
             content = await self._generate_document_content(
-                doc_type, message, user_context, case_context, school_name, history
+                doc_type, message, user_context, case_context, school_name, history, riohs_summary
             )
 
             # 3. Construir JSON document_draft
@@ -529,7 +531,8 @@ Responde SOLO con: email, calendar, protocolo, documento, workflow, o unknown"""
         user_context: Dict,
         case_context: Optional[Dict],
         school_name: str,
-        history: List
+        history: List,
+        riohs_summary: Optional[str] = None
     ) -> str:
         """Genera el texto completo del documento legal usando LLM."""
 
@@ -598,6 +601,9 @@ Mantén lenguaje formal e institucional.""",
             context_parts.append(
                 f"FIRMANTE: {user_context.get('nombre', '')} — {user_context.get('rol', '')}"
             )
+
+        if riohs_summary:
+            context_parts.append(f"REGLAMENTO INTERNO DE LA EMPRESA:\n{riohs_summary}")
 
         if case_context:
             involucrados = ", ".join(case_context.get("involucrados", []))
@@ -730,6 +736,7 @@ Genera el texto completo del documento:"""
         session_id: Optional[str],
         school_name: str,
         history: List,
+        riohs_summary: Optional[str] = None,
     ) -> str:
         """
         Workflow completo Ley Karin:
@@ -830,7 +837,7 @@ Genera el texto completo del documento:"""
                     "estado": "abierto",
                     "fecha_creacion": _dt.now().strftime("%Y-%m-%d"),
                 },
-                school_name, history
+                school_name, history, riohs_summary
             )
             doc_draft = _json.dumps({
                 "type": "document_draft",

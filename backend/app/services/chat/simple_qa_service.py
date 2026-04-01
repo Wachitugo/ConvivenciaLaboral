@@ -57,7 +57,9 @@ class SimpleQAService:
         school_name: str, # Mantenemos nombre variable por compatibilidad (es Company Name)
         history: List,
         user_context: Optional[dict] = None,
-        search_app_id: Optional[str] = None  # ← NUEVO: ID de app de búsqueda para RAG lite
+        search_app_id: Optional[str] = None,  # ← ID de app de búsqueda para RAG lite (Discovery Engine)
+        riohs_summary: Optional[str] = None,  # ← Resumen RIOHS de la empresa
+        rag_corpus_id: Optional[str] = None   # ← Corpus Vertex RAG (prioridad sobre Discovery Engine)
     ) -> str:
         """
         Responde una pregunta simple de forma rápida.
@@ -67,15 +69,16 @@ class SimpleQAService:
         logger.info(f"❓ [SIMPLE_QA] Processing question: {message[:50]}...")
         
         try:
-            # === RAG LITE: Búsqueda de contexto si hay search_app_id ===
+            # === RAG LITE: Búsqueda de contexto (Discovery Engine o Vertex RAG) ===
             rag_context = ""
-            if search_app_id:
+            if search_app_id or rag_corpus_id:
                 try:
                     from app.services.chat.reglamento_search_service import reglamento_search_service
-                    
+
                     search_results = await reglamento_search_service.search_general_info(
                         query=message,
-                        company_search_app_id=search_app_id
+                        company_search_app_id=search_app_id or "",
+                        rag_corpus_id=rag_corpus_id
                     )
                     
                     # Formatear resultados para el prompt
@@ -92,8 +95,8 @@ class SimpleQAService:
                     logger.warning(f"⚠️ [SIMPLE_QA] RAG search failed: {rag_error}")
                     # Continuar sin contexto RAG
             
-            # 1. Construir prompt del sistema (con contexto RAG si existe)
-            system_prompt = self._build_system_prompt(school_name, user_context, rag_context)
+            # 1. Construir prompt del sistema (con contexto RAG y RIOHS si existen)
+            system_prompt = self._build_system_prompt(school_name, user_context, rag_context, riohs_summary)
             
             # 2. Preparar mensajes (historial reciente + pregunta actual)
             messages = [SystemMessage(content=system_prompt)]
@@ -119,7 +122,7 @@ class SimpleQAService:
             return ("Lo siento, tuve un problema al procesar tu pregunta. "
                    "¿Podrías reformularla o ser más específico?")
     
-    def _build_system_prompt(self, school_name: str, user_context: Optional[dict], rag_context: str = "") -> str:
+    def _build_system_prompt(self, school_name: str, user_context: Optional[dict], rag_context: str = "", riohs_summary: Optional[str] = None) -> str:
         """
         Construye el prompt del sistema para Simple QA.
         
@@ -152,17 +155,22 @@ PAUTAS DE RESPUESTA:
 TEMAS QUE PUEDES RESPONDER:
 - Ley Karin (21.643) y sus implicancias
 - Prevención del Acoso Laboral, Sexual y Violencia (M3: Maltrato, Acoso, Violencia)
-- Protocolos de denuncia e investigación (generalidades)
+- Protocolos de denuncia e investigación
 - Gestión de conflictos laborales y clima organizacional
 - Derechos fundamentales de los trabajadores
+- Procedimientos internos de la empresa (medidas de resguardo, plazos, investigación)
+
+USO DE DOCUMENTOS:
+- Si tienes REGLAMENTO INTERNO o contexto de documentos en este prompt, ÚSALOS DIRECTAMENTE para responder.
+- NUNCA pidas al usuario que te diga qué dice su RIOHS o protocolo interno — tú ya tienes esa información.
+- Si el documento tiene la respuesta, cítalo: "Según el Reglamento Interno de {school_name}..."
+- Si genuinamente no tienes el dato (no está en ningún documento de este prompt), dilo con honestidad.
 
 NO PUEDES:
-- Analizar documentos adjuntos (para eso hay otro servicio)
+- Analizar documentos adjuntos que el usuario sube (para eso hay otro servicio)
 - Enviar correos o agendar eventos (para eso hay herramientas)
-- Dar dictámenes legales definitivos (siempre sugiere revisar el Reglamento Interno)
 
-Si la pregunta requiere análisis de documentos, herramientas, o información de un caso específico,
-indica que necesitas más información o que hay otra funcionalidad para eso."""
+Si la pregunta requiere adjuntar archivos o usar herramientas (correo/calendario), indica la funcionalidad correcta."""
 
         # Agregar contexto del usuario si existe
         if user_context:
@@ -175,19 +183,30 @@ INFORMACIÓN DEL USUARIO:
 Puedes personalizar tu respuesta según el rol del usuario."""
             base_prompt += user_info
         
-        # NUEVO: Agregar contexto RAG si existe
+        # Agregar resumen RIOHS de la empresa si existe
+        if riohs_summary:
+            riohs_section = f"""
+
+REGLAMENTO INTERNO DE LA EMPRESA ({school_name}):
+{riohs_summary}
+
+Cuando respondas preguntas sobre procedimientos, normas o políticas internas, prioriza la información del REGLAMENTO INTERNO de esta empresa sobre el conocimiento general."""
+            base_prompt += riohs_section
+
+        # Agregar contexto RAG si existe
         if rag_context:
             rag_section = f"""
 
 ═════════════════════════════════════════════════════════════════
-📚 CONTEXTO RELEVANTE DEL REGLAMENTO INTERNO Y LEY KARIN
+DOCUMENTOS DE REFERENCIA (RIOHS, LEY KARIN Y NORMATIVA)
 ═════════════════════════════════════════════════════════════════
 
 {rag_context}
 
-IMPORTANTE: Usa este contexto para responder con información precisa y citando las fuentes cuando corresponda."""
+INSTRUCCIÓN CRÍTICA: Responde DIRECTAMENTE usando la información de estos documentos.
+No pidas al usuario que consulte su RIOHS — ya lo tienes aquí. Cita la fuente cuando corresponda."""
             base_prompt += rag_section
-        
+
         return base_prompt
 
 

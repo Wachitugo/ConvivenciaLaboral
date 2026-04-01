@@ -929,7 +929,8 @@ INSTRUCCIONES ADICIONALES:
                 case_id=case_id,
                 history=history,
                 school_name=school_name,
-                session_id=session_id
+                session_id=session_id,
+                riohs_summary=riohs_summary
             )
             
             # Si el workflow creó un caso, emitir evento case_linked primero
@@ -979,13 +980,15 @@ INSTRUCCIONES ADICIONALES:
             yield json.dumps({"type": "thinking", "content": "Pensando..."}, ensure_ascii=False) + "\n"
             await asyncio.sleep(0.1)
             
-            # Get answer from Simple QA Service (with RAG lite if search_app_id available)
+            # Get answer from Simple QA Service (with RAG lite if search_app_id/rag_corpus_id available)
             ai_response = await simple_qa_service.answer_question(
                 message=message,
                 school_name=school_name,
                 history=history,
                 user_context=user_context,
-                search_app_id=search_app_id  # Enable RAG lite search
+                search_app_id=search_app_id,
+                riohs_summary=riohs_summary,
+                rag_corpus_id=rag_corpus_id
             )
             
             # Stream the response content
@@ -1014,7 +1017,8 @@ INSTRUCCIONES ADICIONALES:
             ai_response = await case_query_service.answer_case_question(
                 message=message,
                 case_id=case_id,
-                school_name=school_name
+                school_name=school_name,
+                riohs_summary=riohs_summary
             )
             
             # Stream the response content
