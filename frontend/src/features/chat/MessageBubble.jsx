@@ -343,19 +343,7 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
             if (part.startsWith('***') && part.endsWith('***')) return <strong key={partIndex} className="font-bold italic text-blue-200">{part.slice(3, -3)}</strong>;
             if (part.startsWith('**') && part.endsWith('**')) return <strong key={partIndex} className="font-bold text-blue-200">{part.slice(2, -2)}</strong>;
             if (part.startsWith('*') && part.endsWith('*')) {
-              // Solo aplicar padding izquierdo si no es el primer elemento con contenido
-              const isFirstPart = partIndex === 0 || parts.slice(0, partIndex).every(p => !p.trim());
-              const paddingLeft = isFirstPart ? '0' : '0.3em';
-
-              return (
-                <em
-                  key={partIndex}
-                  className="italic text-gray-300 text-sm inline-block"
-                  style={{ letterSpacing: '0.01em', paddingLeft, paddingRight: '0.3em' }}
-                >
-                  {part.slice(1, -1)}
-                </em>
-              );
+              return <span key={partIndex}>{part.slice(1, -1)}</span>;
             }
 
             // Limpiar asteriscos sueltos que no forman parte del formato
@@ -648,20 +636,6 @@ function MessageBubble({ message, messageIndex, onFileClick, onLike, onDislike, 
               </div>
             )}
 
-            {/* Sugerencias de preguntas */}
-            {message.suggestions && message.suggestions.length > 0 && !message.isStreaming && (
-              <div className="mt-2 animate-fade-in flex flex-wrap gap-2">
-                {message.suggestions.map((suggestion, index) => (
-                  <button
-                    key={index}
-                    onClick={() => onSuggestionClick && onSuggestionClick(suggestion)}
-                    className="px-4 py-2 bg-white/8 border border-white/15 text-[#34B6D8] text-[11px] font-bold uppercase tracking-[0.12em] rounded-xl hover:border-white/30 hover:bg-white/15 hover:-translate-y-0.5 hover:shadow-sm transition-all shadow-sm active:scale-95"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
-            )}
 
             {/* Botones de interacción */}
             {messageContent && messageContent.trim().length > 0 && !message.isStreaming && (

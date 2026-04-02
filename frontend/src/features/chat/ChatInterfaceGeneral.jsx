@@ -479,12 +479,6 @@ function ChatInterfaceGeneral({ onSendMessage, relatedCase, isThinking, isStream
         </div>
       )}
 
-      {/* Sugerencias - Solo se muestran cuando no hay mensajes */}
-      {onSuggestionClick && !hasMessages && (
-        <div data-tour="chat-suggestions">
-          <SuggestionCards onSuggestionClick={onSuggestionClick} />
-        </div>
-      )}
 
 
       {/* Overlay de drag and drop */}
