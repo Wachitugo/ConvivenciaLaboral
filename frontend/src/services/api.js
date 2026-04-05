@@ -1633,3 +1633,29 @@ export const tokensService = {
     }
   }
 };
+
+export const suggestionsService = {
+  getAll: async ({ colegio_id, estado } = {}) => {
+    const params = {};
+    if (colegio_id) params.colegio_id = colegio_id;
+    if (estado) params.estado = estado;
+    const response = await axios.get(`${API_URL}/suggestions/`, { params });
+    return response.data;
+  },
+  create: async (data) => {
+    const response = await axios.post(`${API_URL}/suggestions/`, data);
+    return response.data;
+  },
+  vote: async (id, userId) => {
+    const response = await axios.patch(`${API_URL}/suggestions/${id}/vote`, { user_id: userId });
+    return response.data;
+  },
+  update: async (id, data) => {
+    const response = await axios.patch(`${API_URL}/suggestions/${id}`, data);
+    return response.data;
+  },
+  delete: async (id) => {
+    const response = await axios.delete(`${API_URL}/suggestions/${id}`);
+    return response.data;
+  },
+};

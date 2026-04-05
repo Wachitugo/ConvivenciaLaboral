@@ -18,6 +18,7 @@ import StudentDetailPage from './pages/StudentDetailPage';
 import { AdminPage } from './features/crud-admin';
 import RoleProtectedRoute from './components/RoleProtectedRoute';
 import NavigateToSchoolDefault from './components/NavigateToSchoolDefault';
+import BuzonSugerenciasPage from './pages/BuzonSugerenciasPage';
 
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -81,6 +82,7 @@ function AppContent() {
           <Route element={<RoleProtectedRoute requireFullAccess={false} />}>
             <Route path="chat-general" element={<ChatGeneralPage />} />
             <Route path="chat" element={<Navigate to="chat-general" replace />} />
+            <Route path="buzon-sugerencias" element={<BuzonSugerenciasPage />} />
           </Route>
         </Route>
       </Routes>

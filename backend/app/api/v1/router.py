@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, chat, cases, protocols, auth, users, schools, dashboard, interviews, students, commitments, paec, token_dashboard
+from app.api.v1.endpoints import health, chat, cases, protocols, auth, users, schools, dashboard, interviews, students, commitments, paec, token_dashboard, suggestions
 
 
 api_router = APIRouter()
@@ -17,3 +17,4 @@ api_router.include_router(students.router, prefix="/students", tags=["students"]
 api_router.include_router(commitments.router, prefix="/commitments", tags=["commitments"])
 api_router.include_router(paec.router, prefix="/paec", tags=["paec"])
 api_router.include_router(token_dashboard.router, prefix="/tokens", tags=["tokens"])
+api_router.include_router(suggestions.router, prefix="/suggestions", tags=["suggestions"])
