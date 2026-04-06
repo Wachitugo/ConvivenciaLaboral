@@ -8,7 +8,7 @@ const FULL_ACCESS_ROLES = ['Gerente Relaciones Laborales', 'Encargado de Relacio
 /**
  * Roles con acceso a casos, entrevistas y ficha (sin dashboard)
  */
-const INVESTIGADOR_ALLOWED_PATHS = ['/mis-casos', '/entrevistas', '/ficha-alumnos'];
+const INVESTIGADOR_ALLOWED_PATHS = ['/mis-casos', '/entrevistas', '/ficha-colaboradores'];
 
 /**
  * Página por defecto para Investigadores

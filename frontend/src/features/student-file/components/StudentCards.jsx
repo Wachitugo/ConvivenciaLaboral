@@ -35,7 +35,7 @@ function StudentCards({ students }) {
               key={student.id}
               onClick={() => {
                 const basePath = schoolSlug ? `/${schoolSlug}` : '';
-                navigate(`${basePath}/ficha-alumnos/${student.id}`);
+                navigate(`${basePath}/ficha-colaboradores/${student.id}`);
               }}
               className="group bg-[#0A3866]/40 backdrop-blur-md border border-[#1A71B8]/30 px-3 py-2.5 rounded-2xl hover:bg-[#0A3866]/60 hover:border-[#34B6D8]/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(26,113,184,0.3)] cursor-pointer flex items-center justify-between gap-2"
               style={{ fontFamily: "'Inter', system-ui, sans-serif" }}

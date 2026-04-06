@@ -4,6 +4,7 @@ import AlertMessages from './AlertMessages';
 import { SchoolsSection } from '../schools';
 import UsersSection from './UsersSection';
 import { TokensSection } from '../tokens';
+import SugerenciasAdminSection from './SugerenciasAdminSection';
 import AdminLayout from '../../layouts/AdminLayout';
 import { createLogger } from '../../utils/logger';
 
@@ -201,6 +202,7 @@ export default function AdminPage() {
   const getHeaderTitle = () => {
     if (activeTab === 'usuarios') return 'Gestión de Usuarios';
     if (activeTab === 'colegios') return 'Gestión de Organizaciones';
+    if (activeTab === 'sugerencias') return 'Buzón de Sugerencias';
     if (isTokensTab) return 'Gestión de Tokens';
     return '';
   };
@@ -208,6 +210,7 @@ export default function AdminPage() {
   const getHeaderDescription = () => {
     if (activeTab === 'usuarios') return 'Administra el acceso y permisos de usuarios en el sistema';
     if (activeTab === 'colegios') return 'Administra las instituciones registradas en el sistema';
+    if (activeTab === 'sugerencias') return 'Revisa y gestiona las sugerencias enviadas por los usuarios';
     if (isTokensTab) return 'Monitoreo de consumo y gestión de límites de IA';
     return '';
   };
@@ -230,7 +233,9 @@ export default function AdminPage() {
 
 
         <div className="bg-white rounded-xl  ">
-          {isTokensTab ? (
+          {activeTab === 'sugerencias' ? (
+            <SugerenciasAdminSection />
+          ) : isTokensTab ? (
             <TokensSection initialTab={getTokensSubTab()} />
           ) : activeTab === 'colegios' ? (
             <SchoolsSection

@@ -61,7 +61,7 @@ function AppContent() {
           <Route path="/chat-general" element={<NavigateToSchoolDefault dest="chat-general" />} />
           <Route path="/mis-casos" element={<NavigateToSchoolDefault dest="mis-casos" />} />
           <Route path="/entrevistas" element={<NavigateToSchoolDefault dest="entrevistas" />} />
-          <Route path="/ficha-alumnos" element={<NavigateToSchoolDefault dest="ficha-alumnos" />} />
+          <Route path="/ficha-colaboradores" element={<NavigateToSchoolDefault dest="ficha-colaboradores" />} />
         </Route>
 
         {/* 3. Tenant Paths (Encapsulated in MainLayout) */}
@@ -74,8 +74,8 @@ function AppContent() {
             <Route path="mis-casos/:id" element={<CaseDetailPage />} />
             <Route path="entrevistas" element={<InterviewPage />} />
             <Route path="entrevistas/:id" element={<InterviewDetailPage />} />
-            <Route path="ficha-alumnos" element={<FichaAlumnosPage />} />
-            <Route path="ficha-alumnos/:id" element={<StudentDetailPage />} />
+            <Route path="ficha-colaboradores" element={<FichaAlumnosPage />} />
+            <Route path="ficha-colaboradores/:id" element={<StudentDetailPage />} />
           </Route>
 
           {/* Common Routes - Accesible para Trabajadores */}

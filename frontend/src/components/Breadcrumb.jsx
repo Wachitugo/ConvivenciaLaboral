@@ -7,7 +7,7 @@ function Breadcrumb({ caseName = null }) {
   const routeNames = {
     'dashboard': 'Reportes',
     'mis-casos': 'Mis Casos',
-    'ficha-alumnos': 'Ficha Colaboradores',
+    'ficha-colaboradores': 'Ficha Colaboradores',
     'chat': 'Chat',
     'calendario': 'Calendario',
     'reportes': 'Reportes',

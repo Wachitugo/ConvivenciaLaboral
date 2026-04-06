@@ -60,7 +60,7 @@ function StudentTable({ students, totalCount, isFiltered }) {
                 key={student.id}
                 onClick={() => {
                   const basePath = schoolSlug ? `/${schoolSlug}` : '';
-                  navigate(`${basePath}/ficha-alumnos/${student.id}`);
+                  navigate(`${basePath}/ficha-colaboradores/${student.id}`);
                 }}
                 className="hover:bg-gray-50/80 transition-colors cursor-pointer"
               >

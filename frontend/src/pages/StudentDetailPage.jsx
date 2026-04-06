@@ -52,7 +52,7 @@ function StudentDetailPage() {
             } else {
               console.error("Student not found in school list");
               const basePath = schoolSlug ? `/${schoolSlug}` : '';
-              navigate(`${basePath}/ficha-alumnos`);
+              navigate(`${basePath}/ficha-colaboradores`);
             }
           }
         }

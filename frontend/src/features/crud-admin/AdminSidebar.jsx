@@ -35,6 +35,15 @@ function AdminSidebar({ activeTab, setActiveTab, isOpen, onToggle }) {
             )
         },
         {
+            id: 'sugerencias',
+            label: 'Sugerencias',
+            icon: (
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 flex-shrink-0">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1014.25 7.5v1.5H9.75V7.5A2.625 2.625 0 0012 4.875zM12 7.5H8.25A2.25 2.25 0 006 9.75v1.5h12v-1.5A2.25 2.25 0 0015.75 7.5H12z" />
+                </svg>
+            )
+        },
+        {
             id: 'tokens',
             label: 'Tokens',
             icon: (
