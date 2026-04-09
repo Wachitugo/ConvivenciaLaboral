@@ -1,4 +1,56 @@
 /**
+ * Adds N working days (Mon–Fri) to a given date.
+ * @param {Date|string} startDate
+ * @param {number} days
+ * @returns {Date}
+ */
+export const addWorkingDays = (startDate, days) => {
+    const date = new Date(startDate);
+    date.setHours(0, 0, 0, 0);
+    let added = 0;
+    while (added < days) {
+        date.setDate(date.getDate() + 1);
+        const day = date.getDay();
+        if (day !== 0 && day !== 6) added++;
+    }
+    return date;
+};
+
+/**
+ * Returns the number of working days between two dates.
+ * @param {Date|string} startDate
+ * @param {Date|string} endDate
+ * @returns {number}
+ */
+export const getWorkingDaysBetween = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+    let count = 0;
+    const cur = new Date(start);
+    while (cur < end) {
+        cur.setDate(cur.getDate() + 1);
+        const day = cur.getDay();
+        if (day !== 0 && day !== 6) count++;
+    }
+    return count;
+};
+
+/**
+ * Formats a Date or date string to YYYY-MM-DD.
+ * @param {Date|string} date
+ * @returns {string}
+ */
+export const formatDate = (date) => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
+/**
  * Calculate the deadline date based on a start date and duration string.
  * This function mimics the logic previously inside ProtocolStep.jsx
  * 

@@ -13,6 +13,7 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
   const location = useLocation();
   const [usuario, setUsuario] = useState(null);
   const [colegiosInfo, setColegiosInfo] = useState([]);
+  const [planMenuOpen, setPlanMenuOpen] = useState(() => location.pathname.includes('/plan-convivencia'));
 
   useEffect(() => {
     const usuarioData = localStorage.getItem('usuario');
@@ -59,7 +60,7 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
 
   const isActive = (relativePath) => {
     const path = getPath(relativePath);
-    const routesWithSubpages = [getPath('/mis-casos'), getPath('/entrevistas'), getPath('/ficha-colaboradores')];
+    const routesWithSubpages = [getPath('/mis-casos'), getPath('/entrevistas'), getPath('/ficha-colaboradores'), getPath('/plan-convivencia')];
     if (routesWithSubpages.includes(path)) {
       return location.pathname === path || location.pathname.startsWith(`${path}/`);
     }
@@ -240,6 +241,70 @@ function Sidebar({ isOpen, onToggle, conversations, isHidden, schoolSlug }) {
               </span>
               {isOpen && <span className="whitespace-nowrap">Buzón de Sugerencias</span>}
             </button>
+
+            {/* Plan de Convivencia — solo acceso completo */}
+            {usuario?.rol !== 'Investigador' && (
+              <>
+                <button
+                  onClick={() => {
+                    if (isOpen) { setPlanMenuOpen(o => !o); }
+                    else { navigate(getPath('/plan-convivencia')); }
+                    if (!isOpen && window.innerWidth < 1024) onToggle();
+                  }}
+                  className={`w-full px-3 py-2.5 rounded-xl transition-all flex items-center text-sm font-semibold mb-1 ${!isOpen ? 'justify-center' : 'gap-3'} ${
+                    isActive('/plan-convivencia')
+                      ? 'bg-[#1A71B8]/10 text-[#1A71B8] border border-[#1A71B8]/20 shadow-sm'
+                      : 'text-[#475569] hover:bg-[#f0f4f8] hover:text-[#0A3866] border border-transparent'
+                  }`}
+                  title={!isOpen ? 'Plan de Convivencia' : ''}
+                >
+                  <span className={`flex-shrink-0 ${isActive('/plan-convivencia') ? 'text-[#1A71B8]' : 'text-[#64748b]'}`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                    </svg>
+                  </span>
+                  {isOpen && (
+                    <>
+                      <span className="whitespace-nowrap flex-1 text-left">Plan de Convivencia</span>
+                      <svg className={`w-4 h-4 transition-transform ${planMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </>
+                  )}
+                </button>
+
+                {isOpen && planMenuOpen && (
+                  <div className="ml-4 mb-1 space-y-0.5 border-l-2 border-[#1A71B8]/15 pl-3">
+                    <button
+                      onClick={() => { navigate(getPath('/plan-convivencia')); if (window.innerWidth < 1024) onToggle(); }}
+                      className={`w-full px-3 py-2 rounded-xl transition-all flex items-center gap-2 text-xs font-semibold border ${
+                        location.pathname === getPath('/plan-convivencia')
+                          ? 'bg-[#1A71B8]/10 text-[#1A71B8] border-[#1A71B8]/20'
+                          : 'text-[#475569] hover:bg-[#f0f4f8] border-transparent'
+                      }`}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                      </svg>
+                      Plan de Gestión
+                    </button>
+                    <button
+                      onClick={() => { navigate(getPath('/plan-convivencia/estadisticas')); if (window.innerWidth < 1024) onToggle(); }}
+                      className={`w-full px-3 py-2 rounded-xl transition-all flex items-center gap-2 text-xs font-semibold border ${
+                        location.pathname === getPath('/plan-convivencia/estadisticas')
+                          ? 'bg-[#1A71B8]/10 text-[#1A71B8] border-[#1A71B8]/20'
+                          : 'text-[#475569] hover:bg-[#f0f4f8] border-transparent'
+                      }`}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                      </svg>
+                      Estadísticas
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
 
             <div className="my-3 h-px bg-[#e2e8f0]"></div>
           </>

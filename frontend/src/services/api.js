@@ -1659,3 +1659,32 @@ export const suggestionsService = {
     return response.data;
   },
 };
+
+export const planService = {
+  getPlan: async (schoolId) => {
+    const response = await axios.get(`${API_URL}/plans/${schoolId}`);
+    return response.data;
+  },
+  getHistory: async (schoolId) => {
+    const response = await axios.get(`${API_URL}/plans/${schoolId}/history`);
+    return response.data;
+  },
+  getVersion: async (planId) => {
+    const response = await axios.get(`${API_URL}/plans/version/${planId}`);
+    return response.data;
+  },
+  save: async (schoolId, planData, forceNew = false) => {
+    const response = await axios.post(`${API_URL}/plans`, {
+      school_id: schoolId,
+      plan_data: planData,
+      force_new: forceNew,
+    });
+    return response.data;
+  },
+  getCaseStats: async (schoolId) => {
+    const response = await axios.get(`${API_URL}/dashboard/case-stats`, {
+      params: { colegio_id: schoolId },
+    });
+    return response.data;
+  },
+};

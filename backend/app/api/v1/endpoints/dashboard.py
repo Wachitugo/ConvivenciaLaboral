@@ -133,3 +133,86 @@ async def get_daily_activity_stats(
         # En caso de error, devolver lista vacía o error 500
         # return []
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/case-stats")
+async def get_case_stats(
+    colegio_id: str = Query(..., description="ID de la empresa para filtrar casos"),
+):
+    """
+    Agrega expedientes por tipo (case_type) para la vista de Estadísticas del
+    Plan de Convivencia Laboral.  Incluye protocolos como subcategorías y
+    detección de gravedad máxima basándose en el tipo de caso.
+    """
+    # Mapa de categorías por case_type
+    CATEGORY_MAP = {
+        "Acoso Laboral": "LEY KARIN",
+        "Acoso Sexual": "LEY KARIN",
+        "Violencia en el Trabajo": "LEY KARIN",
+        "Conflicto Interpersonal": "RELACIONES LABORALES",
+        "Otro": "OTROS",
+    }
+
+    # Mapa de gravedad por tipo (N1 más leve → N4 más grave)
+    SEVERITY_MAP = {
+        "Acoso Sexual": {"level": 4, "label": "N4 — Crítico", "description": "Requiere atención prioritaria"},
+        "Violencia en el Trabajo": {"level": 4, "label": "N4 — Crítico", "description": "Requiere atención prioritaria"},
+        "Acoso Laboral": {"level": 3, "label": "N3 — Alto", "description": "Seguimiento urgente requerido"},
+        "Conflicto Interpersonal": {"level": 2, "label": "N2 — Medio", "description": "Monitoreo recomendado"},
+        "Otro": {"level": 1, "label": "N1 — Bajo", "description": "Seguimiento estándar"},
+    }
+
+    try:
+        cases_ref = case_service.db.collection(case_service.collection_name)
+        query = cases_ref.where(filter=firestore.FieldFilter("colegio_id", "==", colegio_id))
+        docs = list(query.stream())
+
+        counts: dict = {}
+        max_severity = {"level": 0, "label": "Sin datos", "description": "No hay expedientes registrados"}
+
+        for doc in docs:
+            data = doc.to_dict()
+            case_type = data.get("case_type", "Sin clasificar")
+            protocol_name = data.get("protocol") or None
+
+            if case_type not in counts:
+                counts[case_type] = {
+                    "name": case_type,
+                    "count": 0,
+                    "category": CATEGORY_MAP.get(case_type, "OTROS"),
+                    "subcategories_map": {},  # helper — removed before response
+                }
+            counts[case_type]["count"] += 1
+
+            # Agrupar protocolos como subcategorías
+            if protocol_name:
+                sub_map = counts[case_type]["subcategories_map"]
+                if protocol_name not in sub_map:
+                    sub_map[protocol_name] = {"name": protocol_name, "count": 0}
+                sub_map[protocol_name]["count"] += 1
+
+            # Gravedad
+            sev = SEVERITY_MAP.get(case_type)
+            if sev and sev["level"] > max_severity["level"]:
+                max_severity = sev
+
+        total = sum(v["count"] for v in counts.values())
+        result = []
+        for item in sorted(counts.values(), key=lambda x: x["count"], reverse=True):
+            item["percentage"] = round((item["count"] / total) * 100, 1) if total > 0 else 0
+            item["subcategories"] = sorted(
+                item.pop("subcategories_map", {}).values(),
+                key=lambda s: s["count"],
+                reverse=True,
+            )
+            result.append(item)
+
+        return {
+            "status": "success",
+            "stats": result,
+            "total": total,
+            "max_severity": max_severity,
+        }
+    except Exception as e:
+        logger.exception(f"Error generating case stats for {colegio_id}")
+        raise HTTPException(status_code=500, detail="Error interno")

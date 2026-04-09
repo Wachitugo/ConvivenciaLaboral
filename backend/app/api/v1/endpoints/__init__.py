@@ -1,1 +1,1 @@
-from . import auth, cases, chat, dashboard, health, interviews, protocols, schools, users, paec, suggestions
+from . import auth, cases, chat, dashboard, health, interviews, protocols, schools, users, paec, suggestions, plans
