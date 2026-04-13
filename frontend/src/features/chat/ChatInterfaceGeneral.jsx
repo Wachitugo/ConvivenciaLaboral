@@ -50,25 +50,24 @@ function ChatInterfaceGeneral({ onSendMessage, relatedCase, isThinking, isStream
         id: f.id || Date.now() + Math.random()
       }));
 
-      // Evitar duplicados
-      const newFiles = normalizedFiles.filter(iFile =>
-        !attachedFiles.some(aFile =>
-          (aFile.id === iFile.id) ||
-          (aFile.url && iFile.url && aFile.url === iFile.url) ||
-          (aFile.gcs_uri && iFile.gcs_uri && aFile.gcs_uri === iFile.gcs_uri)
-        )
-      );
-
-      if (newFiles.length > 0) {
-        setAttachedFiles(prev => [...prev, ...newFiles]);
-      }
+      // Evitar duplicados usando el updater para acceder al estado más reciente
+      setAttachedFiles(prev => {
+        const newFiles = normalizedFiles.filter(iFile =>
+          !prev.some(aFile =>
+            (aFile.id === iFile.id) ||
+            (aFile.url && iFile.url && aFile.url === iFile.url) ||
+            (aFile.gcs_uri && iFile.gcs_uri && aFile.gcs_uri === iFile.gcs_uri)
+          )
+        );
+        return newFiles.length > 0 ? [...prev, ...newFiles] : prev;
+      });
 
       // Notificar al padre que ya se procesaron
       if (onFilesAddedToInput) {
         onFilesAddedToInput();
       }
     }
-  }, [filesToAddToInput, onFilesAddedToInput, attachedFiles]);
+  }, [filesToAddToInput, onFilesAddedToInput]);
 
   // Filtrar casos según búsqueda
   const filteredCases = availableCases.filter(caseItem =>

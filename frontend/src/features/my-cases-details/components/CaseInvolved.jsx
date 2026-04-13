@@ -6,7 +6,11 @@ import { Users, Plus, Loader2 } from 'lucide-react';
 import { casesService, studentsService } from '../../../services/api';
 
 function CaseInvolved({ caseData, onUpdateCase, isLoading = false }) {
-  const [involved, setInvolved] = useState(caseData.involved || []);
+  // Ensure every person has a stable unique id (may be missing for Firestore-loaded data)
+  const normalizeInvolved = (list) =>
+    (list || []).map((p, i) => p.id != null ? p : { ...p, id: `person-${i}-${Date.now()}` });
+
+  const [involved, setInvolved] = useState(() => normalizeInvolved(caseData.involved));
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSuggesting, setIsSuggesting] = useState(false);
   const formPopupRef = useRef(null);
@@ -32,7 +36,8 @@ function CaseInvolved({ caseData, onUpdateCase, isLoading = false }) {
 
         const workers = await studentsService.getStudents(idToUse) || [];
 
-        const enriched = raw.map(person => {
+        const enriched = raw.map((person, i) => {
+          if (person.id == null) person = { ...person, id: `person-${i}-${Date.now()}` };
           // Si ya tiene cargo Y antigüedad, no sobreescribir
           if (person.cargo && person.antiguedad) return person;
 
