@@ -32,23 +32,38 @@ class ToolOrchestrator:
     
     def __init__(self):
         self._llm = None
+        self._doc_llm = None
         self.model_location = settings.VERTEX_LOCATION or "us-central1"
-    
+
     @property
     def llm(self):
-        """LLM Flash para extracción rápida de parámetros"""
+        """LLM Flash para extracción rápida de parámetros (clasificación, emails, calendar)"""
         if self._llm is None:
-            model_name = settings.VERTEX_MODEL_FLASH or "gemini-2.5-flash-lite"
+            model_name = settings.VERTEX_MODEL_FLASH or "gemini-2.0-flash-lite"
             logger.info(f"🤖 [TOOL_ORCH] Initializing LLM: {model_name}")
-            
             self._llm = ChatVertexAI(
                 model_name=model_name,
-                temperature=0.3,  # Baja para consistencia
+                temperature=0.3,
                 max_output_tokens=1024,
                 project=settings.PROJECT_ID,
                 location=self.model_location
             )
         return self._llm
+
+    @property
+    def doc_llm(self):
+        """LLM con tokens amplios para generación de documentos completos"""
+        if self._doc_llm is None:
+            model_name = settings.VERTEX_MODEL_REASON or settings.VERTEX_MODEL_FLASH or "gemini-2.0-flash"
+            logger.info(f"🤖 [TOOL_ORCH] Initializing doc LLM: {model_name}")
+            self._doc_llm = ChatVertexAI(
+                model_name=model_name,
+                temperature=0.2,
+                max_output_tokens=8192,
+                project=settings.PROJECT_ID,
+                location=self.model_location
+            )
+        return self._doc_llm
     
     async def execute_tool_request(
         self,
@@ -78,8 +93,9 @@ class ToolOrchestrator:
 
         try:
             # 1. Clasificar tipo de herramienta
-            # Pre-clasificación por keywords para evitar que el LLM confunda workflow con documento
             msg_lower = message.lower()
+
+            # Pre-clasificación por keywords explícitos
             workflow_keywords = [
                 "crear caso", "crear expediente", "registrar caso", "registrar expediente",
                 "abrir caso", "abrir expediente", "nuevo expediente", "nuevo caso",
@@ -88,9 +104,51 @@ class ToolOrchestrator:
                 "quiero crear un caso", "quiero registrar un caso", "quiero abrir un expediente",
                 "quiero crear un expediente",
             ]
+            document_keywords = [
+                "carta de amonestacion", "carta de amonestación",
+                "carta amonestacion", "carta amonestación",
+                "amonestacion hacia", "amonestación hacia",
+                "amonestacion para", "amonestación para",
+                "amonestacion a ", "amonestación a ",
+                "generar amonestacion", "generar amonestación",
+                "redactar amonestacion", "redactar amonestación",
+                "medida de resguardo", "medidas de resguardo",
+                "resolución de apertura", "resolucion de apertura",
+                "notificación al denunciado", "notificacion al denunciado",
+                "notificación al denunciante", "notificacion al denunciante",
+                "acuse de recibo",
+            ]
+
+            # Detección de seguimiento: si el último mensaje del asistente pedía datos de documento,
+            # este mensaje es la respuesta del usuario → clasificar como documento directamente.
+            _is_doc_followup = False
+            if history:
+                last_ai = next(
+                    (m for m in reversed(history) if hasattr(m, "type") and m.type != "human"),
+                    None
+                )
+                if last_ai:
+                    last_content = (last_ai.content or "").lower()
+                    doc_request_signals = [
+                        "para redactar el documento",
+                        "necesito algunos datos",
+                        "nombre completo del trabajador",
+                        "descripción de la falta",
+                        "por favor indícame",
+                        "genero el documento de inmediato",
+                        "para generar la carta",
+                        "para redactar la carta",
+                        "para redactar la medida",
+                    ]
+                    if any(sig in last_content for sig in doc_request_signals):
+                        _is_doc_followup = True
+
             if any(kw in msg_lower for kw in workflow_keywords):
                 tool_type = "workflow"
                 logger.info("🎯 [TOOL_ORCH] Pre-classified as workflow (keyword match)")
+            elif _is_doc_followup or any(kw in msg_lower for kw in document_keywords):
+                tool_type = "documento"
+                logger.info("🎯 [TOOL_ORCH] Pre-classified as documento (keyword or follow-up match)")
             else:
                 tool_type = await self._classify_tool_type(message)
             logger.info(f"🎯 [TOOL_ORCH] Tool type detected: {tool_type}")
@@ -143,7 +201,7 @@ OPCIONES:
 - "email": Si pide redactar, enviar, escribir, elaborar, componer correo/email/mensaje
 - "calendar": Si pide agendar, citar, crear evento, programar reunión, calendarizar
 - "protocolo": Si pide el estado del protocolo, siguiente paso, completar un paso, plazos Ley Karin, avanzar protocolo
-- "documento": Si pide redactar/generar un documento legal (resolución de apertura, medida de resguardo, notificación al denunciado/denunciante, acuse de recibo)
+- "documento": Si pide redactar/generar un documento legal (carta de amonestación, medida de resguardo, resolución de apertura, notificación al denunciado/denunciante, acuse de recibo)
 - "workflow": Si pide crear un caso nuevo, registrar una denuncia, iniciar un expediente, o una combinación de crear caso Y activar protocolo Ley Karin
 - "unknown": Si no está claro o es otra cosa
 
@@ -454,6 +512,485 @@ Responde SOLO con: email, calendar, protocolo, documento, workflow, o unknown"""
             return f"Lo siento, tuve un error al preparar el evento: {str(e)}"
 
     
+    # ── TEMPLATE DOCUMENT HELPERS ─────────────────────────────────────────────
+
+    def _lookup_worker_by_name(self, nombre: str, colegio_id: str) -> Optional[Dict]:
+        """
+        Busca un colaborador en la colección students por coincidencia de nombre.
+        Intenta: 1) coincidencia exacta, 2) todos los tokens del nombre buscado presentes en el nombre completo.
+        Retorna dict con rut, cargo, area (curso), nombre_completo o None si no encuentra.
+        """
+        try:
+            import unicodedata
+            from app.services.student_service import StudentService
+
+            def norm(s: str) -> str:
+                s = s.lower().strip()
+                s = unicodedata.normalize("NFD", s)
+                return "".join(c for c in s if unicodedata.category(c) != "Mn")
+
+            svc = StudentService()
+            students = svc.get_students_by_colegio(colegio_id)
+            if not students:
+                return None
+
+            nombre_norm = norm(nombre)
+            tokens = nombre_norm.split()
+
+            match = None
+            for s in students:
+                full = norm(f"{s.nombres or ''} {s.apellidos or ''}")
+                if full == nombre_norm:
+                    match = s
+                    break
+
+            if not match:
+                for s in students:
+                    full = norm(f"{s.nombres or ''} {s.apellidos or ''}")
+                    if all(t in full for t in tokens):
+                        match = s
+                        break
+
+            if not match:
+                return None
+
+            return {
+                "nombre_completo": f"{match.nombres or ''} {match.apellidos or ''}".strip(),
+                "rut": match.rut or "",
+                "cargo": match.cargo or "",
+                "area": getattr(match, "curso", "") or "",
+            }
+        except Exception as e:
+            logger.error(f"❌ [TOOL_ORCH] Error looking up worker: {e}")
+            return None
+
+    async def _check_template_doc_fields(
+        self,
+        message: str,
+        history: List,
+        case_context: Optional[Dict],
+        colegio_id: Optional[str] = None,
+    ) -> Dict:
+        """
+        Extrae nombre del trabajador y descripción de la falta desde el mensaje/historial/caso.
+        Si se provee colegio_id y hay nombre, busca automáticamente al colaborador para enriquecer
+        con RUT, cargo y área desde la base de datos.
+        Retorna {'nombre': str|None, 'falta': str|None, 'cargo': str|None, 'fecha': str|None,
+                 'rut': str|None, 'area': str|None, 'worker_found': bool}
+        """
+        class TemplateFields(BaseModel):
+            nombre_trabajador: Optional[str] = Field(None, description="Nombre completo del trabajador a quien va dirigido el documento")
+            descripcion_falta: Optional[str] = Field(None, description="Descripción de la falta, infracción o situación que motiva el documento")
+            cargo: Optional[str] = Field(None, description="Cargo o puesto del trabajador")
+            fecha_falta: Optional[str] = Field(None, description="Fecha del incidente o falta")
+
+        context_parts = [f"Mensaje del usuario: {message}"]
+        if case_context:
+            involucrados = ", ".join(case_context.get("involucrados", []))
+            context_parts.append(f"Involucrados en el caso: {involucrados}")
+            context_parts.append(f"Descripción del caso: {case_context.get('descripcion', '')[:300]}")
+        if history:
+            for msg in history[-6:]:
+                role = "Usuario" if (hasattr(msg, "type") and msg.type == "human") else "Asistente"
+                content = msg.content if hasattr(msg, "content") else str(msg)
+                context_parts.append(f"{role}: {content[:200]}")
+
+        prompt = f"""Extrae los datos para redactar un documento formal laboral.
+
+CONTEXTO:
+{chr(10).join(context_parts)}
+
+INSTRUCCIONES:
+- nombre_trabajador: nombre propio de la persona que recibirá el documento (ej: "Jannik Sinner", "Juan Pérez"). NO dejes en null si aparece un nombre propio.
+- descripcion_falta: la conducta o situación que motiva el documento (ej: "uso incorrecto de los EPP", "llegadas tarde reiteradas"). NO dejes en null si se menciona una falta o motivo.
+- cargo: puesto laboral si se menciona explícitamente.
+- fecha_falta: fecha del incidente si se menciona.
+
+Extrae lo que esté disponible. Solo deja null si realmente no aparece la información."""
+
+        base = {"nombre": None, "falta": None, "cargo": None, "fecha": None,
+                "rut": None, "area": None, "worker_found": False}
+        try:
+            structured_llm = self.llm.with_structured_output(TemplateFields)
+            result = await structured_llm.ainvoke([HumanMessage(content=prompt)])
+            if result:
+                base["nombre"] = result.nombre_trabajador
+                base["falta"] = result.descripcion_falta
+                base["cargo"] = result.cargo
+                base["fecha"] = result.fecha_falta
+        except Exception as e:
+            logger.error(f"❌ [TOOL_ORCH] Error extracting template fields: {e}")
+
+        # Auto-buscar colaborador si tenemos nombre y colegio_id
+        if base["nombre"] and colegio_id:
+            worker = self._lookup_worker_by_name(base["nombre"], colegio_id)
+            if worker:
+                logger.info(f"👤 [TOOL_ORCH] Worker found: {worker['nombre_completo']}")
+                base["nombre"] = worker["nombre_completo"]
+                base["worker_found"] = True
+                if not base["cargo"] and worker.get("cargo"):
+                    base["cargo"] = worker["cargo"]
+                if not base["rut"]:
+                    base["rut"] = worker.get("rut") or None
+                if not base["area"]:
+                    base["area"] = worker.get("area") or None
+            else:
+                logger.info(f"⚠️ [TOOL_ORCH] Worker not found in DB for name: {base['nombre']}")
+
+        return base
+
+    async def _generate_docx_and_upload(
+        self,
+        content: str,
+        title: str,
+        doc_type: str,
+        colegio_id: str,
+    ) -> Optional[str]:
+        """
+        Genera un .docx con formato apropiado según el tipo de documento y lo sube al bucket.
+        """
+        try:
+            from docx import Document as DocxDocument
+            from docx.shared import Pt, Cm
+            import io
+            from datetime import datetime
+            from app.services.storage_service import storage_service
+
+            doc = DocxDocument()
+
+            for section in doc.sections:
+                section.page_width = Cm(21.0)
+                section.page_height = Cm(29.7)
+                section.left_margin = Cm(3.0)
+                section.right_margin = Cm(2.5)
+                section.top_margin = Cm(2.5)
+                section.bottom_margin = Cm(2.5)
+
+            doc.styles['Normal'].font.name = 'Arial'
+            doc.styles['Normal'].font.size = Pt(10)
+
+            if doc_type == 'carta_amonestacion':
+                self._write_carta_amonestacion(doc, content)
+            elif doc_type == 'medida_resguardo':
+                self._write_medida_resguardo(doc, content)
+            else:
+                self._write_generic_docx(doc, content)
+
+            buffer = io.BytesIO()
+            doc.save(buffer)
+            buffer.seek(0)
+
+            bucket_name = storage_service.get_school_bucket_name(colegio_id)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            blob_path = f"documentos/generados/{doc_type}_{timestamp}.docx"
+
+            bucket = storage_service.client.bucket(bucket_name)
+            blob = bucket.blob(blob_path)
+            blob.upload_from_string(
+                buffer.read(),
+                content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            )
+            url = storage_service.generate_download_signed_url(blob, expiration_minutes=120)
+            logger.info(f"📄 [TOOL_ORCH] DOCX uploaded: {blob_path}")
+            return url
+        except Exception as e:
+            logger.error(f"❌ [TOOL_ORCH] Error generating DOCX: {e}", exc_info=True)
+            return None
+
+    def _write_carta_amonestacion(self, doc, content: str) -> None:
+        """
+        Replica el formato de la carta de amonestación:
+        - Encabezado empresa small right-aligned
+        - N° documento y fecha right-aligned
+        - "Señor/a" → nombre en negrita → cargo → "Presente" subrayado
+        - REF.: centrado bold
+        - Cuerpo justificado con sangría primera línea
+        - Secciones ALL-CAPS en bold+italic
+        - ARTÍCULO N° bold+underline
+        - Bloque de firmas con espacio
+        """
+        import re
+        from docx.shared import Pt, Cm
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+
+        def add(text='', bold=False, italic=False, underline=False,
+                align=WD_ALIGN_PARAGRAPH.LEFT, size=10,
+                space_before=0, space_after=6, first_indent=None):
+            para = doc.add_paragraph()
+            para.alignment = align
+            para.paragraph_format.space_before = Pt(space_before)
+            para.paragraph_format.space_after = Pt(space_after)
+            if first_indent is not None:
+                para.paragraph_format.first_line_indent = Cm(first_indent)
+            if text.strip():
+                run = para.add_run(text)
+                run.bold = bold
+                run.italic = italic
+                run.underline = underline
+                run.font.size = Pt(size)
+            return para
+
+        last_was_senor = False
+
+        for line in content.split('\n'):
+            s = line.strip()
+
+            if not s:
+                add(space_after=0)
+                last_was_senor = False
+                continue
+
+            # Encabezado empresa (pequeño, right)
+            company_kws = ['Corporación Nacional', 'División Chuquicamata',
+                           '11 Norte', 'www.codelco', 'II Región', 'Calama\n',
+                           'II Región, Chile']
+            if any(kw in s for kw in company_kws) and len(s) < 60:
+                add(s, bold=('Corporación' in s), size=8,
+                    align=WD_ALIGN_PARAGRAPH.RIGHT, space_after=1)
+                last_was_senor = False
+                continue
+
+            # Número de documento (G… N°.../YYYY)
+            if re.match(r'^G[\.…]', s) or (re.search(r'N°[\w]+/\d{4}', s) and len(s) < 35):
+                add(s, align=WD_ALIGN_PARAGRAPH.RIGHT, space_before=8, space_after=4)
+                last_was_senor = False
+                continue
+
+            # Fecha right-aligned
+            if re.match(r'^[\w]+,\s+\w+\s+de\s+\w+\s+de\s+\d{4}', s) and len(s) < 55:
+                add(s, align=WD_ALIGN_PARAGRAPH.RIGHT, space_after=12)
+                last_was_senor = False
+                continue
+
+            # "Señor/a" designación destinatario
+            if re.match(r'^Señor[ae]?s?$', s):
+                add(s, space_after=1)
+                last_was_senor = True
+                continue
+
+            # Nombre destinatario (línea siguiente a "Señor/a") → bold
+            if last_was_senor:
+                add(s, bold=True, space_after=2)
+                last_was_senor = False
+                continue
+
+            # RUT
+            if s.startswith('RUT') or re.match(r'^RUT\s*N°', s):
+                add(s, space_after=1)
+                last_was_senor = False
+                continue
+
+            # "Presente" subrayado
+            if re.match(r'^Presente\.?$', s):
+                add(s, underline=True, space_after=12)
+                last_was_senor = False
+                continue
+
+            # REF.: centrado bold
+            if s.startswith('REF.:') or s.startswith('Ref.:'):
+                add(s, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER,
+                    space_before=8, space_after=12)
+                last_was_senor = False
+                continue
+
+            # Salutación cuerpo "Señor Apellido:"
+            if re.match(r'^Señor[a]?\s+\w+:$', s):
+                add(s, space_before=4, space_after=8)
+                last_was_senor = False
+                continue
+
+            # ARTÍCULO N° → bold + underline
+            if re.match(r'^ARTÍCULO\s+\d+', s, re.IGNORECASE):
+                add(s, bold=True, underline=True, space_before=8, space_after=4)
+                last_was_senor = False
+                continue
+
+            # ALL-CAPS ≥ 3 palabras → sección bold+italic
+            if s.isupper() and len(s.split()) >= 3 and len(s) > 15:
+                add(s, bold=True, italic=True, space_before=8, space_after=4)
+                last_was_senor = False
+                continue
+
+            # Líneas de firma (guiones/underscores)
+            if s.startswith('___') or '____________' in s:
+                add(s, space_before=24, space_after=2)
+                last_was_senor = False
+                continue
+
+            # "Atentamente"
+            if s.startswith('Atentamente'):
+                add(s, space_before=16, space_after=32)
+                last_was_senor = False
+                continue
+
+            # Bloque CC
+            if s.startswith('C.C') or s.startswith('C.c'):
+                add(s, italic=True, size=9, space_after=2)
+                last_was_senor = False
+                continue
+
+            # Testigos
+            if 'Testigo' in s:
+                add(s, align=WD_ALIGN_PARAGRAPH.CENTER, space_after=2)
+                last_was_senor = False
+                continue
+
+            # Párrafo cuerpo → justificado + sangría primera línea
+            add(s, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=8, first_indent=1.25)
+            last_was_senor = False
+
+    def _write_medida_resguardo(self, doc, content: str) -> None:
+        """
+        Replica el formato de la medida de resguardo:
+        - Fecha right-aligned al inicio
+        - Destinatario nombre bold + RUT bold + Presente subrayado
+        - Ref.: bold + subrayado + centrado
+        - Cuerpo justificado
+        - Secciones numeradas "N. LABEL:" con label bold+subrayado
+        - Sub-ítems "A. Label:" con label subrayado
+        - Bloque de firma centrado
+        """
+        import re
+        from docx.shared import Pt, Cm
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+
+        def add(text='', bold=False, italic=False, underline=False,
+                align=WD_ALIGN_PARAGRAPH.LEFT, size=10,
+                space_before=0, space_after=6, left_indent=None):
+            para = doc.add_paragraph()
+            para.alignment = align
+            para.paragraph_format.space_before = Pt(space_before)
+            para.paragraph_format.space_after = Pt(space_after)
+            if left_indent is not None:
+                para.paragraph_format.left_indent = Cm(left_indent)
+            if text.strip():
+                run = para.add_run(text)
+                run.bold = bold
+                run.italic = italic
+                run.underline = underline
+                run.font.size = Pt(size)
+            return para
+
+        date_done = False
+        recipient_done = False
+
+        for line in content.split('\n'):
+            s = line.strip()
+
+            if not s:
+                add(space_after=0)
+                continue
+
+            # Primera fecha → right-aligned
+            if not date_done and re.search(r'\d{1,2}\s+de\s+\w+\s+de\s+\d{4}', s):
+                add(s, align=WD_ALIGN_PARAGRAPH.RIGHT, space_after=16)
+                date_done = True
+                continue
+
+            # RUT → bold (también marca el destinatario como hecho)
+            if s.startswith('RUT') or re.match(r'^RUT\s*N°', s):
+                add(s, bold=True, space_after=2)
+                recipient_done = True
+                continue
+
+            # "Presente" subrayado
+            if re.match(r'^Presente\.?$', s):
+                add(s, underline=True, space_after=16)
+                continue
+
+            # Ref.: bold + subrayado + centrado
+            if s.startswith('Ref.:') or s.startswith('REF.:'):
+                add(s, bold=True, underline=True,
+                    align=WD_ALIGN_PARAGRAPH.CENTER,
+                    space_before=8, space_after=16)
+                continue
+
+            # Nombre destinatario: primera línea de texto antes del RUT (sin fecha, sin Ref)
+            if date_done and not recipient_done and not s.startswith('RUT'):
+                add(s, bold=True, space_after=2)
+                continue
+
+            # Secciones numeradas "1. LABEL:" → número normal + label bold+subrayado
+            m = re.match(r'^(\d+)\.\s+([^a-záéíóúñü][^:]{2,}:)', s)
+            if m:
+                para = doc.add_paragraph()
+                para.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+                para.paragraph_format.space_before = Pt(8)
+                para.paragraph_format.space_after = Pt(6)
+                para.add_run(m.group(1) + '. ').font.size = Pt(10)
+                lbl = para.add_run(m.group(2))
+                lbl.bold = True
+                lbl.underline = True
+                lbl.font.size = Pt(10)
+                rest = s[m.end():]
+                if rest:
+                    para.add_run(rest).font.size = Pt(10)
+                continue
+
+            # Sub-ítems "A. Label:" → label subrayado, indent
+            m = re.match(r'^([A-Z])\.\s+([^:]+:)', s)
+            if m:
+                para = doc.add_paragraph()
+                para.paragraph_format.left_indent = Cm(1.0)
+                para.paragraph_format.space_after = Pt(6)
+                para.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+                para.add_run(m.group(1) + '. ').font.size = Pt(10)
+                lbl = para.add_run(m.group(2))
+                lbl.underline = True
+                lbl.font.size = Pt(10)
+                rest = s[m.end():]
+                if rest:
+                    para.add_run(rest).font.size = Pt(10)
+                continue
+
+            # Línea de firma
+            if s.startswith('___') or '____________' in s:
+                add(s, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=24, space_after=4)
+                continue
+
+            # Nombre firmante (después de firma) → centrado bold
+            if re.match(r'^[A-ZÁÉÍÓÚÑÜ][a-záéíóúñü]+\s+[A-ZÁÉÍÓÚÑÜ][a-záéíóúñü]+', s) and \
+               len(s.split()) <= 5 and ',' not in s and not s.endswith(':'):
+                after_underscore = any('___' in l for l in content.split('\n')[:content.split('\n').index(line)])
+                if after_underscore:
+                    add(s, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_after=2)
+                    continue
+
+            # Títulos del firmante (Encargado de..., Investigador)
+            if 'Encargado' in s or 'Investigador' in s or 'Investigadora' in s:
+                add(s, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_after=2)
+                continue
+
+            # Cierre ("Sin otra información", "Se despide")
+            if s.startswith('Sin otra') or s.startswith('Se despide'):
+                add(s, space_before=12, space_after=4)
+                continue
+
+            # Cuerpo default → justificado
+            add(s, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=8)
+
+    def _write_generic_docx(self, doc, content: str) -> None:
+        """Formateador genérico para otros tipos de documento."""
+        import re
+        from docx.shared import Pt
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+
+        for line in content.split('\n'):
+            s = line.strip()
+            if not s:
+                doc.add_paragraph()
+                continue
+            if re.match(r'^[A-ZÁÉÍÓÚÑÜ\s]{4,}:', s):
+                p = doc.add_paragraph()
+                run = p.add_run(s)
+                run.bold = True
+            else:
+                p = doc.add_paragraph(s)
+                p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+                p.paragraph_format.space_after = Pt(6)
+
+    # ── DOCUMENT DRAFT ─────────────────────────────────────────────────────────
+
     async def _execute_document_draft(
         self,
         message: str,
@@ -465,7 +1002,7 @@ Responde SOLO con: email, calendar, protocolo, documento, workflow, o unknown"""
     ) -> str:
         """
         Genera un documento legal formal (resolución, medida de resguardo, notificación).
-        Detecta el tipo de documento desde el mensaje y lo redacta usando el contexto del caso.
+        Para documentos con plantilla (amonestación, resguardo): solicita datos faltantes antes de generar.
         """
         logger.info(f"📄 [TOOL_ORCH] Executing document draft request")
 
@@ -477,13 +1014,37 @@ Responde SOLO con: email, calendar, protocolo, documento, workflow, o unknown"""
             msg_lower = message.lower()
             doc_type = self._detect_document_type(msg_lower)
 
-            # 2. Generar el contenido del documento con LLM
-            content = await self._generate_document_content(
-                doc_type, message, user_context, case_context, school_name, history, riohs_summary
-            )
+            # 2. Para documentos con plantilla: verificar datos antes de generar
+            TEMPLATE_DOC_TYPES = {"carta_amonestacion", "medida_resguardo"}
+            colegio_id = user_context.get("colegio_id")
+            template_fields: Dict = {}
+            if doc_type in TEMPLATE_DOC_TYPES:
+                fields = await self._check_template_doc_fields(message, history, case_context, colegio_id=colegio_id)
+                template_fields = fields
+                logger.info(f"📋 [TOOL_ORCH] Template fields extracted: {fields}")
+
+                missing = []
+                if not fields.get("nombre"):
+                    missing.append("**nombre completo del trabajador**")
+                if not fields.get("falta"):
+                    missing.append("**descripción de la falta o situación**")
+
+                if missing:
+                    extra = ""
+                    if not fields.get("cargo") and not fields.get("worker_found"):
+                        extra += "\n- Cargo o puesto del trabajador (opcional, para mayor precisión)"
+                    if not fields.get("fecha"):
+                        extra += "\n- Fecha del incidente (opcional)"
+                    return (
+                        f"Para redactar el documento necesito algunos datos:\n\n"
+                        f"- {chr(10)+'- '.join(missing[0:])}\n"
+                        f"{extra}\n\n"
+                        f"Por favor indícame esta información y genero el documento de inmediato."
+                    )
 
             # 3. Construir JSON document_draft
             doc_titles = {
+                "carta_amonestacion":       "Carta de Amonestación",
                 "resolucion_apertura":      "Resolución de Apertura de Investigación Ley Karin",
                 "medida_resguardo":         "Resolución de Medida de Resguardo",
                 "notificacion_denunciado":  "Notificación al Denunciado",
@@ -491,6 +1052,32 @@ Responde SOLO con: email, calendar, protocolo, documento, workflow, o unknown"""
                 "acuse_recibo":             "Acuse de Recibo de Denuncia",
                 "otro":                     "Documento Legal",
             }
+
+            # Plantillas oficiales: búsqueda por palabras clave (tolerante a espacios/tildes/mayúsculas)
+            TEMPLATE_KEYWORDS = {
+                "carta_amonestacion": ["amonestacion"],
+                "medida_resguardo":   ["resguardo"],
+            }
+            template_content = None
+            if doc_type in TEMPLATE_KEYWORDS and colegio_id:
+                template_content = self._read_school_template(colegio_id, TEMPLATE_KEYWORDS[doc_type])
+
+            # 2. Generar el contenido del documento con LLM
+            content = await self._generate_document_content(
+                doc_type, message, user_context, case_context, school_name, history, riohs_summary,
+                template_content=template_content,
+                worker_fields=template_fields if template_fields else None,
+            )
+
+            # Generar Word y subirlo al bucket (solo para docs con plantilla o si hay colegio_id)
+            download_url = None
+            if colegio_id and content and content not in ("No se pudo generar el documento.", "Error al generar el documento con plantilla."):
+                download_url = await self._generate_docx_and_upload(
+                    content=content,
+                    title=doc_titles.get(doc_type, "Documento Legal"),
+                    doc_type=doc_type,
+                    colegio_id=colegio_id,
+                )
 
             draft_data = {
                 "type": "document_draft",
@@ -500,9 +1087,11 @@ Responde SOLO con: email, calendar, protocolo, documento, workflow, o unknown"""
                 "date": datetime.now().strftime("%d de %B de %Y"),
                 "school_name": school_name,
             }
+            if download_url:
+                draft_data["download_url"] = download_url
 
             draft_json = json.dumps(draft_data, ensure_ascii=False)
-            logger.info(f"✅ [TOOL_ORCH] Document draft created: type={doc_type}")
+            logger.info(f"✅ [TOOL_ORCH] Document draft created: type={doc_type}, has_word={download_url is not None}")
 
             return f"He redactado el siguiente documento. Revísalo antes de usarlo:\n\n```json\n{draft_json}\n```"
 
@@ -512,6 +1101,8 @@ Responde SOLO con: email, calendar, protocolo, documento, workflow, o unknown"""
 
     def _detect_document_type(self, msg_lower: str) -> str:
         """Detecta el tipo de documento a generar desde el mensaje del usuario."""
+        if any(w in msg_lower for w in ["amonestación", "amonestacion", "carta de amonestación", "carta de amonestacion"]):
+            return "carta_amonestacion"
         if any(w in msg_lower for w in ["medida de resguardo", "medidas de resguardo"]):
             return "medida_resguardo"
         if any(w in msg_lower for w in ["notif", "carta"]) and any(w in msg_lower for w in ["denunciado", "imputado", "investigado"]):
@@ -524,6 +1115,54 @@ Responde SOLO con: email, calendar, protocolo, documento, workflow, o unknown"""
             return "resolucion_apertura"
         return "otro"
 
+    def _read_school_template(self, colegio_id: str, keywords: list) -> Optional[str]:
+        """
+        Busca una plantilla en el bucket del colegio por palabras clave en el nombre del archivo.
+        Soporta cualquier combinación de espacios/guiones/mayúsculas en el nombre real del archivo.
+        Devuelve el contenido como texto, o None si no se encuentra.
+
+        Args:
+            colegio_id: ID del colegio
+            keywords: Lista de palabras clave que deben aparecer en el nombre del archivo
+                      (ej: ["amonestacion"] o ["resguardo"])
+        """
+        try:
+            from app.services.storage_service import storage_service
+            bucket_name = storage_service.get_school_bucket_name(colegio_id)
+
+            # Listar todos los documentos disponibles en el bucket
+            documents = storage_service.list_school_documents(bucket_name)
+            if not documents:
+                logger.warning(f"⚠️ [TOOL_ORCH] No documents found in bucket: {bucket_name}")
+                return None
+
+            # Normalizar: minúsculas, sin tildes, sin guiones/guiones bajos → solo texto
+            import unicodedata
+            def normalize(s: str) -> str:
+                s = s.lower()
+                s = unicodedata.normalize("NFD", s)
+                s = "".join(c for c in s if unicodedata.category(c) != "Mn")
+                return s
+
+            norm_keywords = [normalize(kw) for kw in keywords]
+
+            # Buscar el primer archivo cuyo nombre normalizado contenga todas las keywords
+            for doc in documents:
+                fname_norm = normalize(doc["filename"])
+                if all(kw in fname_norm for kw in norm_keywords):
+                    content = storage_service.read_school_document_content(bucket_name, doc["filename"])
+                    if content and content.strip() and not content.startswith("Error"):
+                        logger.info(f"📂 [TOOL_ORCH] Template found: {doc['filename']} in {bucket_name}")
+                        return content
+                    break
+
+            logger.warning(f"⚠️ [TOOL_ORCH] Template not found for keywords {keywords} in {bucket_name}")
+            logger.warning(f"   Available docs: {[d['filename'] for d in documents]}")
+            return None
+        except Exception as e:
+            logger.error(f"❌ [TOOL_ORCH] Error reading template (keywords={keywords}): {e}")
+            return None
+
     async def _generate_document_content(
         self,
         doc_type: str,
@@ -532,7 +1171,9 @@ Responde SOLO con: email, calendar, protocolo, documento, workflow, o unknown"""
         case_context: Optional[Dict],
         school_name: str,
         history: List,
-        riohs_summary: Optional[str] = None
+        riohs_summary: Optional[str] = None,
+        template_content: Optional[str] = None,
+        worker_fields: Optional[Dict] = None,
     ) -> str:
         """Genera el texto completo del documento legal usando LLM."""
 
@@ -543,6 +1184,16 @@ Responde SOLO con: email, calendar, protocolo, documento, workflow, o unknown"""
         today = datetime.now().strftime("%d de %B de %Y")
 
         doc_instructions = {
+            "carta_amonestacion": """Redacta una CARTA DE AMONESTACIÓN formal.
+Debe incluir:
+- Encabezado formal con nombre de empresa, ciudad y fecha
+- Datos del trabajador (nombre, cargo, área)
+- Descripción clara y objetiva de la falta cometida
+- Base normativa que sustenta la amonestación (RIOHS, Código del Trabajo)
+- Indicación de las consecuencias en caso de reincidencia
+- Firma del representante legal o jefe directo
+IMPORTANTE: Lenguaje formal, objetivo y respetuoso. No usar lenguaje ofensivo.""",
+
             "resolucion_apertura": """Redacta una RESOLUCIÓN DE APERTURA DE INVESTIGACIÓN bajo Ley Karin (Ley 21.643).
 Debe incluir:
 - Encabezado formal con nombre de empresa, ciudad y fecha
@@ -602,6 +1253,22 @@ Mantén lenguaje formal e institucional.""",
                 f"FIRMANTE: {user_context.get('nombre', '')} — {user_context.get('rol', '')}"
             )
 
+        # Datos del trabajador auto-enriquecidos desde la base de colaboradores
+        if worker_fields and worker_fields.get("nombre"):
+            worker_info = [f"DATOS DEL TRABAJADOR (verificados en el sistema):"]
+            worker_info.append(f"- Nombre: {worker_fields['nombre']}")
+            if worker_fields.get("rut"):
+                worker_info.append(f"- RUT: {worker_fields['rut']}")
+            if worker_fields.get("cargo"):
+                worker_info.append(f"- Cargo: {worker_fields['cargo']}")
+            if worker_fields.get("area"):
+                worker_info.append(f"- Área: {worker_fields['area']}")
+            if worker_fields.get("falta"):
+                worker_info.append(f"- Descripción de la falta: {worker_fields['falta']}")
+            if worker_fields.get("fecha"):
+                worker_info.append(f"- Fecha del incidente: {worker_fields['fecha']}")
+            context_parts.append("\n".join(worker_info))
+
         if riohs_summary:
             context_parts.append(f"REGLAMENTO INTERNO DE LA EMPRESA:\n{riohs_summary}")
 
@@ -624,9 +1291,45 @@ Mantén lenguaje formal e institucional.""",
             context_parts.append("CONVERSACIÓN PREVIA:\n" + "\n".join(history_lines))
 
         context_str = "\n\n".join(context_parts)
-        instructions = doc_instructions.get(doc_type, doc_instructions["otro"])
 
-        prompt = f"""{instructions}
+        # Si hay plantilla oficial del colegio, usarla como base
+        if template_content:
+            prompt = f"""Tienes la plantilla oficial de la empresa para este documento.
+Tu tarea es completarla y personalizarla con los datos del caso, sin alterar su estructura ni redacción original.
+
+PLANTILLA OFICIAL:
+{template_content}
+
+CONTEXTO DISPONIBLE:
+{context_str}
+
+SOLICITUD DEL USUARIO: "{message}"
+
+INSTRUCCIONES:
+- Completa TODOS los campos variables de la plantilla con los datos reales del caso
+- Mantén la estructura, párrafos y redacción original de la plantilla
+- Reemplaza solo los datos que varían: nombre, RUT, cargo, fecha, descripción de la falta, artículos aplicables
+- Si un dato no está disponible, déjalo como "COMPLETAR" en vez de inventarlo
+- NO uses markdown: sin asteriscos, sin guiones bajos, sin ##
+- El resultado debe ser el texto completo del documento listo para usar
+
+Genera el documento completo personalizado:"""
+
+            try:
+                logger.info(f"📄 [TOOL_ORCH] Generating document with template using doc_llm")
+                result = await self.doc_llm.ainvoke([HumanMessage(content=prompt)])
+                text = result.content if hasattr(result, "content") else str(result)
+                if text and text.strip():
+                    logger.info(f"✅ [TOOL_ORCH] Template-based document generated ({len(text)} chars)")
+                    return text.strip()
+                logger.warning("⚠️ [TOOL_ORCH] Empty response from doc_llm with template")
+                return "No se pudo generar el documento."
+            except Exception as e:
+                logger.error(f"❌ [TOOL_ORCH] Error generating template document: {e}", exc_info=True)
+                return "Error al generar el documento con plantilla."
+        else:
+            instructions = doc_instructions.get(doc_type, doc_instructions["otro"])
+            prompt = f"""{instructions}
 
 CONTEXTO DISPONIBLE:
 {context_str}
@@ -640,28 +1343,25 @@ REGLAS GENERALES:
 - Incluir referencias a la Ley 21.643 (Ley Karin) y el Código del Trabajo
 - El documento debe ser completo y listo para usar (solo faltaría firmar)
 
-FORMATO OBLIGATORIO — TEXTO PLANO (MUY IMPORTANTE):
+FORMATO OBLIGATORIO — TEXTO PLANO:
 - NO uses asteriscos (**), guiones bajos (__), ni ningún símbolo de markdown
 - Los títulos y secciones van en MAYÚSCULAS seguidos de dos puntos y salto de línea
 - Para listas usa números (1., 2., 3.) o guiones simples (-)
 - Separa las secciones con una línea en blanco
-- Ejemplo correcto:   VISTOS:
-                      Con fecha...
-- Ejemplo INCORRECTO: **VISTOS:**
 
 Genera el texto completo del documento:"""
 
-        try:
-            structured_llm = self.llm.with_structured_output(DocumentContent)
-            result = await structured_llm.ainvoke([HumanMessage(content=prompt)])
-            logger.info(f"📄 [TOOL_ORCH] Document content result: {result}")
-            if result and result.document_text:
-                return result.document_text
-            logger.warning(f"⚠️ [TOOL_ORCH] Empty document result: {result}")
-            return "No se pudo generar el documento."
-        except Exception as e:
-            logger.error(f"❌ [TOOL_ORCH] Error generating document content: {e}", exc_info=True)
-            return "Error al generar el contenido del documento."
+            try:
+                structured_llm = self.doc_llm.with_structured_output(DocumentContent)
+                result = await structured_llm.ainvoke([HumanMessage(content=prompt)])
+                logger.info(f"📄 [TOOL_ORCH] Document content result: {result}")
+                if result and result.document_text:
+                    return result.document_text
+                logger.warning(f"⚠️ [TOOL_ORCH] Empty document result: {result}")
+                return "No se pudo generar el documento."
+            except Exception as e:
+                logger.error(f"❌ [TOOL_ORCH] Error generating document content: {e}", exc_info=True)
+                return "Error al generar el contenido del documento."
 
     async def _execute_protocol_guide(self, message: str, case_id: Optional[str], session_id: Optional[str] = None) -> str:
         """

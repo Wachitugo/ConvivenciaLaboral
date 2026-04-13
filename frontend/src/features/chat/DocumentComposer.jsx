@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { FileText, Copy, Check, X, AlertCircle } from 'lucide-react';
+import { FileText, Copy, Check, X, AlertCircle, Download } from 'lucide-react';
 
 const DOCUMENT_TYPE_LABELS = {
-    resolucion_apertura:      'Resolución de Apertura',
+    carta_amonestacion:       'Carta de Amonestación',
     medida_resguardo:         'Medida de Resguardo',
+    resolucion_apertura:      'Resolución de Apertura',
     notificacion_denunciado:  'Notificación al Denunciado',
     notificacion_denunciante: 'Notificación al Denunciante',
     acuse_recibo:             'Acuse de Recibo',
@@ -11,8 +12,9 @@ const DOCUMENT_TYPE_LABELS = {
 };
 
 const DOCUMENT_TYPE_COLORS = {
-    resolucion_apertura:      'text-blue-300 bg-blue-500/10 border-blue-500/30',
+    carta_amonestacion:       'text-red-300 bg-red-500/10 border-red-500/30',
     medida_resguardo:         'text-amber-300 bg-amber-500/10 border-amber-500/30',
+    resolucion_apertura:      'text-blue-300 bg-blue-500/10 border-blue-500/30',
     notificacion_denunciado:  'text-orange-300 bg-orange-500/10 border-orange-500/30',
     notificacion_denunciante: 'text-emerald-300 bg-emerald-500/10 border-emerald-500/30',
     acuse_recibo:             'text-purple-300 bg-purple-500/10 border-purple-500/30',
@@ -69,7 +71,7 @@ export default function DocumentComposer({ draft, onDismiss }) {
 
     if (!draft) return null;
 
-    const { title, document_type, content, date, school_name } = draft;
+    const { title, document_type, content, date, school_name, download_url } = draft;
     const typeLabel = DOCUMENT_TYPE_LABELS[document_type] || 'Documento Legal';
     const typeColor = DOCUMENT_TYPE_COLORS[document_type] || DOCUMENT_TYPE_COLORS.otro;
 
@@ -133,16 +135,29 @@ export default function DocumentComposer({ draft, onDismiss }) {
                     <AlertCircle size={11} />
                     <p className="text-[10px]">Revisa y ajusta antes de usar. No reemplaza asesoría legal.</p>
                 </div>
-                <button
-                    onClick={handleCopy}
-                    className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                        copied
-                            ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-400'
-                            : 'bg-[#1A71B8] hover:bg-[#155d96] text-white'
-                    }`}
-                >
-                    {copied ? <><Check size={12} /> Copiado</> : <><Copy size={12} /> Copiar texto</>}
-                </button>
+                <div className="flex items-center gap-2">
+                    {download_url && (
+                        <a
+                            href={download_url}
+                            download
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all"
+                        >
+                            <Download size={12} /> Descargar Word
+                        </a>
+                    )}
+                    <button
+                        onClick={handleCopy}
+                        className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                            copied
+                                ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-400'
+                                : 'bg-[#1A71B8] hover:bg-[#155d96] text-white'
+                        }`}
+                    >
+                        {copied ? <><Check size={12} /> Copiado</> : <><Copy size={12} /> Copiar texto</>}
+                    </button>
+                </div>
             </div>
         </div>
     );

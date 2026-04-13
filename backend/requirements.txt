@@ -21,3 +21,4 @@ langgraph>=0.2.0
 google-api-python-client
 pypdf
 reportlab
+python-docx

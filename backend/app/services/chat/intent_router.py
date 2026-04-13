@@ -133,11 +133,19 @@ class IntentRouter:
                 "resolución de apertura", "resolución que activa",
                 "redactar medida de resguardo", "generar medida de resguardo",
                 "elaborar medida de resguardo", "crear medida de resguardo",
+                "medida de resguardo", "medidas de resguardo",
                 "notificar al denunciado", "notificación al denunciado",
                 "notificar al denunciante", "acuse de recibo",
                 "carta de notificación", "carta al denunciado",
                 "redactar documento", "generar documento",
                 "resolución karin",
+                "carta de amonestacion", "carta de amonestación",
+                "carta amonestacion", "carta amonestación",
+                "generar amonestacion", "generar amonestación",
+                "redactar amonestacion", "redactar amonestación",
+                "amonestacion hacia", "amonestación hacia",
+                "amonestacion para", "amonestación para",
+                "amonestacion a ", "amonestación a ",
             ]
             if any(phrase in message_lower for phrase in document_phrases):
                 logger.info("🎯 [INTENT] Fast-path: TOOL_REQUIRED (document drafting request)")
@@ -146,6 +154,38 @@ class IntentRouter:
                     "confidence": 0.96,
                     "reasoning": "Document drafting request detected"
                 }
+
+            # ════════════════════════════════════════════════════════════════════
+            # FAST-PATH #2.3b: Follow-up providing data for document generation
+            # If last assistant message was asking for document fields, current
+            # message is the user supplying that info → keep in TOOL_REQUIRED
+            # ════════════════════════════════════════════════════════════════════
+            if history and len(history) >= 2:
+                last_assistant_msgs = [
+                    m for m in reversed(history)
+                    if hasattr(m, 'type') and m.type != "human"
+                ]
+                if last_assistant_msgs:
+                    last_content = (last_assistant_msgs[0].content or "").lower()
+                    doc_followup_signals = [
+                        "para redactar el documento",
+                        "necesito algunos datos",
+                        "nombre completo del trabajador",
+                        "descripción de la falta",
+                        "por favor indícame",
+                        "genero el documento de inmediato",
+                        "para generar la carta",
+                        "para redactar la carta",
+                        "para redactar la medida",
+                        "para generar la medida",
+                    ]
+                    if any(sig in last_content for sig in doc_followup_signals):
+                        logger.info("🎯 [INTENT] Fast-path: TOOL_REQUIRED (document follow-up data)")
+                        return {
+                            "intent": self.TOOL_REQUIRED,
+                            "confidence": 0.95,
+                            "reasoning": "User providing data for pending document generation"
+                        }
 
             # ════════════════════════════════════════════════════════════════════
             # FAST-PATH #2.3: Protocol guide queries → TOOL_REQUIRED
