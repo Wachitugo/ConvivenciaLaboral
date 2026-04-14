@@ -21,46 +21,77 @@ const DOCUMENT_TYPE_COLORS = {
     otro:                     'text-white/60 bg-white/5 border-white/20',
 };
 
-/** Convierte texto plano con convenciones formales a JSX con formato visual */
+/**
+ * Parsea markup inline: ***bold+underline***, **bold**, __underline__
+ * Devuelve array de { text, bold, underline }
+ */
+function parseInlineMarkup(text) {
+    const pattern = /\*\*\*(.+?)\*\*\*|\*\*(.+?)\*\*|__(.+?)__/g;
+    const parts = [];
+    let last = 0;
+    let m;
+    while ((m = pattern.exec(text)) !== null) {
+        if (m.index > last) parts.push({ text: text.slice(last, m.index), bold: false, underline: false });
+        if (m[1]) parts.push({ text: m[1], bold: true,  underline: true  });
+        else if (m[2]) parts.push({ text: m[2], bold: true,  underline: false });
+        else if (m[3]) parts.push({ text: m[3], bold: false, underline: true  });
+        last = m.index + m[0].length;
+    }
+    if (last < text.length) parts.push({ text: text.slice(last), bold: false, underline: false });
+    return parts.length ? parts : [{ text, bold: false, underline: false }];
+}
+
+function InlineText({ text }) {
+    const parts = parseInlineMarkup(text);
+    return (
+        <>
+            {parts.map((p, i) => (
+                <span
+                    key={i}
+                    style={{
+                        fontWeight:      p.bold      ? '700' : undefined,
+                        textDecoration:  p.underline ? 'underline' : undefined,
+                    }}
+                >
+                    {p.text}
+                </span>
+            ))}
+        </>
+    );
+}
+
+/** Convierte texto con marcadores de formato a JSX con formato visual */
 function renderDocumentContent(text) {
     if (!text) return null;
 
-    // Eliminar markdown residual (por si el LLM lo genera igual)
-    const clean = text
-        .replace(/\*\*(.+?)\*\*/g, '$1')
-        .replace(/\*(.+?)\*/g, '$1')
-        .replace(/__(.+?)__/g, '$1');
+    return text.split('\n').map((line, i) => {
+        // Línea vacía → separador
+        if (!line.trim()) return <div key={i} className="h-2" />;
 
-    return clean.split('\n').map((line, i) => {
+        // >> texto → alineado a la derecha (encabezado, fecha, N° doc)
+        if (line.startsWith('>> ')) {
+            return (
+                <p key={i} className="text-white/70 text-xs leading-relaxed text-right">
+                    <InlineText text={line.slice(3)} />
+                </p>
+            );
+        }
+
+        // == texto → centrado (REF.:, títulos)
+        if (line.startsWith('== ')) {
+            return (
+                <p key={i} className="text-white/90 text-sm leading-relaxed text-center my-1">
+                    <InlineText text={line.slice(3)} />
+                </p>
+            );
+        }
+
         const trimmed = line.trim();
 
-        // Línea vacía → separador
-        if (!trimmed) return <div key={i} className="h-3" />;
-
-        // Título en MAYÚSCULAS seguido de dos puntos → sección destacada
-        const isSectionHeader = /^[A-ZÁÉÍÓÚÑÜ\s]{3,}:/.test(trimmed);
-        if (isSectionHeader) {
-            return (
-                <p key={i} className="text-[#34B6D8] text-xs font-black uppercase tracking-widest mt-4 mb-1">
-                    {trimmed}
-                </p>
-            );
-        }
-
-        // Línea que empieza con número o guion → item de lista
-        const isListItem = /^(\d+\.|-)/.test(trimmed);
-        if (isListItem) {
-            return (
-                <p key={i} className="text-white/80 text-sm leading-relaxed pl-4">
-                    {trimmed}
-                </p>
-            );
-        }
-
-        // Párrafo normal
+        // Párrafo normal con markup inline
         return (
-            <p key={i} className="text-white/85 text-sm leading-relaxed">
-                {trimmed}
+            <p key={i} className="text-white/85 text-sm leading-relaxed text-justify">
+                <InlineText text={trimmed} />
             </p>
         );
     });

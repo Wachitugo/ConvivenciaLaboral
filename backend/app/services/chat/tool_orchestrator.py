@@ -669,10 +669,11 @@ Extrae lo que esté disponible. Solo deja null si realmente no aparece la inform
             doc.styles['Normal'].font.name = 'Arial'
             doc.styles['Normal'].font.size = Pt(10)
 
-            if doc_type == 'carta_amonestacion':
-                self._write_carta_amonestacion(doc, content)
-            elif doc_type == 'medida_resguardo':
-                self._write_medida_resguardo(doc, content)
+            # Documentos con plantilla usan el writer de marcadores;
+            # el resto usa el writer genérico
+            TEMPLATE_DOC_TYPES_WORD = {'carta_amonestacion', 'medida_resguardo'}
+            if doc_type in TEMPLATE_DOC_TYPES_WORD:
+                self._write_document_from_markers(doc, content)
             else:
                 self._write_generic_docx(doc, content)
 
@@ -697,277 +698,94 @@ Extrae lo que esté disponible. Solo deja null si realmente no aparece la inform
             logger.error(f"❌ [TOOL_ORCH] Error generating DOCX: {e}", exc_info=True)
             return None
 
-    def _write_carta_amonestacion(self, doc, content: str) -> None:
+    # ── DOCUMENT MARKER SYSTEM ──────────────────────────────────────────────────
+    # Lines prefixed with ">> " → right-aligned
+    # Lines prefixed with "== " → centered
+    # Inline: **bold**, __underline__, ***bold+underline***
+
+    def _parse_inline_markup(self, text: str) -> list:
         """
-        Replica el formato de la carta de amonestación:
-        - Encabezado empresa small right-aligned
-        - N° documento y fecha right-aligned
-        - "Señor/a" → nombre en negrita → cargo → "Presente" subrayado
-        - REF.: centrado bold
-        - Cuerpo justificado con sangría primera línea
-        - Secciones ALL-CAPS en bold+italic
-        - ARTÍCULO N° bold+underline
-        - Bloque de firmas con espacio
+        Parses ***bold+underline***, **bold**, __underline__ within a line.
+        Returns list of (text, bold, underline) tuples.
         """
         import re
-        from docx.shared import Pt, Cm
+        parts = []
+        pattern = re.compile(r'\*\*\*(.+?)\*\*\*|\*\*(.+?)\*\*|__(.+?)__')
+        last = 0
+        for m in pattern.finditer(text):
+            if m.start() > last:
+                parts.append((text[last:m.start()], False, False))
+            if m.group(1):
+                parts.append((m.group(1), True, True))
+            elif m.group(2):
+                parts.append((m.group(2), True, False))
+            elif m.group(3):
+                parts.append((m.group(3), False, True))
+            last = m.end()
+        if last < len(text):
+            parts.append((text[last:], False, False))
+        return parts or [(text, False, False)]
+
+    def _write_document_from_markers(self, doc, content: str) -> None:
+        """
+        Writer unificado para documentos con plantilla.
+        Interpreta los marcadores de formato generados por el LLM:
+          ">> texto"  → right-aligned (encabezados, fechas, N° doc)
+          "== texto"  → centered (REF.:, títulos)
+          **bold**    → negrita inline
+          __text__    → subrayado inline
+          ***text***  → negrita + subrayado inline
+          resto       → cuerpo justificado
+        Compatible con Word y Google Docs.
+        """
+        from docx.shared import Pt
         from docx.enum.text import WD_ALIGN_PARAGRAPH
 
-        def add(text='', bold=False, italic=False, underline=False,
-                align=WD_ALIGN_PARAGRAPH.LEFT, size=10,
-                space_before=0, space_after=6, first_indent=None):
+        blank_count = 0
+
+        for raw in content.split('\n'):
+            line = raw.rstrip()
+
+            # ── Alineación ────────────────────────────────────────────────
+            if line.startswith('>> '):
+                align = WD_ALIGN_PARAGRAPH.RIGHT
+                text = line[3:]
+                size = Pt(9)
+                space_after = Pt(2)
+            elif line.startswith('== '):
+                align = WD_ALIGN_PARAGRAPH.CENTER
+                text = line[3:]
+                size = Pt(10)
+                space_after = Pt(6)
+            elif not line.strip():
+                if blank_count < 3:
+                    p = doc.add_paragraph()
+                    p.paragraph_format.space_after = Pt(0)
+                blank_count += 1
+                continue
+            else:
+                align = WD_ALIGN_PARAGRAPH.JUSTIFY
+                text = line.strip()
+                size = Pt(10)
+                space_after = Pt(6)
+
+            blank_count = 0
+
             para = doc.add_paragraph()
             para.alignment = align
-            para.paragraph_format.space_before = Pt(space_before)
-            para.paragraph_format.space_after = Pt(space_after)
-            if first_indent is not None:
-                para.paragraph_format.first_line_indent = Cm(first_indent)
-            if text.strip():
-                run = para.add_run(text)
-                run.bold = bold
-                run.italic = italic
-                run.underline = underline
-                run.font.size = Pt(size)
-            return para
+            para.paragraph_format.space_after = space_after
+            para.paragraph_format.space_before = Pt(0)
 
-        last_was_senor = False
-
-        for line in content.split('\n'):
-            s = line.strip()
-
-            if not s:
-                add(space_after=0)
-                last_was_senor = False
-                continue
-
-            # Encabezado empresa (pequeño, right)
-            company_kws = ['Corporación Nacional', 'División Chuquicamata',
-                           '11 Norte', 'www.codelco', 'II Región', 'Calama\n',
-                           'II Región, Chile']
-            if any(kw in s for kw in company_kws) and len(s) < 60:
-                add(s, bold=('Corporación' in s), size=8,
-                    align=WD_ALIGN_PARAGRAPH.RIGHT, space_after=1)
-                last_was_senor = False
-                continue
-
-            # Número de documento (G… N°.../YYYY)
-            if re.match(r'^G[\.…]', s) or (re.search(r'N°[\w]+/\d{4}', s) and len(s) < 35):
-                add(s, align=WD_ALIGN_PARAGRAPH.RIGHT, space_before=8, space_after=4)
-                last_was_senor = False
-                continue
-
-            # Fecha right-aligned
-            if re.match(r'^[\w]+,\s+\w+\s+de\s+\w+\s+de\s+\d{4}', s) and len(s) < 55:
-                add(s, align=WD_ALIGN_PARAGRAPH.RIGHT, space_after=12)
-                last_was_senor = False
-                continue
-
-            # "Señor/a" designación destinatario
-            if re.match(r'^Señor[ae]?s?$', s):
-                add(s, space_after=1)
-                last_was_senor = True
-                continue
-
-            # Nombre destinatario (línea siguiente a "Señor/a") → bold
-            if last_was_senor:
-                add(s, bold=True, space_after=2)
-                last_was_senor = False
-                continue
-
-            # RUT
-            if s.startswith('RUT') or re.match(r'^RUT\s*N°', s):
-                add(s, space_after=1)
-                last_was_senor = False
-                continue
-
-            # "Presente" subrayado
-            if re.match(r'^Presente\.?$', s):
-                add(s, underline=True, space_after=12)
-                last_was_senor = False
-                continue
-
-            # REF.: centrado bold
-            if s.startswith('REF.:') or s.startswith('Ref.:'):
-                add(s, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER,
-                    space_before=8, space_after=12)
-                last_was_senor = False
-                continue
-
-            # Salutación cuerpo "Señor Apellido:"
-            if re.match(r'^Señor[a]?\s+\w+:$', s):
-                add(s, space_before=4, space_after=8)
-                last_was_senor = False
-                continue
-
-            # ARTÍCULO N° → bold + underline
-            if re.match(r'^ARTÍCULO\s+\d+', s, re.IGNORECASE):
-                add(s, bold=True, underline=True, space_before=8, space_after=4)
-                last_was_senor = False
-                continue
-
-            # ALL-CAPS ≥ 3 palabras → sección bold+italic
-            if s.isupper() and len(s.split()) >= 3 and len(s) > 15:
-                add(s, bold=True, italic=True, space_before=8, space_after=4)
-                last_was_senor = False
-                continue
-
-            # Líneas de firma (guiones/underscores)
-            if s.startswith('___') or '____________' in s:
-                add(s, space_before=24, space_after=2)
-                last_was_senor = False
-                continue
-
-            # "Atentamente"
-            if s.startswith('Atentamente'):
-                add(s, space_before=16, space_after=32)
-                last_was_senor = False
-                continue
-
-            # Bloque CC
-            if s.startswith('C.C') or s.startswith('C.c'):
-                add(s, italic=True, size=9, space_after=2)
-                last_was_senor = False
-                continue
-
-            # Testigos
-            if 'Testigo' in s:
-                add(s, align=WD_ALIGN_PARAGRAPH.CENTER, space_after=2)
-                last_was_senor = False
-                continue
-
-            # Párrafo cuerpo → justificado + sangría primera línea
-            add(s, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=8, first_indent=1.25)
-            last_was_senor = False
-
-    def _write_medida_resguardo(self, doc, content: str) -> None:
-        """
-        Replica el formato de la medida de resguardo:
-        - Fecha right-aligned al inicio
-        - Destinatario nombre bold + RUT bold + Presente subrayado
-        - Ref.: bold + subrayado + centrado
-        - Cuerpo justificado
-        - Secciones numeradas "N. LABEL:" con label bold+subrayado
-        - Sub-ítems "A. Label:" con label subrayado
-        - Bloque de firma centrado
-        """
-        import re
-        from docx.shared import Pt, Cm
-        from docx.enum.text import WD_ALIGN_PARAGRAPH
-
-        def add(text='', bold=False, italic=False, underline=False,
-                align=WD_ALIGN_PARAGRAPH.LEFT, size=10,
-                space_before=0, space_after=6, left_indent=None):
-            para = doc.add_paragraph()
-            para.alignment = align
-            para.paragraph_format.space_before = Pt(space_before)
-            para.paragraph_format.space_after = Pt(space_after)
-            if left_indent is not None:
-                para.paragraph_format.left_indent = Cm(left_indent)
-            if text.strip():
-                run = para.add_run(text)
-                run.bold = bold
-                run.italic = italic
-                run.underline = underline
-                run.font.size = Pt(size)
-            return para
-
-        date_done = False
-        recipient_done = False
-
-        for line in content.split('\n'):
-            s = line.strip()
-
-            if not s:
-                add(space_after=0)
-                continue
-
-            # Primera fecha → right-aligned
-            if not date_done and re.search(r'\d{1,2}\s+de\s+\w+\s+de\s+\d{4}', s):
-                add(s, align=WD_ALIGN_PARAGRAPH.RIGHT, space_after=16)
-                date_done = True
-                continue
-
-            # RUT → bold (también marca el destinatario como hecho)
-            if s.startswith('RUT') or re.match(r'^RUT\s*N°', s):
-                add(s, bold=True, space_after=2)
-                recipient_done = True
-                continue
-
-            # "Presente" subrayado
-            if re.match(r'^Presente\.?$', s):
-                add(s, underline=True, space_after=16)
-                continue
-
-            # Ref.: bold + subrayado + centrado
-            if s.startswith('Ref.:') or s.startswith('REF.:'):
-                add(s, bold=True, underline=True,
-                    align=WD_ALIGN_PARAGRAPH.CENTER,
-                    space_before=8, space_after=16)
-                continue
-
-            # Nombre destinatario: primera línea de texto antes del RUT (sin fecha, sin Ref)
-            if date_done and not recipient_done and not s.startswith('RUT'):
-                add(s, bold=True, space_after=2)
-                continue
-
-            # Secciones numeradas "1. LABEL:" → número normal + label bold+subrayado
-            m = re.match(r'^(\d+)\.\s+([^a-záéíóúñü][^:]{2,}:)', s)
-            if m:
-                para = doc.add_paragraph()
-                para.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-                para.paragraph_format.space_before = Pt(8)
-                para.paragraph_format.space_after = Pt(6)
-                para.add_run(m.group(1) + '. ').font.size = Pt(10)
-                lbl = para.add_run(m.group(2))
-                lbl.bold = True
-                lbl.underline = True
-                lbl.font.size = Pt(10)
-                rest = s[m.end():]
-                if rest:
-                    para.add_run(rest).font.size = Pt(10)
-                continue
-
-            # Sub-ítems "A. Label:" → label subrayado, indent
-            m = re.match(r'^([A-Z])\.\s+([^:]+:)', s)
-            if m:
-                para = doc.add_paragraph()
-                para.paragraph_format.left_indent = Cm(1.0)
-                para.paragraph_format.space_after = Pt(6)
-                para.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-                para.add_run(m.group(1) + '. ').font.size = Pt(10)
-                lbl = para.add_run(m.group(2))
-                lbl.underline = True
-                lbl.font.size = Pt(10)
-                rest = s[m.end():]
-                if rest:
-                    para.add_run(rest).font.size = Pt(10)
-                continue
-
-            # Línea de firma
-            if s.startswith('___') or '____________' in s:
-                add(s, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=24, space_after=4)
-                continue
-
-            # Nombre firmante (después de firma) → centrado bold
-            if re.match(r'^[A-ZÁÉÍÓÚÑÜ][a-záéíóúñü]+\s+[A-ZÁÉÍÓÚÑÜ][a-záéíóúñü]+', s) and \
-               len(s.split()) <= 5 and ',' not in s and not s.endswith(':'):
-                after_underscore = any('___' in l for l in content.split('\n')[:content.split('\n').index(line)])
-                if after_underscore:
-                    add(s, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_after=2)
+            # ── Runs con markup inline ────────────────────────────────────
+            for run_text, bold, underline in self._parse_inline_markup(text):
+                if not run_text:
                     continue
+                run = para.add_run(run_text)
+                run.bold = bold
+                run.underline = underline
+                run.font.name = 'Arial'
+                run.font.size = size
 
-            # Títulos del firmante (Encargado de..., Investigador)
-            if 'Encargado' in s or 'Investigador' in s or 'Investigadora' in s:
-                add(s, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_after=2)
-                continue
-
-            # Cierre ("Sin otra información", "Se despide")
-            if s.startswith('Sin otra') or s.startswith('Se despide'):
-                add(s, space_before=12, space_after=4)
-                continue
-
-            # Cuerpo default → justificado
-            add(s, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=8)
 
     def _write_generic_docx(self, doc, content: str) -> None:
         """Formateador genérico para otros tipos de documento."""
@@ -1305,15 +1123,41 @@ CONTEXTO DISPONIBLE:
 
 SOLICITUD DEL USUARIO: "{message}"
 
-INSTRUCCIONES:
-- Completa TODOS los campos variables de la plantilla con los datos reales del caso
-- Mantén la estructura, párrafos y redacción original de la plantilla
-- Reemplaza solo los datos que varían: nombre, RUT, cargo, fecha, descripción de la falta, artículos aplicables
-- Si un dato no está disponible, déjalo como "COMPLETAR" en vez de inventarlo
-- NO uses markdown: sin asteriscos, sin guiones bajos, sin ##
-- El resultado debe ser el texto completo del documento listo para usar
+INSTRUCCIONES DE CONTENIDO (MUY IMPORTANTE):
+- Completa TODOS los campos variables con los datos reales del caso
+- Mantén la redacción original de la plantilla
+- NUNCA dejes textos entre corchetes como [COMPLETAR], [INSERTAR], [ARTÍCULOS ESPECÍFICOS], etc.
+  Si no tienes el dato exacto, redacta una versión genérica apropiada o simplemente omite esa parte
+- El encabezado de la empresa (nombre, dirección, ciudad) debe aparecer UNA SOLA VEZ al inicio, alineado a la derecha.
+  NO lo repitas en el cuerpo del documento
 
-Genera el documento completo personalizado:"""
+INSTRUCCIONES DE FORMATO (OBLIGATORIO — sigue esto exactamente):
+Usa estos marcadores para que el documento se renderice correctamente:
+
+1. Líneas alineadas a la DERECHA → inicia con ">> " (encabezado empresa, fecha, número de documento)
+   Ejemplo: >> Corporación Nacional del Cobre de Chile
+   Ejemplo: >> G… N°XXX/2026
+   Ejemplo: >> Calama, 13 de abril de 2026
+
+2. Líneas CENTRADAS → inicia con "== " (REF.:, títulos centrados)
+   Ejemplo: == **REF.: Comunica y aplica medida disciplinaria que indica.**
+
+3. Texto en NEGRITA → **texto** (nombre del destinatario, términos clave, labels de secciones)
+   Ejemplo: **Jannik Sinner**
+   Ejemplo: **amonestación escrita**
+
+4. Texto SUBRAYADO → __texto__ (Presente, labels de sub-ítems)
+   Ejemplo: __Presente__
+   Ejemplo: __Atención Psicológica:__
+
+5. Texto NEGRITA + SUBRAYADO → ***texto*** (REF. en medida de resguardo, labels numerados)
+   Ejemplo: == ***Ref.: Informa Medidas de Resguardo Adoptadas***
+   Ejemplo: 1. ***ACTIVACIÓN DE PROTOCOLO:*** En razón de...
+
+6. Líneas normales del cuerpo → sin prefijo, texto justificado
+7. Firma: dejar 3 líneas en blanco antes del nombre del firmante centrado
+
+Genera el documento completo con los marcadores de formato:"""
 
             try:
                 logger.info(f"📄 [TOOL_ORCH] Generating document with template using doc_llm")
